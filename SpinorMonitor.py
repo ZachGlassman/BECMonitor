@@ -14,6 +14,7 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
 import matplotlib.pyplot as plt
+import BECMonitor_subroutines as bs
 from lmfit import Parameters
 # Import the console machinery from ipython
 from BECMonitor_ipython import  QIPythonWidget
@@ -324,6 +325,9 @@ class MainWindow(QtGui.QWidget):
         self.process = []
         self.index = 0
         self.fit_results = FitResults()
+        
+        run = bs.get_run_name()
+        print('Initializing run ', run)
        
         
         

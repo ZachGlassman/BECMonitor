@@ -8,7 +8,7 @@ Image objects for handling incoming images for SpinorMonitor
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 import numpy as np
-import BECMonitor_subroutines as bs
+import BECMonitor_fitobject as fo
 import time
 import os
 
@@ -20,7 +20,7 @@ class ProcessImage(QtCore.QObject):
     def __init__(self,data,options):
         """initialize fit_object"""
         QtCore.QObject.__init__(self)
-        self.fit = bs.fit_object(options[2], options[0],options[1], data)
+        self.fit = fo.fit_object(options[2], options[0],options[1], data)
            
     @QtCore.pyqtSlot()
     def run(self):
