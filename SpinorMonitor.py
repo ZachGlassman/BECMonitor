@@ -191,6 +191,7 @@ class ImageWindow(pg.GraphicsLayoutWidget):
         self.img = pg.ImageItem()
         self.data = None
         self.rawImagePlot.addItem(self.img)
+        self.brush = (100, 100, 150, 200)
       
     
         # Custom ROI for selecting an image region
@@ -219,10 +220,10 @@ class ImageWindow(pg.GraphicsLayoutWidget):
         self.nextRow()
         self.xSlice = self.addPlot(title = 'x Slice',
                                    symbolSize=2, 
-                                   symbolBrush=(100, 100, 255, 50))
+                                   symbolBrush = self.brush)
         self.ySlice = self.addPlot(title = 'y Slice',
                                    symbolSize=2, 
-                                   symbolBrush=(100, 100, 255, 50))
+                                   symbolBrush=self.brush)
                                    
         #self.nextRow()
         #self.pop = QtGui.QPushButton("Large Window",self)
@@ -243,17 +244,17 @@ class ImageWindow(pg.GraphicsLayoutWidget):
                                    pen=None,  
                                    symbolPen=None, 
                                    symbolSize= 5, 
-                                   symbolBrush=(100, 100, 255, 50),
+                                   symbolBrush=self.brush,
                                    clear = True)
         self.ySlice.plot(sel.sum(axis = 0),
                                    pen=None,  
                                    symbolPen=None, 
                                    symbolSize=5, 
-                                   symbolBrush=(100, 100, 255, 50),
+                                   symbolBrush=self.brush,
                                    clear = True)
         
         self.region_img.setImage(self.cmap(sel))
-        self.region_img1.setImage(sel)
+        self.region_img1.setImage(self.cmap(sel))
         
     
     
@@ -265,18 +266,20 @@ class ImageWindow(pg.GraphicsLayoutWidget):
                                    pen=None,  
                                    symbolPen=None, 
                                    symbolSize=5, 
-                                   symbolBrush=(100, 100, 255, 50),
+                                   symbolBrush=self.brush,
                                    clear = True)
         self.ySlice.plot(self.data.sum(axis = 0),
                                    pen=None,  
                                    symbolPen=None, 
                                    symbolSize=5, 
-                                   symbolBrush=(100, 100, 255, 50),
+                                   symbolBrush=self.brush,
                                    clear = True)
         self.region_img.setImage(
             self.cmap(self.roi.getArrayRegion(self.data,self.img))
             )
-        self.region_img1.setImage(self.roi.getArrayRegion(self.data,self.img))
+        self.region_img1.setImage(
+            self.cmap(self.roi.getArrayRegion(self.data,self.img))
+            )
     
     def add_lines(self, results):
         """add lines to plot, input it numpy array which is then summed"""
@@ -326,7 +329,8 @@ class MainWindow(QtGui.QWidget):
         
     def initUI(self):
         """Iniitalize UI and name it"""
-        self.resize(1200, 900)
+        #self.showFullScreen()
+        self.resize(1850,1000)
         self.center()
         self.setWindowTitle('Spinor BEC Analysis')
         #subwidgets
@@ -352,14 +356,14 @@ class MainWindow(QtGui.QWidget):
         #layout
         self.grid = QtGui.QGridLayout()
         self.grid.setSpacing(10)
-        self.grid.addWidget(self.plots,0,0,5,5)
-        self.grid.addWidget(self.options,6,0,5,5)
-        self.grid.addWidget(self.image,0,6,5,5)
+        self.grid.addWidget(self.plots,0,0,6,6)
+        self.grid.addWidget(self.options,5,0,5,5)
+        self.grid.addWidget(self.image,0,7,6,6)
         self.grid.addWidget(self.square,11,0,1,1)
-        self.grid.addWidget(self.runButton,12,0)
-        self.grid.addWidget(self.stopButton,12,1)
-        self.grid.addWidget(self.bigScreen,12,2)
-        self.grid.addWidget(self.ipy,7,7,5,5)
+        self.grid.addWidget(self.runButton,11,0)
+        self.grid.addWidget(self.stopButton,11,1)
+        self.grid.addWidget(self.bigScreen,11,2)
+        self.grid.addWidget(self.ipy,6,7,5,5)
        
        
         #connect buttoms
