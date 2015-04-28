@@ -17,14 +17,19 @@ class ProcessImage(QtCore.QObject):
     @parameters
         data: numpy array
         options: list of options for fit parameters"""
-    def __init__(self,data,options):
+    def __init__(self,data,options,path,run):
         """initialize fit_object"""
         QtCore.QObject.__init__(self)
         self.fit = fo.fit_object(options[2], options[0],options[1], data)
+        name = 'run_' + str(run) + 'index_' + str(options[2]) + '.txt'
+        self.savePath = os.path.join(path,name)
+        self.data = data
            
     @QtCore.pyqtSlot()
     def run(self):
         """process results using methods from fit process and emit"""
+        #save image
+        np.savetxt(self.savePath, self.data)
         self.fit.fit_image()
         #eventually modify for different pixel sizes
         results = self.fit.process_results(7.04,7.04)

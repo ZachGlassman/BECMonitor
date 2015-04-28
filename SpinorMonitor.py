@@ -326,8 +326,8 @@ class MainWindow(QtGui.QWidget):
         self.index = 0
         self.fit_results = FitResults()
         
-        run = bs.get_run_name()
-        print('Initializing run ', run)
+        self.run, self.path = bs.get_run_name()
+        print('Initializing run ', self.run)
        
         
         
@@ -363,7 +363,7 @@ class MainWindow(QtGui.QWidget):
         self.grid.addWidget(self.plots,0,0,6,6)
         self.grid.addWidget(self.options,5,0,5,5)
         self.grid.addWidget(self.image,0,7,6,6)
-        self.grid.addWidget(self.square,11,0,1,1)
+        self.grid.addWidget(self.square,10,0,1,1)
         self.grid.addWidget(self.runButton,11,0)
         self.grid.addWidget(self.stopButton,11,1)
         self.grid.addWidget(self.bigScreen,11,2)
@@ -415,21 +415,22 @@ class MainWindow(QtGui.QWidget):
                                QtCore.SIGNAL('packetReceived(PyQt_PyObject)'),
                                self.data_process)
         self.imageThread.start()
+        self.col.setRed(0)
+        self.col.setBlue(0)
         self.col.setGreen(255)
         self.square.setStyleSheet("QFrame { background-color: %s }" %
             self.col.name()) 
     
     def end(self):
         """functino to stop listening Thread"""
+        self.col.setGreen(0)
+        self.col.setRed(255)
+        self.square.setStyleSheet("QFrame { background-color: %s }" %
+            self.col.name())
         try:
             self.imageThread.terminate()
-            self.col.setRed(255)
-            self.square.setStyleSheet("QFrame { background-color: %s }" %
-            self.col.name()) 
         except:
-            self.col.setRed(255)
-            self.square.setStyleSheet("QFrame { background-color: %s }" %
-            self.col.name()) 
+           print('Thread not Terminated')
         
     def data_recieved(self):
         print('Image:', self.index)
@@ -440,7 +441,7 @@ class MainWindow(QtGui.QWidget):
         #append thread to thread pool
         self.processThreadPool.append(QtCore.QThread())
         #create new process image object and add to thread just created
-        self.process.append(ProcessImage(results,self.get_options()))
+        self.process.append(ProcessImage(results,self.get_options(),self.path,self.run))
         self.process[-1].moveToThread(self.processThreadPool[-1])
         #connect start signal
         

@@ -34,5 +34,5 @@ def get_run_name():
         with open(path +'\\run_info.txt', 'w') as fp:
             fp.write('1' + '\n')
             last_run = 0
-    return last_run + 1
+    return last_run + 1, path
     
