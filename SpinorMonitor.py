@@ -10,6 +10,7 @@ It is written in pure python 3
 @author: zachglassman
 """
 import sys
+import os
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
@@ -293,13 +294,13 @@ class ImageWindow(pg.GraphicsLayoutWidget):
 class FitResults(object):
     """class to hold fit results as dictionaries by index"""
     def __init__(self):
-        names = ["N_BEC_Atoms","N_Therm_Atoms",
+        self.names = ["N_BEC_Atoms","N_Therm_Atoms",
                        "X_Width",
                        "Y_Width",
                        "Temperature",
                        "All"]
         self.ind_results = {}
-        for i in names:
+        for i in self.names:
             self.ind_results[i] = {}
             
     def make_list(self):
@@ -313,6 +314,21 @@ class FitResults(object):
             return it
         except:
             return None
+            
+    def pretty_print(self):
+        """make into one long string to be saved to file (All can be anything)
+        format : index, NBEC,NTHerm,XWidth,Temp,All"""
+        form = '{:<14.0f}{:<14.0f}{:<14.0f}{:<14.2f}{:<14.2f}{:<14.2f}{:<14.0f}'
+        form1 = '{:<14s}{:<14s}{:<14s}{:<14s}{:<14s}{:<14s}{:<14s}'
+        answer = form1.format(*tuple(['index'] + self.names)) + '\n'
+        #loop through indexes
+        for i in self.ind_results['N_BEC_Atoms'].keys():
+            #format string for each one            
+            answer = answer + form.format(*tuple([i] + [self.ind_results[j][i] for j in self.names]))
+            answer = answer + '\n'
+        return answer
+            
+        
 
 class MainWindow(QtGui.QWidget):
     """Main Window for the app, contains the graphs panel and the options
@@ -334,7 +350,7 @@ class MainWindow(QtGui.QWidget):
     def initUI(self):
         """Iniitalize UI and name it"""
         #self.showFullScreen()
-        self.resize(1850,1000)
+        self.resize(1850,950)
         self.center()
         self.setWindowTitle('Spinor BEC Analysis')
         #subwidgets
@@ -360,14 +376,18 @@ class MainWindow(QtGui.QWidget):
         #layout
         self.grid = QtGui.QGridLayout()
         self.grid.setSpacing(10)
+        #first row
         self.grid.addWidget(self.plots,0,0,6,6)
-        self.grid.addWidget(self.options,5,0,5,5)
         self.grid.addWidget(self.image,0,7,6,6)
+        #second row
+        self.grid.addWidget(self.options,5,0,5,5)
+        self.grid.addWidget(self.ipy,6,7,5,5)
+        #third row
         self.grid.addWidget(self.square,10,0,1,1)
+        #fourth row
         self.grid.addWidget(self.runButton,11,0)
         self.grid.addWidget(self.stopButton,11,1)
         self.grid.addWidget(self.bigScreen,11,2)
-        self.grid.addWidget(self.ipy,6,7,5,5)
        
        
         #connect buttoms
@@ -382,8 +402,7 @@ class MainWindow(QtGui.QWidget):
                                
         self.setLayout(self.grid)
         
-        self.data = np.loadtxt('319bec_avg.txt')
-        self.image.setImage(self.data)
+      
         self.show()
         
     
@@ -427,6 +446,12 @@ class MainWindow(QtGui.QWidget):
         self.col.setRed(255)
         self.square.setStyleSheet("QFrame { background-color: %s }" %
             self.col.name())
+            
+        #write out parameters
+        p = os.path.join(self.path,'run_' + str(self.run) + '_results.txt')
+        with open(p,'w') as fp:   
+            fp.write(self.fit_results.pretty_print())
+            
         try:
             self.imageThread.terminate()
         except:
