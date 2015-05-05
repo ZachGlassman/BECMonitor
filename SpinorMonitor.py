@@ -153,6 +153,9 @@ class Options(QtGui.QWidget):
         
 class DataPlots(pg.GraphicsLayoutWidget):
     """graphs to populate different stuff"""
+    
+    #emitting message, can't define as instance variable
+    message = QtCore.pyqtSignal(object)
     def __init__(self, parent = None):
         pg.GraphicsLayoutWidget.__init__(self, parent)
         pg.setConfigOptions(antialias=True)
@@ -163,7 +166,9 @@ class DataPlots(pg.GraphicsLayoutWidget):
                        "Temperature",
                        "All"]
         self.graph_dict = {}
-        k = 0        
+        #dictionary to hold data items in graph
+        self.graph_data_dict = {}
+        k = 0   
         for i in graph_names:
             if k == 3:
                 self.nextRow()
@@ -171,16 +176,24 @@ class DataPlots(pg.GraphicsLayoutWidget):
             self.graph_dict[i].setLabel('bottom', 'Index')
             k = k + 1
             
+            self.graph_data_dict[i] = self.graph_dict[i].plot([0],[0], 
+                symbolSize=5, symbolBrush=(100, 100, 255, 50))
+            self.graph_data_dict[i].sigPointsClicked.connect(self.emit_it)
+        
+        
+       
     def update_plots(self, results):
         """Update all the Plots"""
         for i in self.graph_dict.keys():
-            x = list(results.ind_results[i].keys())
-            y = list(results.ind_results[i].values())
-            self.graph_dict[i].plot(x,y, 
-                symbolSize=5, symbolBrush=(100, 100, 255, 50))
-                
+            self.graph_data_dict[i].setData(list(results.ind_results[i].keys()),
+                                            list(results.ind_results[i].values()))
        
-            
+   
+    def emit_it(self, item,points):
+        self.message.emit(points[0].pos())
+                   
+       
+  
 class ImageWindow(pg.GraphicsLayoutWidget):
     """Image View with custom ROI"""
     def __init__(self, parent = None):
@@ -328,22 +341,32 @@ class FitResults(object):
             answer = answer + '\n'
         return answer
             
+class TextBox(QtGui.QTextEdit):
+    """custom textbox, mostly QTextEdit, with some added functions"""
+    def __init__(self):
+        QtGui.QTextEdit.__init__(self, parent = None)    
+        self.setReadOnly(True)
         
+    def output(self, x):
+        self.insertPlainText(x)
+        self.insertPlainText('\n')
+        self.moveCursor(QtGui.QTextCursor.End)
 
 class MainWindow(QtGui.QWidget):
     """Main Window for the app, contains the graphs panel and the options
       panel"""
     def __init__(self):
         QtGui.QWidget.__init__(self)
+        self.run, self.path = bs.get_run_name()
         self.initUI()
         self.ROI = [20,200,20,200]
         self.processThreadPool = []
         self.process = []
         self.index = 0
         self.fit_results = FitResults()
+                
+
         
-        self.run, self.path = bs.get_run_name()
-        print('Initializing run ', self.run)
        
         
         
@@ -366,11 +389,15 @@ class MainWindow(QtGui.QWidget):
         self.runButton = QtGui.QPushButton("Run")
         self.stopButton = QtGui.QPushButton("Stop")
         self.bigScreen = QtGui.QPushButton("Big Screen")
+        
+        #textbox for program output
+        self.text_out = TextBox()
+        
 
         #running indicator
         self.col = QtGui.QColor(255, 0, 0)
         self.square = QtGui.QFrame(self)
-        self.square.setGeometry(20, 20, 20, 20)
+        self.square.setGeometry(5, 5, 5, 5)
         self.square.setStyleSheet("QWidget { background-color: %s }" %  
         self.col.name())
         #layout
@@ -380,7 +407,8 @@ class MainWindow(QtGui.QWidget):
         self.grid.addWidget(self.plots,0,0,6,6)
         self.grid.addWidget(self.image,0,7,6,6)
         #second row
-        self.grid.addWidget(self.options,5,0,5,5)
+        self.grid.addWidget(self.options,5,0,3,3)
+        self.grid.addWidget(self.text_out,6,3,2,3)
         self.grid.addWidget(self.ipy,6,7,5,5)
         #third row
         self.grid.addWidget(self.square,10,0,1,1)
@@ -390,7 +418,7 @@ class MainWindow(QtGui.QWidget):
         self.grid.addWidget(self.bigScreen,11,2)
        
        
-        #connect buttoms
+        #connect buttoms- mix of old and new styles
         QtCore.QObject.connect(self.options.get_roi,
                                QtCore.SIGNAL('clicked()'), self.get_roi)
         QtCore.QObject.connect(self.runButton, 
@@ -399,15 +427,20 @@ class MainWindow(QtGui.QWidget):
                                QtCore.SIGNAL("clicked()"), self.image.popup)
         QtCore.QObject.connect(self.stopButton, 
                                QtCore.SIGNAL("clicked()"), self.end)
+        
+        self.plots.message.connect(self.on_message)
                                
         self.setLayout(self.grid)
         
-      
+        self.text_out.output('Initializing run ' + str(self.run))
         self.show()
         
     
        
-    
+    @QtCore.pyqtSlot(object)
+    def on_message(self,data):
+        self.text_out.output(str(data))
+        
     def center(self):
         """Centers Window"""
         qr = self.frameGeometry()
@@ -458,7 +491,7 @@ class MainWindow(QtGui.QWidget):
            print('Thread not Terminated')
         
     def data_recieved(self):
-        print('Image:', self.index)
+        self.text_out.output('Image: '+ str(self.index) + ' recieved')
         
     def data_process(self, results):
         """process the data, including spawn a thread and increment index"""

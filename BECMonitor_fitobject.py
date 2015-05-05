@@ -123,6 +123,7 @@ class fit_object(object):
         pass
       
       
+    #need to add functionality for other stuff
     def fit_image(self):
         """fit corrected image with parameters from params"""
         self.fit_results = minimize(self.bimod2min, self.params, 
