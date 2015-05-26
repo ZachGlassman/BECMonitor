@@ -24,6 +24,7 @@ class QIPythonWidget(RichIPythonWidget):
         kernel_manager.kernel.gui = 'qt4'
         self.kernel_client = kernel_client = self._kernel_manager.client()
         kernel_client.start_channels()
+        
 
         def stop():
             kernel_client.stop_channels()
@@ -49,6 +50,7 @@ class QIPythonWidget(RichIPythonWidget):
         """ Execute a command in the frame of the console widget """
         self._execute(command,False)
      
+    
 
 class PlotObj(object):
     """class to hold  SpinorPlot objects"""
@@ -61,6 +63,7 @@ class PlotObj(object):
             print('Need unique plot name')
         else:
             self.plots[name] = plot
+
             
     def update(self,var_dict):
         """update all plots in dictionary"""
@@ -104,9 +107,11 @@ class SpinorPlot(object):
     def get_vars(self,var_dict):
         return tuple(np.asarray(var_dict[i]) for i in self.data_binds)
 
-def uplot(func,name = None,xaxis = None, yaxis = None):
+def uplot(func,name = None, xaxis = None, yaxis = None, var = None):
     """function assumes PlotObj has been initialized as Plot_obj"""
-    Plot_obj.add_plot(SpinorPlot(func,name = name,xaxis = xaxis,yaxis =yaxis)
+    Plot_obj.add_plot(SpinorPlot(func,name = name,xaxis = xaxis, yaxis =yaxis)
         ,name)
+    if var:
+        Plot_obj.update(var)
 
 Plot_obj = PlotObj()
