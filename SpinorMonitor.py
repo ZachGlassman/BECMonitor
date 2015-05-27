@@ -334,7 +334,8 @@ class FitResults(object):
                        "X_Width",
                        "Y_Width",
                        "Temperature",
-                       "All"]
+                       "All",
+                       "Index"]
         self.ind_results = {}
         for i in self.names:
             self.ind_results[i] = {}
@@ -410,6 +411,8 @@ class MainWindow(QtGui.QWidget):
         self.process = []
         self.index = 0
         self.fit_results = FitResults()
+        self.vis_plots.var_push(self.fit_results.names)
+        self.vis_plots.add_init_data(self.fit_results.make_list())
                 
 
         
@@ -464,9 +467,9 @@ class MainWindow(QtGui.QWidget):
         self.grid.addWidget(self.image,0,7,6,6)
         #second row
        
-        self.grid.addWidget(self.tabs,6,2,5,4)
-        self.grid.addWidget(self.text_out,6,0,3,2)
-        self.grid.addWidget(self.ipy,6,7,5,5)
+        self.grid.addWidget(self.tabs,6,0,5,6)
+        self.grid.addWidget(self.text_out,6,11,3,2)
+        self.grid.addWidget(self.ipy,6,7,5,4)
         #third row
         self.grid.addWidget(self.square,10,0,1,1)
         #fourth row
@@ -486,6 +489,7 @@ class MainWindow(QtGui.QWidget):
                                QtCore.SIGNAL("clicked()"), self.end)
         
         self.plots.message.connect(self.on_message)
+        self.vis_plots.message.connect(self.on_message)
                                
         self.setLayout(self.grid)
         
@@ -549,7 +553,7 @@ class MainWindow(QtGui.QWidget):
            print('Thread not Terminated')
         
     def data_recieved(self):
-        self.text_out.output('Image: '+ str(self.index) + ' recieved')
+        self.text_out.output('Image {0} recieved'.format(self.index))
         
     def data_process(self, results):
         """process the data, including spawn a thread and increment index"""
@@ -585,9 +589,10 @@ class MainWindow(QtGui.QWidget):
         
     def update_data(self, results):
         """function to update plots and push data to ipython notebook"""
+        self.text_out.output('Image {0} processed'.format(self.index-1))
         for i in self.fit_results.ind_results.keys():
-            self.fit_results.ind_results[i][results['index']] = results[i] 
-        
+            self.fit_results.ind_results[i][results['Index']] = results[i] 
+       
         updated_data = self.fit_results.make_list()
         self.ipy.pushVariables(updated_data)
        
@@ -596,7 +601,7 @@ class MainWindow(QtGui.QWidget):
         #update plots on main gui
         self.plots.update_plots(self.fit_results)
         #update plots created in gui
-        self.vis_plots.update_plots(updated_data)
+        self.vis_plots.update_plots(updated_data, self.index)
         #possibly check if image has taken next shot for complicated processing      
         self.image.add_lines(results['fitted'])
         

@@ -14,5 +14,5 @@ def add_noise(data):
     return data + add
     
 while(1 > 0):
-    time.sleep(10)
+    time.sleep(8)
     np.savetxt('newimage.txt',add_noise(data))

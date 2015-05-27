@@ -142,7 +142,7 @@ class fit_object(object):
                "Y_Width":self.params['dyBEC'].value * scaley,
                "Temperature":self.params['dxTherm'].value * scalex,
                "All":1}
-        results['index'] = self.name
+        results['Index'] = self.name
         results['fitted'] = self.line_profile()
         
         return results
