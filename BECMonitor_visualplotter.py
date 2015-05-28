@@ -149,17 +149,17 @@ class VisualPlotter(QtGui.QWidget):
         self.data = data
         self.index = index
         self.test_plot()
+        
+        #filter for plots that are gone
+        remove = [k for k in self.plots.keys() if self.plots[k].isHidden()]
+        for k in remove: self.plots.pop(k)
+        #update remaining plots
         for i in self.plots.keys():
-            if self.plots[i] == None:
-                pass
-            elif self.plots[i].isHidden():
-               self.plots[i] = None
-            else:
-                x_data = self.filter_ignore(
-                    self.data['spinorvars'][self.plots[i].xl][self.start:])
-                y_data = self.filter_ignore(
-                    self.data['spinorvars'][self.plots[i].yl][self.start:])
-                self.plots[i].update(x_data,y_data)
+            x_data = self.filter_ignore(
+                self.data['spinorvars'][self.plots[i].xl][self.start:])
+            y_data = self.filter_ignore(
+                self.data['spinorvars'][self.plots[i].yl][self.start:])
+            self.plots[i].update(x_data,y_data)
                 
     
         

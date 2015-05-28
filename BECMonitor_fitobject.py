@@ -53,11 +53,8 @@ class fit_object(object):
         self.fit_results = None
         self.pad = [roi[0],data.shape[0]-roi[1],roi[2],data.shape[1]-roi[3]]
         self.x, self.y = self.create_vecs(roi)
-        self.params = params
-        #create lmfit parameters object
-        #self.params = Parameters()
-        #for i in params_dict.keys():
-            #self.params.add(i, value = params_dict[i], min = 0)
+        self.params = params['Fit 0']
+
             
     def create_vecs(self,roi):
         """create vectors scaled by pixel size"""
@@ -129,6 +126,10 @@ class fit_object(object):
         self.fit_results = minimize(self.bimod2min, self.params, 
                                     args = ())
         #report_fit(self.fit_results)
+                                    
+    def multiple_fits(self):
+        """function to fit sequentially with input defined from SpinorMonitor"""
+        pass
         
     def process_results(self, scalex,scaley):
         """process results of fit and allow output return dictonary

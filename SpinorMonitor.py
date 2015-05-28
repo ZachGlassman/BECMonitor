@@ -11,17 +11,16 @@ It is written in pure python 3
 """
 import sys
 import os
+import ctypes
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
-import numpy as np
 import matplotlib.pyplot as plt
 import BECMonitor_subroutines as bs
-from lmfit import Parameters
 # Import the console machinery from ipython
 from BECMonitor_ipython import  QIPythonWidget
 from BECMonitor_image import ProcessImage, IncomingImage
 from BECMonitor_visualplotter import VisualPlotter
-
+from BECMonitor_options import Options, RoiOptions
 
 #Set main options
 #pg.setConfigOption('background', 'b')
@@ -29,150 +28,6 @@ from BECMonitor_visualplotter import VisualPlotter
 
 
 
-class PopupParameter(QtGui.QDialog):
-    """popup box to select parameters"""
-    def __init__(self, params, parent = None):
-        QtGui.QDialog.__init__(self,parent)
-        self.setWindowTitle('Spinor Parameters')
-        layout = QtGui.QGridLayout()
-        layout.setSpacing(10)
-        self.params = params
-        #create a dict of QLineEdit Objects and another dict of labels
-        self.edits = {}
-        self.mins = {}
-        self.maxs = {}
-        self.labels = {}
-        self.top = {}
-        kk = 0
-        for i in ['Parameters','Value','Minimum','Maximum']:
-            self.top[i] = QtGui.QLabel(self)
-            self.top[i].setText(i)
-            layout.addWidget(self.top[i],0,kk,1,1)
-            kk = kk + 1
-        k = 1
-        for key in self.params.keys():
-            self.edits[key] = QtGui.QLineEdit(self)
-            self.mins[key] = QtGui.QLineEdit(self)
-            self.maxs[key] = QtGui.QLineEdit(self)
-            self.labels[key] = QtGui.QLabel(self)
-            self.edits[key].setText(str(self.params[key].value))
-            self.mins[key].setText(str(self.params[key].min))
-            self.maxs[key].setText(str(self.params[key].max))
-            self.labels[key].setText(key)
-            layout.addWidget(self.labels[key],k,0,1,1)
-            layout.addWidget(self.edits[key],k,1,1,1)
-            layout.addWidget(self.mins[key],k,2,1,1)
-            layout.addWidget(self.maxs[key],k,3,1,1)
-            k = k + 1
-            
-
-        self.exit = QtGui.QPushButton("Save", self)
-        layout.addWidget(self.exit,len(params) + 1,0,1,2)
-        QtCore.QObject.connect(self.exit, QtCore.SIGNAL('clicked()'), self.save)
-        self.setLayout(layout)
-        
-    def save(self):
-        """closes and windows and return updated parameter object"""
-        for key in self.params.keys():
-            self.params[key].value = float(self.edits[key].text())
-            self.params[key].min = float(self.mins[key].text())
-            self.params[key].max = float(self.maxs[key].text())
-            self.accept()
-        return self.params
-                
-        
-        
-class Options(QtGui.QWidget):
-    """Panel which defines options for fitting and analyzing images"""
-    def __init__(self, parent = None):
-        QtGui.QWidget.__init__(self, parent)
-        
-        #Parameters object for guesses
-        self.params = Parameters()
-        #name, Value, Vary,Min,Max, Expr
-        self.params.add_many(
-            ('ABEC',1,True,0,None,None),
-            ('ATherm',.2,True,.01,None,None),
-            ('dxBEC',10,True,0,None,None),
-            ('dyBEC',10,True,0,None,None),
-            ('dxTherm',30,True,25,None,None),
-            ('dyTherm',30,True,25,None,None),
-            ('x0BEC',120,True,0,None,None),
-            ('y0BEC',120,True,0,None,None),
-            ('x0Therm',120,True,0,None,None),
-            ('y0Therm',120,True,0,None,None),
-            ('offset',0,True,0,None,None),
-            ('theta',10,True,0,None,None))
-  
-        #fit types
-        self.fit_types = QtGui.QComboBox()
-        self.fit_types.addItems('Gaussian,Thomas-Fermi,Bimodal'.split(','))
-     
-      
-        #parameters
-        self.param_select = QtGui.QPushButton("Parameter Entry",self)
-        QtCore.QObject.connect(self.param_select, QtCore.SIGNAL('clicked()'), self.popup)
-       
-     
-        layout = QtGui.QGridLayout()
-        layout.setSpacing(10)
-    
-        layout.addWidget(self.fit_types,   0,0,1,1)
-        layout.addWidget(self.param_select,0,2,1,1)
-        
-        self.setLayout(layout)
-        
-   
-       
-    
-    def popup(self):
-        """function to start parameter window object"""
-        param_window = PopupParameter(self.params)
-        if param_window.exec_():
-            self.params = param_window.save()
-            
-class RoiOptions(QtGui.QWidget):
-    """Widget for Region of Interest Information"""
-    def __init__(self, parent = None):
-        QtGui.QWidget.__init__(self, parent)
-        #get region of interest button
-        self.get_roi = QtGui.QPushButton("Get ROI",self)
-        
-        info = QtGui.QLabel()
-        info.setText('Select ROI on top screen and click')
-        lbroi = QtGui.QLabel(self)
-        lbroi.setText('ROI')
-        self.labels_list = ['x<sub>0','x<sub>1','y<sub>0','y<sub>1',u"\u03F4"]
-        self.labels = {}
-        self.roi = {}
-        for i in self.labels_list:
-            self.labels[i] = QtGui.QLabel(self) 
-            self.labels[i].setText(i)
-            self.roi[i] = QtGui.QLineEdit(self)
-            self.roi[i].setReadOnly(True)
-       
-     
-        layout = QtGui.QGridLayout()
-        layout.setSpacing(10)
-        layout.addWidget(info,0,0)
-        layout.addWidget(lbroi,1,0)
-        layout.addWidget(self.get_roi,1,2)
-        k = 2
-        for i in self.labels_list:
-            layout.addWidget(self.labels[i],k,0)
-            layout.addWidget(self.roi[i],k,2)
-            k = k + 1
- 
-        self.setLayout(layout)
-        
-    def set_roi(self,vec):
-        """Generate roi strings and print coords"""
-        k = 0
-        for i in self.labels_list:
-            self.roi[i].setText("{:>.2f}".format(vec[k]))
-            k = k + 1
-        
-   
             
 class DataPlots(pg.GraphicsLayoutWidget):
     """graphs to populate different stuff"""
@@ -425,6 +280,7 @@ class MainWindow(QtGui.QWidget):
         self.resize(1850,950)
         self.center()
         self.setWindowTitle('Spinor BEC Analysis')
+        self.setWindowIcon(QtGui.QIcon('icon.png'))
         #subwidgets
         self.image = ImageWindow(self)
         self.plots = DataPlots(self)
@@ -490,6 +346,7 @@ class MainWindow(QtGui.QWidget):
         
         self.plots.message.connect(self.on_message)
         self.vis_plots.message.connect(self.on_message)
+        self.options.message.connect(self.on_message)
                                
         self.setLayout(self.grid)
         
@@ -620,5 +477,24 @@ class MainWindow(QtGui.QWidget):
 if __name__ == '__main__':
       app = QtGui.QApplication(sys.argv)
       win = MainWindow()
+      #some stuff for nice looking app
+      """
+      myappid = u'SpinorApp' # arbitrary string
+      try:
+          ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+      except:
+          print('Not on windows')
+      #different icon sizes for use
+      app_icon = QtGui.QIcon()
+      app_icon.addFile('icon56x56.png', QtCore.QSize(56,56))
+      app_icon.addFile('icon70x70.png', QtCore.QSize(70,70))
+      app_icon.addFile('icon139x139.png', QtCore.QSize(139,139))
+      app_icon.addFile('icon173x173.png', QtCore.QSize(173,173))
+      app_icon.addFile('icon216x216.png', QtCore.QSize(216,216))
+      app_icon.addFile('icon216x216.ico', QtCore.QSize(216,216))
+      app.setWindowIcon(app_icon)
+      """
+      
+      #run this baby
       sys.exit(app.exec_())
     
