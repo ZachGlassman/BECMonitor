@@ -47,3 +47,5 @@ Data/2015/04/28/run_info.txt
 Data/2015/04/28/run_3index_9.txt
 Data/2015/04/28/run_1index_2.txt
 *.txt
+*.ui
+tests.py
