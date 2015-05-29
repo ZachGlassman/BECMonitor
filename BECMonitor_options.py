@@ -266,8 +266,8 @@ class FitInfo(QtGui.QDialog):
     def close(self):
         self.accept()
             
-class RoiOptions(QtGui.QWidget):
-    """Widget for Region of Interest Information"""
+class PlotOptions(QtGui.QWidget):
+    """Widget for Region of Interest Information and other plot options"""
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self, parent)
         #get region of interest button
@@ -286,7 +286,9 @@ class RoiOptions(QtGui.QWidget):
             self.roi[i] = QtGui.QLineEdit(self)
             self.roi[i].setReadOnly(True)
        
-     
+        #dependant variable scroll box
+        self.exp_params = []
+        
         layout = QtGui.QGridLayout()
         layout.setSpacing(10)
         layout.addWidget(info,0,0)
@@ -306,5 +308,7 @@ class RoiOptions(QtGui.QWidget):
         for i in self.labels_list:
             self.roi[i].setText("{:>.2f}".format(vec[k]))
             k = k + 1
+            
+    
         
    

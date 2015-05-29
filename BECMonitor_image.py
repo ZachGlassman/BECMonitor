@@ -35,6 +35,7 @@ class ProcessImage(QtCore.QObject):
         #eventually modify for different pixel sizes
         results = self.fit.process_results(7.04,7.04)
         self.emit(QtCore.SIGNAL('fit_obj'),results)
+        time.sleep(2)
         self.emit(QtCore.SIGNAL('finished()'))
         
         
@@ -44,7 +45,7 @@ class IncomingImage(QtCore.QThread):
     def __init__(self):
         QtCore.QThread.__init__(self)
         self.data = None
-        self.params = {'timing':0, 'spin':2}
+        self.exp_params = {'timing':0, 'spin':2}
         
     def run(self):
         """every second search folder for new images, if found
@@ -54,7 +55,7 @@ class IncomingImage(QtCore.QThread):
             if self.newImage():
                 #emit signal that image is recieved, wait for response
                 self.emit(QtCore.SIGNAL('update(QString)'), 'Image Recieved')
-                results = {'image':self.data,'params':self.params}
+                results = {'image':self.data,'exp_params':self.exp_params}
                 self.emit(QtCore.SIGNAL('packetReceived(PyQt_PyObject)'),
                           results)
                 self.data = None

@@ -19,7 +19,7 @@ import BECMonitor_subroutines as bs
 from BECMonitor_ipython import  QIPythonWidget
 from BECMonitor_image import ProcessImage, IncomingImage
 from BECMonitor_visualplotter import VisualPlotter
-from BECMonitor_options import Options, RoiOptions
+from BECMonitor_options import Options, PlotOptions
 from BECMonitor_datatable import DataTable
 
 #Set main options
@@ -191,7 +191,9 @@ class FitResults(object):
                        "Temperature",
                        "All",
                        "Index"]
+        self.exp_params_names = []
         self.ind_results = {}
+        self.exp_params = {}
         for i in self.names:
             self.ind_results[i] = {}
             
@@ -219,6 +221,22 @@ class FitResults(object):
             answer = answer + form.format(*tuple([i] + [self.ind_results[j][i] for j in self.names]))
             answer = answer + '\n'
         return answer
+        
+    def update_exp_params(self, exp_params):
+        """can add new names on the fly
+        exp_params is dictionary of new parameters
+        pos_new_list is list of new namse"""
+        pos_new_list = list(exp_params.keys())
+        new_names = [i for i in pos_new_list if i not in self.exp_params_names]
+        self.exp_params_names = self.exp_params_names + new_names
+        #now for each new name, create dictionary entry and fill with N/A for
+        #previous shots
+        for i in new_names:
+            self.exp_params[i] = [float('nan') for j in self.ind_results["Index"]]
+        #finally, update new parameters
+        for key in self.exp_params_names:
+            self.exp_params[key].append(exp_params[key])
+        
             
 class TextBox(QtGui.QTextEdit):
     """custom textbox, mostly QTextEdit, with some added functions"""
@@ -266,9 +284,10 @@ class MainWindow(QtGui.QWidget):
         self.process = {}
         self.index = 0
         self.fit_results = FitResults()
+        self.data_tables.init_fit_params(self.fit_results.names)
         self.vis_plots.var_push(self.fit_results.names)
         self.vis_plots.add_init_data(self.fit_results.make_list())
-                
+        
 
         
        
@@ -285,7 +304,7 @@ class MainWindow(QtGui.QWidget):
         self.image = ImageWindow(self)
         self.plots = DataPlots(self)
         self.options = Options(self)
-        self.roi_options = RoiOptions(self)
+        self.plot_options = PlotOptions(self)
         self.vis_plots = VisualPlotter(self)
         self.data_tables = DataTable()
         self.running = False
@@ -294,7 +313,7 @@ class MainWindow(QtGui.QWidget):
         self.tabs.setTabBar(FingerTabBarWidget(width=100,height=85))
         self.tabs.setTabPosition(QtGui.QTabWidget.West)
         self.tabs.addTab(self.options, 'Fit Options')   
-        self.tabs.addTab(self.roi_options, "ROI Options")
+        self.tabs.addTab(self.plot_options, "Plot/Image Options")
         self.tabs.addTab(self.vis_plots, 'Data Plotter')
         self.tabs.addTab(self.data_tables, 'Data Tables')
         
@@ -335,7 +354,7 @@ class MainWindow(QtGui.QWidget):
         self.setLayout(layout)
 
         #connect buttoms- mix of old and new styles
-        QtCore.QObject.connect(self.roi_options.get_roi,
+        QtCore.QObject.connect(self.plot_options.get_roi,
                                QtCore.SIGNAL('clicked()'), self.get_roi)
         QtCore.QObject.connect(self.runButton, 
                                QtCore.SIGNAL("clicked()"), self.change_state)
@@ -373,7 +392,7 @@ class MainWindow(QtGui.QWidget):
         angle = self.image.roi.angle()
         self.ROI = [start[0],start[0] + size[0], 
                     start[1], start[1] + size[1], angle]
-        self.roi_options.set_roi(self.ROI)
+        self.plot_options.set_roi(self.ROI)
       
     def change_state(self):
         """control start and stop"""
@@ -417,6 +436,11 @@ class MainWindow(QtGui.QWidget):
         """process the data, including spawn a thread and increment index"""
         results = results_dict['image']
         self.image.setImage(results)
+        #filter exp params by passing in all keys, then update
+        self.fit_results.update_exp_params(results_dict['exp_params'])
+        #update params table
+        self.data_tables.update_exp_table(results_dict['exp_params'],
+                                          self.fit_results.exp_params_names) 
         ind = str(self.index)
         #append thread to thread pool
         self.processThreadPool[ind]= QtCore.QThread()
@@ -445,9 +469,9 @@ class MainWindow(QtGui.QWidget):
         
     
     def finish_thread(self,ind):
-        """destroy thread on finished signal, will complain, but its okay"""
+        """pop the process should destroy it all I think/"""
         self.process.pop(ind)
-        self.processThreadPool.pop(ind)
+        #self.processThreadPool.pop(ind)
     
     def get_options(self):
         """convenience function to return list of options
@@ -463,7 +487,7 @@ class MainWindow(QtGui.QWidget):
        
         updated_data = self.fit_results.make_list()
         self.ipy.pushVariables(updated_data)
-       
+        self.data_tables.update_fit_table(updated_data)
         #update ipython graphs
         self.ipy._execute('Plot_obj.update(spinorvars)', True)
         #update plots on main gui
@@ -472,6 +496,7 @@ class MainWindow(QtGui.QWidget):
         self.vis_plots.update_plots(updated_data, self.index)
         #possibly check if image has taken next shot for complicated processing      
         self.image.add_lines(results['fitted'])
+    
         
     def set_up_ipy(self):
         """setup the ipython console for use with useful functions"""

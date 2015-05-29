@@ -10,8 +10,10 @@ from pyqtgraph.Qt import QtCore, QtGui
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
-
-
+#here we import models for fits
+from BECMonitor_fitmodels import sinMod
+from lmfit.models import GaussianModel, ExponentialModel, LorentzianModel
+#need to add them to dict of models
 
 class VisualPlotter(QtGui.QWidget):
     """Class to choose plotting visually so it is easy.  Will also 
@@ -28,6 +30,12 @@ class VisualPlotter(QtGui.QWidget):
          self.ignore_list = []
          self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
          
+         #fitting models dict
+         self.fit_models = {"Sin":sinMod,
+                            "Gaussian":GaussianModel,
+                            "Exponential":ExponentialModel,
+                            "Lorentzian":LorentzianModel
+                            }
          
          self.labelx = QtGui.QLabel(self) 
          self.labelx.setText('X variable')
@@ -53,8 +61,8 @@ class VisualPlotter(QtGui.QWidget):
          self.xvars.addItem('Index')
          self.yvars.addItem('Index')
          #type
-         #self.type = QtGui.QComboBox()
-         #self.type.addItems('Scatter,Plot'.split(','))
+         self.fit_type = QtGui.QComboBox()
+         self.fit_type.addItems(sorted(list(self.fit_models.keys())))
          
          #set up matplotlib figure
          self.preview = plt.figure(figsize=(3,4))
@@ -63,7 +71,6 @@ class VisualPlotter(QtGui.QWidget):
 
          
          #buttons
-
          self.plot_b = QtGui.QPushButton('Updating Plot')
          self.static_plot_b = QtGui.QPushButton('Static Plot')
          
@@ -88,7 +95,8 @@ class VisualPlotter(QtGui.QWidget):
          row3c2.addWidget(self.entryend) 
          row3c2.addWidget(self.ignore)
          row3c2.addWidget(self.ignore_b)
-         row3c2.addStretch(2)
+         row3c2.addWidget(self.fit_type)
+         row3c2.addStretch(1)
          row3.addLayout(row3c2)
          
          row4 = QtGui.QHBoxLayout()
@@ -226,7 +234,8 @@ class VisualPlotter(QtGui.QWidget):
         self.y_data = self.filter_ignore(
             self.data['spinorvars'][self.y][self.start:self.end])
         self.ax.hold(False)
-        self.ax.plot(self.x_data,self.y_data, 'r--')
+        self.ax.plot(self.x_data,self.y_data,
+                     marker='o', linestyle='--', color='r')
         #self.ax.scatter(self.x_data,self.y_data)
         self.ax.set_xlabel(self.x)
         self.ax.set_ylabel(self.y)
@@ -309,6 +318,7 @@ class PopPlot(QtGui.QDialog):
         layout.addWidget(self.toolbar)
         self.setLayout(layout)
         self.ax = self.figure.add_subplot(111)
+        self.to_fit = True
         
     def update_init(self,xl,yl,title,ignore,start):
         self.xl = xl
@@ -318,14 +328,30 @@ class PopPlot(QtGui.QDialog):
         self.ignore = ignore
     
     def plot(self,x,y,xl,yl,title):
-        self.ax.plot(x,y, 'r--')
+        self.ax.plot(x,y, marker='o', linestyle='--', color='r')
         self.ax.set_xlabel(xl)
         self.ax.set_ylabel(yl)
         self.ax.set_title(title)
+        if self.to_fit:
+            try:
+                self.fit_line.pop(0).remove()
+            except:
+                pass
+            fitted = self.fit(sinMod,x,y, color = 'b')
+            self.fit_line = self.ax.plot(x,fitted)
         self.canvas.draw()
         
     def update(self,x,y):
         self.plot(x,y,self.xl,self.yl,self.title)
+        
+    def fit(self,func,x,y, *params):
+        """function to fit"""
+        result = sinMod.fit(y, x=x,
+                            amplitude = 20000, 
+                            frequency = 10,
+                            phi = 0,
+                            offset = 20000)
+        return result.best_fit
         
 
         
