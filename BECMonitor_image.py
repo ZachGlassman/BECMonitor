@@ -30,7 +30,8 @@ class ProcessImage(QtCore.QObject):
         """process results using methods from fit process and emit"""
         #save image
         np.savetxt(self.savePath, self.data)
-        self.fit.fit_image()
+        #self.fit.fit_image()
+        self.fit.multiple_fits()
         #eventually modify for different pixel sizes
         results = self.fit.process_results(7.04,7.04)
         self.emit(QtCore.SIGNAL('fit_obj'),results)
@@ -43,6 +44,7 @@ class IncomingImage(QtCore.QThread):
     def __init__(self):
         QtCore.QThread.__init__(self)
         self.data = None
+        self.params = {'timing':0, 'spin':2}
         
     def run(self):
         """every second search folder for new images, if found
@@ -52,7 +54,7 @@ class IncomingImage(QtCore.QThread):
             if self.newImage():
                 #emit signal that image is recieved, wait for response
                 self.emit(QtCore.SIGNAL('update(QString)'), 'Image Recieved')
-                results = self.get_image()
+                results = {'image':self.data,'params':self.params}
                 self.emit(QtCore.SIGNAL('packetReceived(PyQt_PyObject)'),
                           results)
                 self.data = None
@@ -66,12 +68,12 @@ class IncomingImage(QtCore.QThread):
         #in future go to custom directory for now, just work
         try:
             self.data = np.loadtxt('newimage.txt')
-            os.remove('newimage.txt')    
+            os.remove('newimage.txt')   
+            #for now read in parameters in some useless format
             return True
         except:
             return False
             
-    def get_image(self):
-        return self.data
+
         
     

@@ -12,7 +12,10 @@ def add_noise(data):
     x,y = data.shape
     add = np.random.randn(x,y)/20
     return data + add
-    
+
+k = 1  
 while(1 > 0):
-    time.sleep(8)
+    time.sleep(4)
     np.savetxt('newimage.txt',add_noise(data))
+    print('Printed image {0}'.format(k))
+    k +=1

@@ -11,7 +11,6 @@ It is written in pure python 3
 """
 import sys
 import os
-import ctypes
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 import matplotlib.pyplot as plt
@@ -21,6 +20,7 @@ from BECMonitor_ipython import  QIPythonWidget
 from BECMonitor_image import ProcessImage, IncomingImage
 from BECMonitor_visualplotter import VisualPlotter
 from BECMonitor_options import Options, RoiOptions
+from BECMonitor_datatable import DataTable
 
 #Set main options
 #pg.setConfigOption('background', 'b')
@@ -262,8 +262,8 @@ class MainWindow(QtGui.QWidget):
         self.run, self.path = bs.get_run_name()
         self.initUI()
         self.ROI = [20,200,20,200]
-        self.processThreadPool = []
-        self.process = []
+        self.processThreadPool = {}
+        self.process = {}
         self.index = 0
         self.fit_results = FitResults()
         self.vis_plots.var_push(self.fit_results.names)
@@ -287,14 +287,16 @@ class MainWindow(QtGui.QWidget):
         self.options = Options(self)
         self.roi_options = RoiOptions(self)
         self.vis_plots = VisualPlotter(self)
-        
+        self.data_tables = DataTable()
+        self.running = False
         #tabs 
         self.tabs = QtGui.QTabWidget()
-        self.tabs.setTabBar(FingerTabBarWidget(width=100,height=25))
+        self.tabs.setTabBar(FingerTabBarWidget(width=100,height=85))
         self.tabs.setTabPosition(QtGui.QTabWidget.West)
         self.tabs.addTab(self.options, 'Fit Options')   
         self.tabs.addTab(self.roi_options, "ROI Options")
         self.tabs.addTab(self.vis_plots, 'Data Plotter')
+        self.tabs.addTab(self.data_tables, 'Data Tables')
         
         
         self.ipy =  QIPythonWidget(customBanner="Spinor BEC Ipython console\n")
@@ -303,52 +305,49 @@ class MainWindow(QtGui.QWidget):
 
         #run button and stop button
         self.runButton = QtGui.QPushButton("Run")
-        self.stopButton = QtGui.QPushButton("Stop")
+        self.runButton.setStyleSheet("background-color: red")
         self.bigScreen = QtGui.QPushButton("Big Screen")
         
         #textbox for program output
         self.text_out = TextBox()
         
-        #running indicator
-        self.col = QtGui.QColor(255, 0, 0)
-        self.square = QtGui.QFrame(self)
-        self.square.setGeometry(5, 5, 5, 5)
-        self.square.setStyleSheet("QWidget { background-color: %s }" %  
-        self.col.name())
+     
         #layout
-        self.grid = QtGui.QGridLayout()
-        self.grid.setSpacing(10)
+        layout = QtGui.QVBoxLayout()
+        layout.setSpacing(10)
         #first row
-        self.grid.addWidget(self.plots,0,0,6,6)
-        self.grid.addWidget(self.image,0,7,6,6)
+        row1 = QtGui.QHBoxLayout()
+        row1.addWidget(self.plots)
+        row1.addWidget(self.image)
         #second row
-       
-        self.grid.addWidget(self.tabs,6,0,5,6)
-        self.grid.addWidget(self.text_out,6,11,3,2)
-        self.grid.addWidget(self.ipy,6,7,5,4)
-        #third row
-        self.grid.addWidget(self.square,10,0,1,1)
-        #fourth row
-        self.grid.addWidget(self.runButton,11,0)
-        self.grid.addWidget(self.stopButton,11,1)
-        self.grid.addWidget(self.bigScreen,11,2)
-       
-       
+        row2 = QtGui.QHBoxLayout()
+        row2.addWidget(self.tabs,stretch=1)  
+        row2.addWidget(self.ipy)
+        row2col3 = QtGui.QVBoxLayout()
+        row2col3.addWidget(self.text_out)
+        row2col3.addWidget(self.bigScreen)
+        row2col3.addWidget(self.runButton)
+      
+        
+        row2.addLayout(row2col3)
+        layout.addLayout(row1)
+        layout.addLayout(row2)
+        self.setLayout(layout)
+
         #connect buttoms- mix of old and new styles
         QtCore.QObject.connect(self.roi_options.get_roi,
                                QtCore.SIGNAL('clicked()'), self.get_roi)
         QtCore.QObject.connect(self.runButton, 
-                               QtCore.SIGNAL("clicked()"), self.start)
+                               QtCore.SIGNAL("clicked()"), self.change_state)
         QtCore.QObject.connect(self.bigScreen,
                                QtCore.SIGNAL("clicked()"), self.image.popup)
-        QtCore.QObject.connect(self.stopButton, 
-                               QtCore.SIGNAL("clicked()"), self.end)
+     
         
         self.plots.message.connect(self.on_message)
         self.vis_plots.message.connect(self.on_message)
         self.options.message.connect(self.on_message)
                                
-        self.setLayout(self.grid)
+        
         
         self.text_out.output('Initializing run ' + str(self.run))
         self.get_roi()
@@ -375,9 +374,17 @@ class MainWindow(QtGui.QWidget):
         self.ROI = [start[0],start[0] + size[0], 
                     start[1], start[1] + size[1], angle]
         self.roi_options.set_roi(self.ROI)
-        
+      
+    def change_state(self):
+        """control start and stop"""
+        if self.running:
+            self.end()
+        else:
+            self.start()
+            
     def start(self):
         """Function to start listening thread"""
+        self.running = True
         self.imageThread = IncomingImage()
         QtCore.QObject.connect(self.imageThread,
                                QtCore.SIGNAL('update(QString)'),
@@ -386,18 +393,12 @@ class MainWindow(QtGui.QWidget):
                                QtCore.SIGNAL('packetReceived(PyQt_PyObject)'),
                                self.data_process)
         self.imageThread.start()
-        self.col.setRed(0)
-        self.col.setBlue(0)
-        self.col.setGreen(255)
-        self.square.setStyleSheet("QFrame { background-color: %s }" %
-            self.col.name()) 
+        self.runButton.setStyleSheet("background-color: green")
     
     def end(self):
         """functino to stop listening Thread"""
-        self.col.setGreen(0)
-        self.col.setRed(255)
-        self.square.setStyleSheet("QFrame { background-color: %s }" %
-            self.col.name())
+        self.running = False
+        self.runButton.setStyleSheet("background-color: red")
             
         #write out parameters
         p = os.path.join(self.path,'run_' + str(self.run) + '_results.txt')
@@ -412,36 +413,46 @@ class MainWindow(QtGui.QWidget):
     def data_recieved(self):
         self.text_out.output('Image {0} recieved'.format(self.index))
         
-    def data_process(self, results):
+    def data_process(self, results_dict):
         """process the data, including spawn a thread and increment index"""
+        results = results_dict['image']
         self.image.setImage(results)
+        ind = str(self.index)
         #append thread to thread pool
-        self.processThreadPool.append(QtCore.QThread())
+        self.processThreadPool[ind]= QtCore.QThread()
         #create new process image object and add to thread just created
-        self.process.append(ProcessImage(results,self.get_options(),self.path,self.run))
-        self.process[-1].moveToThread(self.processThreadPool[-1])
+        self.process[ind] = ProcessImage(results,self.get_options(),self.path,self.run)
+        self.process[ind].moveToThread(self.processThreadPool[ind])
         #connect start signal
         
-        QtCore.QObject.connect(self.processThreadPool[-1],
+        QtCore.QObject.connect(self.processThreadPool[ind],
                                QtCore.SIGNAL('started()'),
-                                self.process[-1].run)
+                                self.process[ind].run)
         
-        QtCore.QObject.connect(self.process[-1],
+        QtCore.QObject.connect(self.process[ind],
                                QtCore.SIGNAL('fit_obj'),
                                 self.update_data)
                            
-        QtCore.QObject.connect(self.process[-1],
+        QtCore.QObject.connect(self.process[ind],
                                QtCore.SIGNAL('finished()'),
-                                self.processThreadPool[-1].quit)
+                                lambda: self.finish_thread(ind))
     
         
         
         #start thread
-        self.processThreadPool[-1].start()
+        self.processThreadPool[ind].start()
         self.index = self.index + 1
         
+    
+    def finish_thread(self,ind):
+        """destroy thread on finished signal, will complain, but its okay"""
+        self.process.pop(ind)
+        self.processThreadPool.pop(ind)
+    
     def get_options(self):
-        """convenience function to return list of options"""
+        """convenience function to return list of options
+        note that function which recieves params must make
+        deep copy or there will be problems!!"""
         return [self.options.params,self.ROI,self.index]
         
     def update_data(self, results):

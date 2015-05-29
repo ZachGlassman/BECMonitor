@@ -9,12 +9,13 @@ from lmfit import Parameters
 
 class ParameterEntry(QtGui.QWidget):
     """popup box to select parameters"""
-    def __init__(self, params, parent = None):
+    def __init__(self, params,first, parent = None):
         QtGui.QWidget.__init__(self,parent)
         self.setWindowTitle('Spinor Parameters')
         layout = QtGui.QGridLayout()
         layout.setSpacing(10)
         self.params = params
+        self.first = first #check if lock to previous value
         #create a dict of QLineEdit Objects and another dict of labels
         self.edits = {}
         self.mins = {}
@@ -35,7 +36,10 @@ class ParameterEntry(QtGui.QWidget):
             self.maxs[key] = QtGui.QLineEdit(self)
             self.labels[key] = QtGui.QLabel(self)
             self.free[key] = QtGui.QCheckBox(self)
-            self.edits[key].setText(str(self.params[key].value))
+            if self.first:
+                self.edits[key].setText(str(self.params[key].value))
+            else:
+                self.edits[key].setText('N/A')
             self.mins[key].setText(str(self.params[key].min))
             self.maxs[key].setText(str(self.params[key].max))
             self.labels[key].setText(key)
@@ -56,9 +60,16 @@ class ParameterEntry(QtGui.QWidget):
         try:
             """try to readout, return 0 if no error, 1 if error"""
             for key in self.params.keys():
-                self.params[key].value = float(self.edits[key].text())
+                if self.first:
+                    self.params[key].value = float(self.edits[key].text())
+                
+                if self.maxs[key].text() == 'None':
+                    toMax = None
+                else:
+                    toMax = float(self.maxs[key].text())
+                    
                 self.params[key].min = float(self.mins[key].text())
-                self.params[key].max = float(self.maxs[key].text())
+                self.params[key].max = toMax
                 self.params[key].vary = not self.free[key].isChecked()
             return 0
             
@@ -92,6 +103,7 @@ class Options(QtGui.QWidget):
         self.remove_fit_b = QtGui.QPushButton('Remove Fit')
         self.save_params_b = QtGui.QPushButton('Save')
         self.get_fit_info_b = QtGui.QPushButton('Current Fit Info')
+        self.get_fit_info_b.setToolTip('Current Saved Fit')
         #connect buttons
         QtCore.QObject.connect(self.save_params_b,
                                QtCore.SIGNAL('clicked()'),
@@ -126,12 +138,17 @@ class Options(QtGui.QWidget):
             if err == 1:
                 print('Error')
         self.message.emit('Updated Parameters')
+        
     
     def make_key(self,index):
         return 'Fit {0}'.format(index)
       
     def create_fit_panel(self):
         key = self.make_key(self.num_fits)
+        if self.num_fits == 0:
+            first = True
+        else:
+            first = False
         self.num_fits = self.num_fits + 1
         self.params[key] = Parameters()
            
@@ -152,7 +169,7 @@ class Options(QtGui.QWidget):
                 ('theta',10,True,0,None,None))
             
         #spawn parameter chooser
-        self.params_choose[key] = ParameterEntry(self.params[key])
+        self.params_choose[key] = ParameterEntry(self.params[key], first = first)
         self.tabs.addTab(self.params_choose[key],key)
         self.message.emit('Inialized Fit {0}'.format(self.num_fits-1))
         
@@ -181,49 +198,67 @@ class FitInfo(QtGui.QDialog):
     """custom dialog for fit information"""
     def __init__(self, params, parent = None):
         QtGui.QDialog.__init__(self,parent)
-        self.resize(500,500)
+        self.resize(1300,500)
         self.setWindowTitle('Fit Information')
         self.params = params
         self.exit_b = QtGui.QPushButton("Close", self)
+        self.num_fits = len(self.params)
         
         QtCore.QObject.connect(self.exit_b, 
                                QtCore.SIGNAL('clicked()'), 
                                self.close)
                                
+        #make a bunch of tables, number of columns is N_params
+        #number of rows is num_fits
+        self.tabs = QtGui.QTabWidget()
+        table_names = ['Value', 'Min', 'Max', 'Fix']
+        self.tables = {}
+        for i in table_names:
+            self.tables[i] = QtGui.QTableWidget(self)
+            self.tables[i].setRowCount(self.num_fits)
+            self.tables[i].setColumnCount(len(self.params['Fit 0']))
+            self.tables[i].setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        #labels
+            self.tables[i].setHorizontalHeaderLabels(list(self.params['Fit 0'].keys()))
+            self.tables[i].setVerticalHeaderLabels(
+                ['Fit {0}'.format(i) for i in range(self.num_fits)])
+            self.tabs.addTab(self.tables[i], i)
         
-        self.textbox = QtGui.QTextEdit(self)
-        self.textbox.setReadOnly(True)
-        self.textbox.setLineWrapMode(QtGui.QTextEdit.NoWrap)
-        self.textbox.setTabStopWidth(33)
-       
-        self.parse_params()
         
+        self.parse_params(table_names)
         
-        
+                
         layout = QtGui.QVBoxLayout()
-        layout.addWidget(self.textbox)
+        layout.addWidget(self.tabs)
         layout.addWidget(self.exit_b)
         self.setLayout(layout)
     
-    def parse_params(self):
-        """returns a string for fit information"""
-        form = '     {:>15}{:>15.4f}'
-        form1 = '     {:>15}{:>15}'
-        num_fits = len(self.params)
-        text = 'Number of fits: {0}'.format(num_fits) + '\n'
-        for key in ['Fit {0}'.format(i) for i in range(num_fits)]:
-            text = text + key + '\n'
-
+    def parse_params(self,tabs):
+        """populates the tables, row and column determined by run and 
+        parameter, so same for all table"""
+    
+        row = 0
+        for key in ['Fit {0}'.format(i) for i in range(self.num_fits)]:
+            """loop through rows"""
+            col = 0
             for param in self.params[key].keys():
                 p = self.params[key][param]
-                tname = "{:>10}".format('Name: '+p.name)+ '\n'
-                tval = form.format('Value:',p.value) + '\n'
-                tmin = form.format('  Min:', p.min) + '\n'
-                tmax = form.format('  Max:',p.max) + '\n'
-                tvary = form1.format('  Fix:', not p.vary) + '\n'
-                text = text + tname + tval + tmin + tmax + tvary
+                if row == 0:
+                    val = str(p.value)
+                else:
+                    val = 'N/A'
+                self.tables['Value'].setItem(row, col,
+                     QtGui.QTableWidgetItem(val))
+                self.tables['Min'].setItem(row, col,
+                     QtGui.QTableWidgetItem(str(p.min)))
+                self.tables['Max'].setItem(row, col,
+                     QtGui.QTableWidgetItem(str(p.max)))
+                self.tables['Fix'].setItem(row, col, 
+                     QtGui.QTableWidgetItem(str(not p.vary)))
+                col = col + 1
+            row = row + 1
     
-        self.textbox.setPlainText(text)
+        
      
                 
                 

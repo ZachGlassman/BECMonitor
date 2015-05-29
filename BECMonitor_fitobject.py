@@ -6,6 +6,7 @@ This Contains Routines called by BECMonitor
 """
 import numpy as np
 from lmfit import minimize, Parameters, Parameter, report_fit
+import copy
 
 """
 For all routines involved with fitting, we will use a global parameters object
@@ -53,7 +54,10 @@ class fit_object(object):
         self.fit_results = None
         self.pad = [roi[0],data.shape[0]-roi[1],roi[2],data.shape[1]-roi[3]]
         self.x, self.y = self.create_vecs(roi)
-        self.params = params['Fit 0']
+        self.num_fits = len(params)
+        self.fit_names =  ['Fit {0}'.format(i) for i in range(self.num_fits)]
+        self.all_params = copy.deepcopy(params)#deep copy just to make sure
+        
 
             
     def create_vecs(self,roi):
@@ -128,9 +132,32 @@ class fit_object(object):
         #report_fit(self.fit_results)
                                     
     def multiple_fits(self):
-        """function to fit sequentially with input defined from SpinorMonitor"""
-        pass
+        """function to fit sequentially with input defined from SpinorMonitor
+        we may need to take parameters of previous fit!!
+        do fit, update values, do next fit"""
+        k = 1
+        for key in self.fit_names:
+            #get params for this fit
+            self.params = copy.deepcopy(self.all_params[key])
+            
+            results = minimize(self.bimod2min, self.params, 
+                                    args = ())
+                                   
+            #then if k > num_fits copy result values to params dictionary and fit
+            if k < self.num_fits:
+                #update parameters
+                next_key = self.fit_names[k]
+                for i in self.all_params[next_key].keys():
+                    self.all_params[next_key][i].value = self.params[i].value
+                   
+                #move to next iteration
+                k = k + 1
+            
+        self.fit_results = results
         
+                                    
+                                    
+                                    
     def process_results(self, scalex,scaley):
         """process results of fit and allow output return dictonary
            scale with the appropriate pixel values after fit"""
