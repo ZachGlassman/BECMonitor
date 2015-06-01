@@ -25,7 +25,7 @@ def make_name(k):
     return 'C:\\Users\\zag\\Documents\\BECMonitor\\testData\\' + str(k)+'bec_avg.txt'
     
 for k in range(313,659):
-    time.sleep(8)
+    time.sleep(5)
     data = np.loadtxt(make_name(k))
     np.savetxt('newimage.txt',data)
     print('Printed image {0}'.format(k))

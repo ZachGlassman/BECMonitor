@@ -275,31 +275,47 @@ class PlotOptions(QtGui.QWidget):
         
         info = QtGui.QLabel()
         info.setText('Select ROI on top screen and click')
-        lbroi = QtGui.QLabel(self)
-        lbroi.setText('ROI')
+      
         self.labels_list = ['x<sub>0','x<sub>1','y<sub>0','y<sub>1',u"\u03F4"]
+        self.aux_list = ['x Pixel size', 'y Pixel size']
+        self.pixels = {}
         self.labels = {}
         self.roi = {}
+      
+       
+        layout = QtGui.QHBoxLayout()
+        layout1 = QtGui.QVBoxLayout()
+        layout2 = QtGui.QVBoxLayout()
+        layout.addLayout(layout1)
+        layout.addLayout(layout2)
+         
+         
+        layout1.addWidget(info)
+        row = QtGui.QHBoxLayout()
+     
+        row.addWidget(self.get_roi)
+        layout1.addLayout(row)
+    
         for i in self.labels_list:
             self.labels[i] = QtGui.QLabel(self) 
             self.labels[i].setText(i)
             self.roi[i] = QtGui.QLineEdit(self)
             self.roi[i].setReadOnly(True)
-       
-        #dependant variable scroll box
-        self.exp_params = []
-        
-        layout = QtGui.QGridLayout()
-        layout.setSpacing(10)
-        layout.addWidget(info,0,0)
-        layout.addWidget(lbroi,1,0)
-        layout.addWidget(self.get_roi,1,2)
-        k = 2
-        for i in self.labels_list:
-            layout.addWidget(self.labels[i],k,0)
-            layout.addWidget(self.roi[i],k,2)
-            k = k + 1
- 
+            row = QtGui.QHBoxLayout()
+            row.addWidget(self.labels[i])
+            row.addWidget(self.roi[i])
+            layout1.addLayout(row)
+            
+        for i in ['x Pixel size', 'y Pixel size']:
+            lab = QtGui.QLabel(self)
+            lab.setText(i)
+            self.pixels[i] = QtGui.QDoubleSpinBox()
+            self.pixels[i].setValue(3.52)
+            row = QtGui.QHBoxLayout()
+            row.addWidget(lab)
+            row.addWidget(self.pixels[i])
+            layout2.addLayout(row)
+            
         self.setLayout(layout)
         
     def set_roi(self,vec):

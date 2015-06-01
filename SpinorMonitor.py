@@ -21,6 +21,7 @@ from BECMonitor_image import ProcessImage, IncomingImage
 from BECMonitor_visualplotter import VisualPlotter
 from BECMonitor_options import Options, PlotOptions
 from BECMonitor_datatable import DataTable
+from BECMonitor_auxwidgets import TextBox, FingerTabBarWidget
 
 #Set main options
 #pg.setConfigOption('background', 'b')
@@ -236,41 +237,10 @@ class FitResults(object):
         #finally, update new parameters
         for key in self.exp_params_names:
             self.exp_params[key].append(exp_params[key])
+        return new_names
         
             
-class TextBox(QtGui.QTextEdit):
-    """custom textbox, mostly QTextEdit, with some added functions"""
-    def __init__(self):
-        QtGui.QTextEdit.__init__(self, parent = None)    
-        self.setReadOnly(True)
-        
-    def output(self, x):
-        self.insertPlainText(x)
-        self.insertPlainText('\n')
-        self.moveCursor(QtGui.QTextCursor.End)
-        
-class FingerTabBarWidget(QtGui.QTabBar):
-    """Class to implement tabbed browsing for options"""
-    def __init__(self, parent=None, *args, **kwargs):
-        self.tabSize = QtCore.QSize(kwargs.pop('width',100), kwargs.pop('height',25))
-        QtGui.QTabBar.__init__(self, parent, *args, **kwargs)
-                 
-    def paintEvent(self, event):
-        painter = QtGui.QStylePainter(self)
-        option = QtGui.QStyleOptionTab()
- 
-        for index in range(self.count()):
-            self.initStyleOption(option, index)
-            tabRect = self.tabRect(index)
-            tabRect.moveLeft(10)
-            painter.drawControl(QtGui.QStyle.CE_TabBarTabShape, option)
-            painter.drawText(tabRect, QtCore.Qt.AlignVCenter |\
-                             QtCore.Qt.TextDontClip, \
-                             self.tabText(index));
-        painter.end()
-    def tabSizeHint(self,index):
-        return self.tabSize
-        
+
         
 class MainWindow(QtGui.QWidget):
     """Main Window for the app, contains the graphs panel and the options
@@ -437,7 +407,10 @@ class MainWindow(QtGui.QWidget):
         results = results_dict['image']
         self.image.setImage(results)
         #filter exp params by passing in all keys, then update
-        self.fit_results.update_exp_params(results_dict['exp_params'])
+        new_names = self.fit_results.update_exp_params(results_dict['exp_params'])
+        #inject new names into data stuff
+        if new_names: #python empty list are False Yay python!
+            self.vis_plots.var_push(new_names)
         #update params table
         self.data_tables.update_exp_table(results_dict['exp_params'],
                                           self.fit_results.exp_params_names) 
@@ -471,7 +444,7 @@ class MainWindow(QtGui.QWidget):
     def finish_thread(self,ind):
         """pop the process should destroy it all I think/"""
         self.process.pop(ind)
-        #self.processThreadPool.pop(ind)
+        self.processThreadPool.pop(ind)
     
     def get_options(self):
         """convenience function to return list of options
@@ -493,9 +466,11 @@ class MainWindow(QtGui.QWidget):
         #update plots on main gui
         self.plots.update_plots(self.fit_results)
         #update plots created in gui
-        self.vis_plots.update_plots(updated_data, self.index)
+        self.vis_plots.update_plots(updated_data, self.index,
+                                    self.fit_results.exp_params)
         #possibly check if image has taken next shot for complicated processing      
         self.image.add_lines(results['fitted'])
+        self.text_out.output('Updated Internal Structure')
     
         
     def set_up_ipy(self):
