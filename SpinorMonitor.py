@@ -14,6 +14,7 @@ import os
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 import matplotlib.pyplot as plt
+import pandas as pd
 import BECMonitor_subroutines as bs
 # Import the console machinery from ipython
 from BECMonitor_ipython import  QIPythonWidget
@@ -22,224 +23,12 @@ from BECMonitor_visualplotter import VisualPlotter
 from BECMonitor_options import Options, PlotOptions
 from BECMonitor_datatable import DataTable
 from BECMonitor_auxwidgets import TextBox, FingerTabBarWidget
-
+from BECMonitor_dataplots import DataPlots, ImageWindow
 #Set main options
 #pg.setConfigOption('background', 'b')
 #pg.setConfigOption('foreground', 'k')
+#testing
 
-
-
-            
-class DataPlots(pg.GraphicsLayoutWidget):
-    """graphs to populate different stuff"""
-    
-    #emitting message, can't define as instance variable
-    message = QtCore.pyqtSignal(object)
-    def __init__(self, parent = None):
-        pg.GraphicsLayoutWidget.__init__(self, parent)
-        pg.setConfigOptions(antialias=True)
-        graph_names = ["N_BEC_Atoms",
-                       "N_Therm_Atoms",
-                       "X_Width",
-                       "Y_Width",
-                       "Temperature",
-                       "All"]
-        self.graph_dict = {}
-        #dictionary to hold data items in graph
-        self.graph_data_dict = {}
-        k = 0   
-        for i in graph_names:
-            if k == 3:
-                self.nextRow()
-            self.graph_dict[i] = self.addPlot(title = i)
-            self.graph_dict[i].setLabel('bottom', 'Index')
-            k = k + 1
-            
-            self.graph_data_dict[i] = self.graph_dict[i].plot([0],[0], 
-                symbolSize=5, symbolBrush=(100, 100, 255, 50))
-            self.graph_data_dict[i].sigPointsClicked.connect(self.emit_it)
-        
-        
-       
-    def update_plots(self, results):
-        """Update all the Plots"""
-        for i in self.graph_dict.keys():
-            self.graph_data_dict[i].setData(list(results.ind_results[i].keys()),
-                                            list(results.ind_results[i].values()))
-       
-   
-    def emit_it(self, item,points):
-        self.message.emit(points[0].pos())
-                   
-       
-  
-class ImageWindow(pg.GraphicsLayoutWidget):
-    """Image View with custom ROI"""
-    def __init__(self, parent = None):
-        pg.GraphicsLayoutWidget.__init__(self, parent)
-        #define colormap 
-        self.cmap = plt.get_cmap('jet')
-        #raw image plot
-
-        self.rawImagePlot = self.addPlot(title = 'Raw Image')
-        self.img = pg.ImageItem()
-        self.data = None
-        self.rawImagePlot.addItem(self.img)
-        self.brush = (100, 100, 150, 200)
-      
-    
-        # Custom ROI for selecting an image region
-        self.roi = pg.ROI([20,20], [200, 200],
-                          snapSize = 1, 
-                          scaleSnap = True,
-                          translateSnap = True,
-                          )
-        self.roi.addScaleHandle([0.5, 1], [0.5, 0.5])
-        self.roi.addScaleHandle([0, .5], [0.5, 0.5])
-        self.roi.addRotateFreeHandle([0,0],[.5,.5])
-        
-        self.rawImagePlot.addItem(self.roi)
-        self.roi.setZValue(10)  # make sure ROI is drawn above image
-        
-        #region of interest plots
-        self.region = self.addPlot(title = 'ROI')
-        self.region_img = pg.ImageItem()
-        self.region_img1 = pg.ImageItem()
-        self.region.addItem(self.region_img) 
-        
-        self.win = pg.GraphicsLayoutWidget()
-        self.pop_plot = self.win.addPlot(title = 'Raw Image')
-        self.pop_plot.addItem(self.region_img1)
-        
-        self.nextRow()
-        self.xSlice = self.addPlot(title = 'x Slice',
-                                   symbolSize=2, 
-                                   symbolBrush = self.brush)
-        self.ySlice = self.addPlot(title = 'y Slice',
-                                   symbolSize=2, 
-                                   symbolBrush=self.brush)
-                                   
-        #self.nextRow()
-        #self.pop = QtGui.QPushButton("Large Window",self)
-        #self.addItem(self.pop)
-        #QtCore.QObject.connect(self.param_select, QtCore.SIGNAL('clicked()'), self.popup)
-                                   
-        
-        self.roi.sigRegionChanged.connect(self.updatePlot)
-        
-    def popup(self):
-        """function to start popup window object"""
-        self.win.show()
-        
-    def updatePlot(self):
-        """updates plot, can only be called once plot is initalized with image"""
-        sel = self.roi.getArrayRegion(self.data,self.img)
-        self.xSlice.plot(sel.sum(axis = 1),
-                                   pen=None,  
-                                   symbolPen=None, 
-                                   symbolSize= 5, 
-                                   symbolBrush=self.brush,
-                                   clear = True)
-        self.ySlice.plot(sel.sum(axis = 0),
-                                   pen=None,  
-                                   symbolPen=None, 
-                                   symbolSize=5, 
-                                   symbolBrush=self.brush,
-                                   clear = True)
-        
-        self.region_img.setImage(self.cmap(sel))
-        self.region_img1.setImage(self.cmap(sel))
-        
-    
-    
-    def setImage(self, im):
-        """set image"""
-        self.data = im
-        self.img.setImage(im)
-        self.xSlice.plot(self.data.sum(axis = 1), 
-                                   pen=None,  
-                                   symbolPen=None, 
-                                   symbolSize=5, 
-                                   symbolBrush=self.brush,
-                                   clear = True)
-        self.ySlice.plot(self.data.sum(axis = 0),
-                                   pen=None,  
-                                   symbolPen=None, 
-                                   symbolSize=5, 
-                                   symbolBrush=self.brush,
-                                   clear = True)
-        self.region_img.setImage(
-            self.cmap(self.roi.getArrayRegion(self.data,self.img))
-            )
-        self.region_img1.setImage(
-            self.cmap(self.roi.getArrayRegion(self.data,self.img))
-            )
-    
-    def add_lines(self, results):
-        """add lines to plot, input it numpy array which is then summed"""
-        self.xSlice.plot(results.sum(axis = 1))
-        self.ySlice.plot(results.sum(axis =0))
-        
-        
-        
-
-class FitResults(object):
-    """class to hold fit results as dictionaries by index"""
-    def __init__(self):
-        self.names = ["N_BEC_Atoms","N_Therm_Atoms",
-                       "X_Width",
-                       "Y_Width",
-                       "Temperature",
-                       "All",
-                       "Index"]
-        self.exp_params_names = []
-        self.ind_results = {}
-        self.exp_params = {}
-        for i in self.names:
-            self.ind_results[i] = {}
-            
-    def make_list(self):
-        ans = {}
-        for i in self.ind_results.keys():
-            ans[i] = [self.get(self.ind_results[i][j]) for j in range(len(self.ind_results[i]))]
-        return {'spinorvars':ans}   
-        
-    def get(self,it):
-        try:
-            return it
-        except:
-            return None
-            
-    def pretty_print(self):
-        """make into one long string to be saved to file (All can be anything)
-        format : index, NBEC,NTHerm,XWidth,Temp,All"""
-        form = '{:<14.0f}{:<14.0f}{:<14.0f}{:<14.2f}{:<14.2f}{:<14.2f}{:<14.0f}'
-        form1 = '{:<14s}{:<14s}{:<14s}{:<14s}{:<14s}{:<14s}{:<14s}'
-        answer = form1.format(*tuple(['index'] + self.names)) + '\n'
-        #loop through indexes
-        for i in self.ind_results['N_BEC_Atoms'].keys():
-            #format string for each one            
-            answer = answer + form.format(*tuple([i] + [self.ind_results[j][i] for j in self.names]))
-            answer = answer + '\n'
-        return answer
-        
-    def update_exp_params(self, exp_params):
-        """can add new names on the fly
-        exp_params is dictionary of new parameters
-        pos_new_list is list of new namse"""
-        pos_new_list = list(exp_params.keys())
-        new_names = [i for i in pos_new_list if i not in self.exp_params_names]
-        self.exp_params_names = self.exp_params_names + new_names
-        #now for each new name, create dictionary entry and fill with N/A for
-        #previous shots
-        for i in new_names:
-            self.exp_params[i] = [float('nan') for j in self.ind_results["Index"]]
-        #finally, update new parameters
-        for key in self.exp_params_names:
-            self.exp_params[key].append(exp_params[key])
-        return new_names
-        
-            
 
         
 class MainWindow(QtGui.QWidget):
@@ -248,20 +37,17 @@ class MainWindow(QtGui.QWidget):
     def __init__(self):
         QtGui.QWidget.__init__(self)
         self.run, self.path = bs.get_run_name()
-        self.initUI()
-        self.ROI = [20,200,20,200]
+        #pandas dataframe for results
+        self.expData = pd.DataFrame()
         self.processThreadPool = {}
         self.process = {}
+        self.initUI()
+        self.ROI = [20,200,20,200]
+       
         self.index = 0
-        self.fit_results = FitResults()
-        self.data_tables.init_fit_params(self.fit_results.names)
-        self.vis_plots.var_push(self.fit_results.names)
-        self.vis_plots.add_init_data(self.fit_results.make_list())
+    
         
 
-        
-       
-        
         
     def initUI(self):
         """Iniitalize UI and name it"""
@@ -276,7 +62,7 @@ class MainWindow(QtGui.QWidget):
         self.options = Options(self)
         self.plot_options = PlotOptions(self)
         self.vis_plots = VisualPlotter(self)
-        self.data_tables = DataTable()
+        self.data_tables = DataTable(self)
         self.running = False
         #tabs 
         self.tabs = QtGui.QTabWidget()
@@ -287,10 +73,17 @@ class MainWindow(QtGui.QWidget):
         self.tabs.addTab(self.vis_plots, 'Data Plotter')
         self.tabs.addTab(self.data_tables, 'Data Tables')
         
-        
+        #connect scroll widgest of plots to options
+        QtCore.QObject.connect(self.options.fit_type_chooser,
+                                QtCore.SIGNAL('currentIndexChanged(QString)'),
+                                self.plots.change_key)
+                                
+                                
         self.ipy =  QIPythonWidget(customBanner="Spinor BEC Ipython console\n")
-        self.set_up_ipy()
        
+        
+        self.set_up_ipy()
+        
 
         #run button and stop button
         self.runButton = QtGui.QPushButton("Run")
@@ -307,10 +100,10 @@ class MainWindow(QtGui.QWidget):
         #first row
         row1 = QtGui.QHBoxLayout()
         row1.addWidget(self.plots)
-        row1.addWidget(self.image)
+        row1.addWidget(self.image,stretch=1)
         #second row
         row2 = QtGui.QHBoxLayout()
-        row2.addWidget(self.tabs,stretch=1)  
+        row2.addWidget(self.tabs)  
         row2.addWidget(self.ipy)
         row2col3 = QtGui.QVBoxLayout()
         row2col3.addWidget(self.text_out)
@@ -391,9 +184,8 @@ class MainWindow(QtGui.QWidget):
             
         #write out parameters
         p = os.path.join(self.path,'run_' + str(self.run) + '_results.txt')
-        with open(p,'w') as fp:   
-            fp.write(self.fit_results.pretty_print())
-            
+        self.expData.to_csv(p)
+        self.text_out.output('File written to' + p)   
         try:
             self.imageThread.terminate()
         except:
@@ -404,21 +196,16 @@ class MainWindow(QtGui.QWidget):
         
     def data_process(self, results_dict):
         """process the data, including spawn a thread and increment index"""
-        results = results_dict['image']
+        results = results_dict['image'] #image
         self.image.setImage(results)
-        #filter exp params by passing in all keys, then update
-        new_names = self.fit_results.update_exp_params(results_dict['exp_params'])
-        #inject new names into data stuff
-        if new_names: #python empty list are False Yay python!
-            self.vis_plots.var_push(new_names)
-        #update params table
-        self.data_tables.update_exp_table(results_dict['exp_params'],
-                                          self.fit_results.exp_params_names) 
+        
         ind = str(self.index)
         #append thread to thread pool
         self.processThreadPool[ind]= QtCore.QThread()
         #create new process image object and add to thread just created
-        self.process[ind] = ProcessImage(results,self.get_options(),self.path,self.run)
+        self.process[ind] = ProcessImage(results,results_dict['exp_params'],
+            self.get_options(),
+            self.path,self.run)
         self.process[ind].moveToThread(self.processThreadPool[ind])
         #connect start signal
         
@@ -452,24 +239,29 @@ class MainWindow(QtGui.QWidget):
         deep copy or there will be problems!!"""
         return [self.options.params,self.ROI,self.index]
         
-    def update_data(self, results):
+    def update_data(self, results_passed):
         """function to update plots and push data to ipython notebook"""
+        results = results_passed[0]
         self.text_out.output('Image {0} processed'.format(self.index-1))
-        for i in self.fit_results.ind_results.keys():
-            self.fit_results.ind_results[i][results['Index']] = results[i] 
-       
-        updated_data = self.fit_results.make_list()
-        self.ipy.pushVariables(updated_data)
-        self.data_tables.update_fit_table(updated_data)
-        #update ipython graphs
-        self.ipy._execute('Plot_obj.update(spinorvars)', True)
-        #update plots on main gui
-        self.plots.update_plots(self.fit_results)
-        #update plots created in gui
-        self.vis_plots.update_plots(updated_data, self.index,
-                                    self.fit_results.exp_params)
-        #possibly check if image has taken next shot for complicated processing      
-        self.image.add_lines(results['fitted'])
+
+        #####make into series then push to pandas array
+        
+        self.expData = self.expData.append(
+            pd.DataFrame(results, index = [results['Index']]))
+        
+        #Do updates of different widgets
+        self.data_tables.update_pandas_table(self.expData)
+        #update update
+        self.to_ipy()
+        self.ipy._execute('Plot_obj.update()', True)
+        
+        #update plots
+        self.plots.update_plots(self.expData)
+        self.vis_plots.update_plots(self.expData, self.index)
+        
+        #possibly check if image has taken next shot for complicated processing    
+        
+        self.image.add_lines(results_passed[1])
         self.text_out.output('Updated Internal Structure')
     
         
@@ -477,9 +269,19 @@ class MainWindow(QtGui.QWidget):
         """setup the ipython console for use with useful functions"""
         self.ipy.executeCommand('from BECMonitor_ipython import *')
         self.ipy.printText('imported numpy and matplotlib as np and plt')
+      
 
         
-    
+    def to_ipy(self):
+        """push all variables to Ipython notebook"""
+        ans = {}
+        for i in self.expData.columns:
+            ans[i] = self.expData[i].get_values()
+        self.ipy.pushVariables(ans)
+        
+        
+
+            
         
         
         

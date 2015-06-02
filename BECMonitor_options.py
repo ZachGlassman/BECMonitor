@@ -90,8 +90,9 @@ class Options(QtGui.QWidget):
         self.num_fits = 0
        
         self.params_choose ={}
-        #Parameters object for guesses
-
+        self.fit_type_chooser = QtGui.QComboBox()
+        self.fit_type_chooser.addItems(['Mixture', 'Stern-Gerlach'])
+        
      
       
         self.tabs = QtGui.QTabWidget()
@@ -127,6 +128,7 @@ class Options(QtGui.QWidget):
 
         layout = QtGui.QVBoxLayout()
         layout.setSpacing(10)
+        layout.addWidget(self.fit_type_chooser)
         layout.addWidget(self.tabs)
         layout.addLayout(buttons)
         self.setLayout(layout)

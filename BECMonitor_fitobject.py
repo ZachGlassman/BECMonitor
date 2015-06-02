@@ -171,9 +171,9 @@ class fit_object(object):
                "Temperature":self.params['dxTherm'].value * scalex,
                "All":1}
         results['Index'] = self.name
-        results['fitted'] = self.line_profile()
         
-        return results
+        
+        return [results, self.line_profile()]
         
     def BEC_num(self, scalex,scaley):
         A = self.params['ABEC']

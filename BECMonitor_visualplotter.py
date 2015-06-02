@@ -45,6 +45,7 @@ class VisualPlotter(QtGui.QWidget):
          self.labelx.setText('X variable')
          self.labely = QtGui.QLabel(self)
          self.labely.setText('Y variable')
+         self.label_list = []
          
          
          self.entrystart = QtGui.QSpinBox()
@@ -81,7 +82,7 @@ class VisualPlotter(QtGui.QWidget):
          self.params_objects = {} #dictionary of parameters objects
          self.add_fitting_widgets()
         
-         #paramer to hold fitting type
+        
         
          #set up matplotlib figure
          self.preview = plt.figure(figsize=(3,4))
@@ -204,26 +205,20 @@ class VisualPlotter(QtGui.QWidget):
           
         
     
-    def add_init_data(self,data):
-        self.data = data
-        self.plot_clicked()
      
         
-    def update_plots(self ,data, index, exp_params):
+    def update_plots(self ,df, index):
         """Update the updating plots whose references are stored in self.plots
         which is a dictionary
         Clean up the plots which are not there, I think if reference is lost
         garbage collection should clean them up? (need to check)"""
-        self.data = copy.deepcopy(data)
+        
         self.index = index
-        
-        exp_p = copy.deepcopy(exp_params)
-        
-        ###DATA IS COMING IN JUST FINE, NEED TO UPDATE IT SOMEHOW
-        #NEED TO ADD THEM TO SPINVARFS
-        for i in exp_p.keys():
-            self.data['spinorvars'][i] = exp_p[i]
-        
+        self.data = df
+        #push variables that are not there
+        new_names = [i for i in df.columns.values.tolist() if i not in self.label_list]       
+        self.var_push(new_names)
+        self.label_list = self.label_list + new_names
         self.test_plot()
         
         #filter for plots that are gone
@@ -232,9 +227,9 @@ class VisualPlotter(QtGui.QWidget):
         #update remaining plots
         for i in self.plots.keys():
             x_data = self.filter_ignore(
-                self.data['spinorvars'][self.plots[i].xl][self.start:])
+                self.data[self.plots[i].xl]).get_values()
             y_data = self.filter_ignore(
-                self.data['spinorvars'][self.plots[i].yl][self.start:])
+                self.data[self.plots[i].yl]).get_values()
             
             xx,yy,std = self.verbose_avg(x_data,y_data)
             self.plots[i].update(xx,yy,std)
@@ -257,7 +252,7 @@ class VisualPlotter(QtGui.QWidget):
         if self.checkend.isChecked():
             self.end = self.entryend.value()
         else:
-            self.end = None
+            self.end = list(self.data.index)[-1]
             
     def updating_plot(self):
         self.plot_clicked()
@@ -281,10 +276,8 @@ class VisualPlotter(QtGui.QWidget):
                                         self.start)
         
         self.message.emit('Plotted updating: ' + title)
-        x_data = self.filter_ignore(
-            self.data['spinorvars'][self.plots[title].xl][self.start:])
-        y_data = self.filter_ignore(
-            self.data['spinorvars'][self.plots[title].yl][self.start:])
+        x_data = self.filter_ignore(self.data[self.plots[title].xl]).get_values()
+        y_data = self.filter_ignore(self.data[self.plots[title].yl]).get_values()
         xx,yy,std = self.verbose_avg(x_data,y_data)
         self.plots[title].update(xx,yy,std)
         self.plots[title].show()
@@ -293,10 +286,8 @@ class VisualPlotter(QtGui.QWidget):
     def static_plot(self):
         """create new modal popup"""
         self.plot_clicked()
-        x_data = self.filter_ignore(
-            self.data['spinorvars'][self.x][self.start:self.end])
-        y_data = self.filter_ignore(
-            self.data['spinorvars'][self.y][self.start:self.end])
+        x_data = self.filter_ignore(self.data[self.x]).get_values()
+        y_data = self.filter_ignore(self.data[self.y]).get_values()
        
         std = self.avg_data()
             
@@ -318,10 +309,8 @@ class VisualPlotter(QtGui.QWidget):
         self.plot_clicked()
         self.ax.hold(False)
         #get the variables
-        self.x_data = self.filter_ignore(
-            self.data['spinorvars'][self.x][self.start:self.end])
-        self.y_data = self.filter_ignore(
-            self.data['spinorvars'][self.y][self.start:self.end])
+        self.x_data = self.filter_ignore(self.data[self.x]).get_values()
+        self.y_data = self.filter_ignore(self.data[self.y]).get_values()
         #now we need to averaging if it is on:::
         
         std = self.avg_data()
@@ -340,8 +329,7 @@ class VisualPlotter(QtGui.QWidget):
         self.ax.hold(True)
         self.plot_clicked()
         #get the variables
-        self.x_data = self.filter_ignore(
-            self.data['spinorvars'][self.x][self.start:self.end])
+        self.x_data = self.filter_ignore(self.data[self.x]).get_values()
         fit_type = self.fitting_select.currentText()
         mod = self.fit_models[fit_type]
             #update paramter values
@@ -358,10 +346,8 @@ class VisualPlotter(QtGui.QWidget):
     def do_fit(self):
         self.ax.hold(True)
         self.plot_clicked()
-        self.x_data = np.asarray(self.filter_ignore(
-            self.data['spinorvars'][self.x][self.start:self.end]))
-        self.y_data = np.asarray(self.filter_ignore(
-            self.data['spinorvars'][self.y][self.start:self.end]))
+        self.x_data = self.filter_ignore(self.data[self.x]).get_values()
+        self.y_data = self.filter_ignore(self.data[self.y]).get_values()
         self.avg_data()
         fit_type = self.fitting_select.currentText()
         mod = self.fit_models[fit_type]
@@ -391,8 +377,8 @@ class VisualPlotter(QtGui.QWidget):
     def filter_ignore(self, data):
         """filter data, list of indices to remove
         built list of indices not ignored"""
-        ind = [i for i in range(self.index) if i not in self.ignore_list]
-        return [data[i] for i in ind]
+        ind = [i for i in range(self.start,self.end) if i not in self.ignore_list]
+        return data[ind]
         
     def ignore_update(self):
         """update the ignore list parse out test"""
@@ -442,7 +428,8 @@ class VisualPlotter(QtGui.QWidget):
         x = self.x_data
         y = self.y_data
         ans = []
-        distinct = set(x)
+
+        distinct = set(list(x))
         for i in distinct:
             tempans = []
             for j in range(len(x)):
@@ -458,7 +445,7 @@ class VisualPlotter(QtGui.QWidget):
         """average data and transform self.x_data and self.y_data
         this is a really crappy algorithm, but itm ight do the trick"""
         ans = []
-        distinct = set(x)
+        distinct = set(list(x))
         for i in distinct:
             tempans = []
             for j in range(len(x)):

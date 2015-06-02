@@ -10,6 +10,14 @@ import numpy as np
 from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
 from IPython.qt.inprocess import QtInProcessKernelManager
 from IPython.lib import guisupport
+from pyqtgraph import QtCore
+
+class QIPythonWidgetContainer(QtCore.QObject):
+    """Ipython container class for multi-threading"""
+    def __init__(self, parent = None):
+        """initialize fit_object"""
+        QtCore.QObject.__init__(self)
+        self.ipy = QIPythonWidget()
 
 class QIPythonWidget(RichIPythonWidget):
     """ Convenience class for a live IPython console widget.
@@ -107,11 +115,10 @@ class SpinorPlot(object):
     def get_vars(self,var_dict):
         return tuple(np.asarray(var_dict[i]) for i in self.data_binds)
 
-def uplot(func,name = None, xaxis = None, yaxis = None, var = None):
+def uplot(func,name = None, xaxis = None, yaxis = None):
     """function assumes PlotObj has been initialized as Plot_obj"""
     Plot_obj.add_plot(SpinorPlot(func,name = name,xaxis = xaxis, yaxis =yaxis)
         ,name)
-    if var:
-        Plot_obj.update(var)
+ 
 
 Plot_obj = PlotObj()
