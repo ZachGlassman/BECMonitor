@@ -52,7 +52,9 @@ class MainWindow(QtGui.QWidget):
     def initUI(self):
         """Iniitalize UI and name it"""
         #self.showFullScreen()
-        self.resize(1850,950)
+        #self.resize(1850,950) #work
+        self.resize(1650,900) #home
+   
         self.center()
         self.setWindowTitle('Spinor BEC Analysis')
         self.setWindowIcon(QtGui.QIcon('icon.png'))
@@ -64,19 +66,15 @@ class MainWindow(QtGui.QWidget):
         self.vis_plots = VisualPlotter(self)
         self.data_tables = DataTable(self)
         self.running = False
-        #tabs 
+        #tabs
         self.tabs = QtGui.QTabWidget()
         self.tabs.setTabBar(FingerTabBarWidget(width=100,height=85))
         self.tabs.setTabPosition(QtGui.QTabWidget.West)
-        self.tabs.addTab(self.options, 'Fit Options')   
+        self.tabs.addTab(self.options, 'Fit Options')
         self.tabs.addTab(self.plot_options, "Plot/Image Options")
         self.tabs.addTab(self.vis_plots, 'Data Plotter')
         self.tabs.addTab(self.data_tables, 'Data Tables')
         
-        #connect scroll widgest of plots to options
-        QtCore.QObject.connect(self.options.fit_type_chooser,
-                                QtCore.SIGNAL('currentIndexChanged(QString)'),
-                                self.plots.change_key)
                                 
                                 
         self.ipy =  QIPythonWidget(customBanner="Spinor BEC Ipython console\n")
@@ -100,10 +98,10 @@ class MainWindow(QtGui.QWidget):
         #first row
         row1 = QtGui.QHBoxLayout()
         row1.addWidget(self.plots)
-        row1.addWidget(self.image,stretch=1)
+        row1.addWidget(self.image)
         #second row
         row2 = QtGui.QHBoxLayout()
-        row2.addWidget(self.tabs)  
+        row2.addWidget(self.tabs)
         row2.addWidget(self.ipy)
         row2col3 = QtGui.QVBoxLayout()
         row2col3.addWidget(self.text_out)
@@ -119,7 +117,7 @@ class MainWindow(QtGui.QWidget):
         #connect buttoms- mix of old and new styles
         QtCore.QObject.connect(self.plot_options.get_roi,
                                QtCore.SIGNAL('clicked()'), self.get_roi)
-        QtCore.QObject.connect(self.runButton, 
+        QtCore.QObject.connect(self.runButton,
                                QtCore.SIGNAL("clicked()"), self.change_state)
         QtCore.QObject.connect(self.bigScreen,
                                QtCore.SIGNAL("clicked()"), self.image.popup)
@@ -128,7 +126,7 @@ class MainWindow(QtGui.QWidget):
         self.plots.message.connect(self.on_message)
         self.vis_plots.message.connect(self.on_message)
         self.options.message.connect(self.on_message)
-                               
+        self.options.fit_name.connect(self.on_fit_name)
         
         
         self.text_out.output('Initializing run ' + str(self.run))
@@ -140,6 +138,10 @@ class MainWindow(QtGui.QWidget):
     @QtCore.pyqtSlot(object)
     def on_message(self,data):
         self.text_out.output(str(data))
+        
+    @QtCore.pyqtSlot(object)
+    def on_fit_name(self, data):
+        self.plots.change_key(data)
         
     def center(self):
         """Centers Window"""
@@ -153,7 +155,7 @@ class MainWindow(QtGui.QWidget):
         start = self.image.roi.pos()
         size  = self.image.roi.size()
         angle = self.image.roi.angle()
-        self.ROI = [start[0],start[0] + size[0], 
+        self.ROI = [start[0],start[0] + size[0],
                     start[1], start[1] + size[1], angle]
         self.plot_options.set_roi(self.ROI)
       
@@ -185,7 +187,7 @@ class MainWindow(QtGui.QWidget):
         #write out parameters
         p = os.path.join(self.path,'run_' + str(self.run) + '_results.txt')
         self.expData.to_csv(p)
-        self.text_out.output('File written to' + p)   
+        self.text_out.output('File written to' + p)
         try:
             self.imageThread.terminate()
         except:
@@ -259,7 +261,7 @@ class MainWindow(QtGui.QWidget):
         self.plots.update_plots(self.expData)
         self.vis_plots.update_plots(self.expData, self.index)
         
-        #possibly check if image has taken next shot for complicated processing    
+        #possibly check if image has taken next shot for complicated processing
         
         self.image.add_lines(results_passed[1])
         self.text_out.output('Updated Internal Structure')

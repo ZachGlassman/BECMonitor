@@ -47,20 +47,20 @@ class DataPlots(QtGui.QWidget):
         #initiate all plots and put them in stacked widgets
         self.plotting_stack = QtGui.QStackedWidget()
         for key in self.graph_names.keys():
-            k = 0   
+            k = 0
             self.plot_grid[key] = PlotGrid()
             row1 = QtGui.QHBoxLayout()
             row2 = QtGui.QHBoxLayout()
             for i in self.graph_names[key]:
                 #create the plot widgets
-                self.graph_dict[key][i] = pg.PlotWidget(title = i)
+                self.graph_dict[key][i] = pg.PlotWidget(self,title = i)
                 self.graph_dict[key][i].setLabel('bottom', 'Index')
                 if k < 3:
                     row1.addWidget(self.graph_dict[key][i])
                 else:
                     row2.addWidget(self.graph_dict[key][i])
                 k = k + 1
-                self.graph_data_dict[key][i] = self.graph_dict[key][i].plot([0],[0], 
+                self.graph_data_dict[key][i] = self.graph_dict[key][i].plot([0],[0],
                     symbolSize=5, symbolBrush=(100, 100, 255, 50))
                 self.graph_data_dict[key][i].sigPointsClicked.connect(self.emit_it)
         #add to layouts
@@ -70,6 +70,7 @@ class DataPlots(QtGui.QWidget):
             self.plotting_stack.addWidget(self.plot_grid[key])
         
         layout = QtGui.QVBoxLayout()
+        layout.setSpacing(0)
         layout.addWidget(self.plotting_stack)
         self.setLayout(layout)
         
@@ -96,7 +97,7 @@ class ImageWindow(pg.GraphicsLayoutWidget):
     """Image View with custom ROI"""
     def __init__(self, parent = None):
         pg.GraphicsLayoutWidget.__init__(self, parent)
-        #define colormap 
+        #define colormap
         self.cmap = plt.get_cmap('jet')
         #raw image plot
 
@@ -109,7 +110,7 @@ class ImageWindow(pg.GraphicsLayoutWidget):
     
         # Custom ROI for selecting an image region
         self.roi = pg.ROI([20,20], [200, 200],
-                          snapSize = 1, 
+                          snapSize = 1,
                           scaleSnap = True,
                           translateSnap = True,
                           )
@@ -124,7 +125,7 @@ class ImageWindow(pg.GraphicsLayoutWidget):
         self.region = self.addPlot(title = 'ROI')
         self.region_img = pg.ImageItem()
         self.region_img1 = pg.ImageItem()
-        self.region.addItem(self.region_img) 
+        self.region.addItem(self.region_img)
         
         self.win = pg.GraphicsLayoutWidget()
         self.pop_plot = self.win.addPlot(title = 'Raw Image')
@@ -132,10 +133,10 @@ class ImageWindow(pg.GraphicsLayoutWidget):
         
         self.nextRow()
         self.xSlice = self.addPlot(title = 'x Slice',
-                                   symbolSize=2, 
+                                   symbolSize=2,
                                    symbolBrush = self.brush)
         self.ySlice = self.addPlot(title = 'y Slice',
-                                   symbolSize=2, 
+                                   symbolSize=2,
                                    symbolBrush=self.brush)
                                    
         #self.nextRow()
@@ -154,15 +155,15 @@ class ImageWindow(pg.GraphicsLayoutWidget):
         """updates plot, can only be called once plot is initalized with image"""
         sel = self.roi.getArrayRegion(self.data,self.img)
         self.xSlice.plot(sel.sum(axis = 1),
-                                   pen=None,  
-                                   symbolPen=None, 
-                                   symbolSize= 5, 
+                                   pen=None,
+                                   symbolPen=None,
+                                   symbolSize= 5,
                                    symbolBrush=self.brush,
                                    clear = True)
         self.ySlice.plot(sel.sum(axis = 0),
-                                   pen=None,  
-                                   symbolPen=None, 
-                                   symbolSize=5, 
+                                   pen=None,
+                                   symbolPen=None,
+                                   symbolSize=5,
                                    symbolBrush=self.brush,
                                    clear = True)
         
@@ -175,16 +176,16 @@ class ImageWindow(pg.GraphicsLayoutWidget):
         """set image"""
         self.data = im
         self.img.setImage(im)
-        self.xSlice.plot(self.data.sum(axis = 1), 
-                                   pen=None,  
-                                   symbolPen=None, 
-                                   symbolSize=5, 
+        self.xSlice.plot(self.data.sum(axis = 1),
+                                   pen=None,
+                                   symbolPen=None,
+                                   symbolSize=5,
                                    symbolBrush=self.brush,
                                    clear = True)
         self.ySlice.plot(self.data.sum(axis = 0),
-                                   pen=None,  
-                                   symbolPen=None, 
-                                   symbolSize=5, 
+                                   pen=None,
+                                   symbolPen=None,
+                                   symbolSize=5,
                                    symbolBrush=self.brush,
                                    clear = True)
         self.region_img.setImage(

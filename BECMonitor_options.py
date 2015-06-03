@@ -81,6 +81,7 @@ class ParameterEntry(QtGui.QWidget):
 class Options(QtGui.QWidget):
     """Panel which defines options for fitting and analyzing images"""
     message = QtCore.pyqtSignal(str, name = 'message')
+    fit_name = QtCore.pyqtSignal(str, name = 'fit_name')
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self, parent)
         
@@ -133,13 +134,14 @@ class Options(QtGui.QWidget):
         layout.addLayout(buttons)
         self.setLayout(layout)
         
-    def save_params(self):   
+    def save_params(self):
         """update params"""
         for key in self.params.keys():
             err = self.params_choose[key].readout()
             if err == 1:
                 print('Error')
         self.message.emit('Updated Parameters')
+        self.fit_name.emit(self.fit_type_chooser.currentText())
         
     
     def make_key(self,index):
@@ -206,8 +208,8 @@ class FitInfo(QtGui.QDialog):
         self.exit_b = QtGui.QPushButton("Close", self)
         self.num_fits = len(self.params)
         
-        QtCore.QObject.connect(self.exit_b, 
-                               QtCore.SIGNAL('clicked()'), 
+        QtCore.QObject.connect(self.exit_b,
+                               QtCore.SIGNAL('clicked()'),
                                self.close)
                                
         #make a bunch of tables, number of columns is N_params
@@ -236,7 +238,7 @@ class FitInfo(QtGui.QDialog):
         self.setLayout(layout)
     
     def parse_params(self,tabs):
-        """populates the tables, row and column determined by run and 
+        """populates the tables, row and column determined by run and
         parameter, so same for all table"""
     
         row = 0
@@ -255,7 +257,7 @@ class FitInfo(QtGui.QDialog):
                      QtGui.QTableWidgetItem(str(p.min)))
                 self.tables['Max'].setItem(row, col,
                      QtGui.QTableWidgetItem(str(p.max)))
-                self.tables['Fix'].setItem(row, col, 
+                self.tables['Fix'].setItem(row, col,
                      QtGui.QTableWidgetItem(str(not p.vary)))
                 col = col + 1
             row = row + 1
@@ -299,7 +301,7 @@ class PlotOptions(QtGui.QWidget):
         layout1.addLayout(row)
     
         for i in self.labels_list:
-            self.labels[i] = QtGui.QLabel(self) 
+            self.labels[i] = QtGui.QLabel(self)
             self.labels[i].setText(i)
             self.roi[i] = QtGui.QLineEdit(self)
             self.roi[i].setReadOnly(True)
