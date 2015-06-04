@@ -35,6 +35,7 @@ class fit_object(object):
           
         """
         self.name = index
+        self.init_image = data
         self.image = data[roi[0]:roi[1],roi[2]:roi[3]]
         self.image_fitted = None
         self.fit_results = None
@@ -57,6 +58,8 @@ class fit_object(object):
         
         :param roi: region of interest list
         :type roi: list
+        :return X: x vector from meshgrid
+        :return Y: y vector from meshgrid
         """
         y = np.arange(roi[0],roi[1],1)
         x = np.arange(roi[2],roi[3], 1)
@@ -205,14 +208,12 @@ class fit_object(object):
         
         
     def subtract_background(self):
-        """Subtract background from image
-        @params
-          none
-        @returns
-          null, but modifies image_corrected
+        """Subtract background from image looking at first and last 20
+        rows of the inital image far away from experiment
         """
-        #subtract the background
-        pass
+        n = 20
+        back = (np.average(self.init_image[:n])+np.average(self.init_image[-n:]))/2
+        self.image = np.subtract(self.image,back)
       
       
     #need to add functionality for other stuff
@@ -227,6 +228,7 @@ class fit_object(object):
         """function to fit sequentially with input defined from SpinorMonitor
         we may need to take parameters of previous fit!!
         do fit, update values, do next fit"""
+        self.subtract_background()
         k = 1
         for key in self.fit_names:
             #get params for this fit
@@ -290,6 +292,19 @@ class fit_object(object):
         return [results, self.line_profile()]
         
     def BEC_num(self, scalex,scaley):
+        """get number of BEC atoms from fit from equation
+        
+        .. math::
+           N = \\left(\\frac{2 \\pi}{3\\lambda^2}\\right)\\frac{2\\pi A}{5}R_x R_y
+           
+        :param scalex: x scale of pixel
+        :param scaley: y scale of pixel
+        :var A: fitted Thomas-Fermi amplitude
+        :var Rx: fitted Thomas-Fermi x radius
+        :var Ry: fitted Thomas-Fermi y radius
+        :var sigma: optical density
+        :return: atom number
+        """
         A = self.params['ABEC']
         Rx = self.params['dxBEC'].value * scalex
         Ry = self.params['dyBEC'].value * scaley
@@ -298,7 +313,20 @@ class fit_object(object):
         return V/sigma
         
     def BEC_num_1(self, scalex,scaley,A,dx,dy):
-        """helper function for BEC num"""
+        """helper function for BEC num
+        get number of BEC atoms from fit from equation
+        
+        .. math::
+           N = \\left(\\frac{2 \\pi}{3\\lambda^2}\\right)\\frac{2\\pi A}{5}R_x R_y
+           
+        :param scalex: x scale of pixel
+        :param scaley: y scale of pixel
+        :param A: fitted Thomas-Fermi amplitude
+        :param dx: fitted Thomas-Fermi x radius
+        :param dy: fitted Thomas-Fermi y radius
+        :var sigma: optical density
+        :return: atom number
+        """
         Rx = dx * scalex
         Ry = dy * scaley
         sigma =  3 * (0.5891583264**2)/(2 * np.pi)
@@ -306,6 +334,19 @@ class fit_object(object):
         return V/sigma
     
     def Therm_num(self, scalex,scaley):
+        """get number of BEC atoms from fit from equation
+        
+        .. math::
+           N = \\left(\\frac{2 \\pi}{3\\lambda^2}\\right)\\frac{2\\pi A}{5}R_x R_y
+           
+        :param scalex: x scale of pixel
+        :param scaley: y scale of pixel
+        :var A: fitted Gaussian amplitude
+        :var Rx: fitted Gaussian x standard deviation
+        :var Ry: fitted Gaussian y standard deviation
+        :var sigma: optical density
+        :return: atom number
+        """
         A = self.params['ATherm']
         Rx = self.params['dxTherm'].value * scalex
         Ry = self.params['dyTherm'].value* scaley
@@ -314,7 +355,11 @@ class fit_object(object):
         return V/sigma
         
     def line_profile(self):
-        """calculate line profile, with zeroes to make full image"""
+        """calculate line profile, with zeroes to make full image
+        
+        :return: two-dimensional array which has padding outside of the region of
+        interest and can be summed for profiles.
+        """
         if self.fit_type == 'Mixture':
             calc = self.TF_2D() + self.gauss_2D() - self.params['offset'].value
         else:

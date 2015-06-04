@@ -514,6 +514,7 @@ class PopPlot(QtGui.QDialog):
 
 
 class ParamEntry(QtGui.QWidget):
+    """convenience container widget to hold parameters"""
     def __init__(self, parent = None):
         """convenience container widget"""
         QtGui.QWidget.__init__(self)
