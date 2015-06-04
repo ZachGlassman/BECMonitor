@@ -11,19 +11,19 @@ It is written in pure python 3
 """
 import sys
 import os
-import pyqtgraph as pg
+import numpy as np
 from pyqtgraph.Qt import QtCore, QtGui
-import matplotlib.pyplot as plt
 import pandas as pd
-import BECMonitor_subroutines as bs
+import Subroutines as bs
 # Import the console machinery from ipython
-from BECMonitor_ipython import  QIPythonWidget
-from BECMonitor_image import ProcessImage, IncomingImage
-from BECMonitor_visualplotter import VisualPlotter
-from BECMonitor_options import Options, PlotOptions
-from BECMonitor_datatable import DataTable
-from BECMonitor_auxwidgets import TextBox, FingerTabBarWidget
-from BECMonitor_dataplots import DataPlots, ImageWindow
+from Ipython import  QIPythonWidget
+from Image import ProcessImage, IncomingImage
+from Visualplotter import VisualPlotter
+from Options import Options, PlotOptions
+from Datatable import DataTable
+from Auxwidgets import TextBox, FingerTabBarWidget
+from Dataplots import DataPlots, ImageWindow
+from Auxfuncwidget import AuxillaryFunctionContainerWidget
 #Set main options
 #pg.setConfigOption('background', 'b')
 #pg.setConfigOption('foreground', 'k')
@@ -37,6 +37,7 @@ class MainWindow(QtGui.QWidget):
     def __init__(self):
         QtGui.QWidget.__init__(self)
         self.run, self.path = bs.get_run_name()
+        
         #pandas dataframe for results
         self.expData = pd.DataFrame()
         self.processThreadPool = {}
@@ -52,8 +53,8 @@ class MainWindow(QtGui.QWidget):
     def initUI(self):
         """Iniitalize UI and name it"""
         #self.showFullScreen()
-        #self.resize(1850,950) #work
-        self.resize(1650,900) #home
+        self.resize(1850,950) #work
+        #self.resize(1650,900) #home
    
         self.center()
         self.setWindowTitle('Spinor BEC Analysis')
@@ -65,6 +66,7 @@ class MainWindow(QtGui.QWidget):
         self.plot_options = PlotOptions(self)
         self.vis_plots = VisualPlotter(self)
         self.data_tables = DataTable(self)
+        self.aux_funcs = AuxillaryFunctionContainerWidget(self)
         self.running = False
         #tabs
         self.tabs = QtGui.QTabWidget()
@@ -74,6 +76,7 @@ class MainWindow(QtGui.QWidget):
         self.tabs.addTab(self.plot_options, "Plot/Image Options")
         self.tabs.addTab(self.vis_plots, 'Data Plotter')
         self.tabs.addTab(self.data_tables, 'Data Tables')
+        self.tabs.addTab(self.aux_funcs, 'Aux Functions')
         
                                 
                                 
@@ -101,7 +104,7 @@ class MainWindow(QtGui.QWidget):
         row1.addWidget(self.image)
         #second row
         row2 = QtGui.QHBoxLayout()
-        row2.addWidget(self.tabs)
+        row2.addWidget(self.tabs, stretch = 2)
         row2.addWidget(self.ipy)
         row2col3 = QtGui.QVBoxLayout()
         row2col3.addWidget(self.text_out)
@@ -199,11 +202,11 @@ class MainWindow(QtGui.QWidget):
     def data_process(self, results_dict):
         """process the data, including spawn a thread and increment index"""
         results = results_dict['image'] #image
-        self.image.setImage(results)
+        self.image.setImage(np.transpose(results))
         
         ind = str(self.index)
         #append thread to thread pool
-        self.processThreadPool[ind]= QtCore.QThread()
+        self.processThreadPool[ind]= QtCore.QThread(self)
         #create new process image object and add to thread just created
         self.process[ind] = ProcessImage(results,results_dict['exp_params'],
             self.get_options(),
@@ -239,7 +242,10 @@ class MainWindow(QtGui.QWidget):
         """convenience function to return list of options
         note that function which recieves params must make
         deep copy or there will be problems!!"""
-        return [self.options.params,self.ROI,self.index]
+        return [self.options.params,
+                self.options.type_of_fit,
+                self.ROI,
+                self.index]
         
     def update_data(self, results_passed):
         """function to update plots and push data to ipython notebook"""
@@ -247,9 +253,9 @@ class MainWindow(QtGui.QWidget):
         self.text_out.output('Image {0} processed'.format(self.index-1))
 
         #####make into series then push to pandas array
-        
+        results['Shot'] = results['Index']
         self.expData = self.expData.append(
-            pd.DataFrame(results, index = [results['Index']]))
+            pd.DataFrame(results, index = [results['Shot']]).drop('Index',1))
         
         #Do updates of different widgets
         self.data_tables.update_pandas_table(self.expData)
@@ -269,7 +275,7 @@ class MainWindow(QtGui.QWidget):
         
     def set_up_ipy(self):
         """setup the ipython console for use with useful functions"""
-        self.ipy.executeCommand('from BECMonitor_ipython import *')
+        self.ipy.executeCommand('from Ipython import *')
         self.ipy.printText('imported numpy and matplotlib as np and plt')
       
 

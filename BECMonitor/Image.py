@@ -5,10 +5,9 @@ Image objects for handling incoming images for SpinorMonitor
 @author: zag
 """
 
-import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 import numpy as np
-import BECMonitor_fitobject as fo
+import Fitobject as fo
 import time
 import os
 
@@ -16,12 +15,20 @@ class ProcessImage(QtCore.QObject):
     """Processing object for threading purposes
     @parameters
         data: numpy array
-        options: list of options for fit parameters"""
+        options: list of options for fit parameters
+                    [params,
+                type_of_fit,
+                ROI,
+                index"""
     def __init__(self,data,exp_data,options,path,run):
         """initialize fit_object"""
         QtCore.QObject.__init__(self)
-        self.fit = fo.fit_object(options[2], options[0],options[1], data)
-        name = 'run_' + str(run) + 'index_' + str(options[2]) + '.txt'
+        self.fit = fo.fit_object(options[3], #index
+                                 options[0], #params
+                                 options[1], #type of fit
+                                 options[2], #region of interest
+                                    data)
+        name = 'run_' + str(run) + 'index_' + str(options[3]) + '.txt'
         self.savePath = os.path.join(path,name)
         self.data = data
         self.exp_data = exp_data
@@ -72,8 +79,8 @@ class IncomingImage(QtCore.QThread):
             if found, it reads it in and then deletes it"""
         #in future go to custom directory for now, just work
         try:
-            self.data = np.loadtxt('newimage.txt')
-            os.remove('newimage.txt')   
+            self.data = np.loadtxt('C:\\Users\\zag\\Documents\\BECMonitor\\newimage.txt')
+            os.remove('C:\\Users\\zag\\Documents\\BECMonitor\\newimage.txt')   
             #for now read in parameters in some useless format
             return True
         except:

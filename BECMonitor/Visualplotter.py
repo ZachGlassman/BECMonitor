@@ -11,11 +11,11 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 #here we import models for fits
-from BECMonitor_fitmodels import sinMod, gaussMod, expMod, lorentzMod, sincMod
+from Fitmodels import sinMod, gaussMod, expMod, lorentzMod, sincMod
 from lmfit import Parameters, fit_report
 import numpy as np
 import copy
-from BECMonitor_auxwidgets import TextBox
+from Auxwidgets import TextBox
 #need to add them to dict of models
 
 class VisualPlotter(QtGui.QWidget):
@@ -72,8 +72,7 @@ class VisualPlotter(QtGui.QWidget):
          #variable combo boxes
          self.xvars = QtGui.QComboBox()
          self.yvars = QtGui.QComboBox()
-         self.xvars.addItem('Index')
-         self.yvars.addItem('Index')
+         self.var_push(['Shot'])
          
          
          self.fitting_stack = QtGui.QStackedWidget()

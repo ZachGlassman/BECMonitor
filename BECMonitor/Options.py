@@ -9,7 +9,7 @@ from lmfit import Parameters
 
 class ParameterEntry(QtGui.QWidget):
     """popup box to select parameters"""
-    def __init__(self, params,first, parent = None):
+    def __init__(self, params ,first, parent = None):
         QtGui.QWidget.__init__(self,parent)
         self.setWindowTitle('Spinor Parameters')
         layout = QtGui.QGridLayout()
@@ -87,18 +87,30 @@ class Options(QtGui.QWidget):
         
         #4 different parameter objects for multiple fits!!!!
         self.params = {}
+        self.num_fits = {}
         #num_fits to keep track of number of fits (really number of extra fits)
-        self.num_fits = 0
-       
-        self.params_choose ={}
+        self.types = ['Mixture', 'Stern-Gerlach']
+        self.params_choose = {}
+        self.fit_type_l = QtGui.QLabel()
+        self.fit_type_l.setText('Fit Type')
         self.fit_type_chooser = QtGui.QComboBox()
-        self.fit_type_chooser.addItems(['Mixture', 'Stern-Gerlach'])
+        self.fit_type_chooser.addItems(self.types)
         
-     
-      
-        self.tabs = QtGui.QTabWidget()
-        #make fit panel
-        self.create_fit_panel()
+        
+        self.stacked_params = QtGui.QStackedLayout()
+        self.tabs = {}
+        self.scroll = {}
+        for i in self.types:
+            self.type_of_fit = i
+            self.num_fits[i] = 0
+            self.params[i] = {}
+            self.params_choose[i] = {}
+            self.tabs[i] = QtGui.QTabWidget()
+            self.create_fit_panel()
+            self.scroll[i] = QtGui.QScrollArea()
+            self.scroll[i].setWidget(self.tabs[i])
+            self.stacked_params.addWidget(self.scroll[i])
+            
         
         #buttons
         self.add_fit_b = QtGui.QPushButton('Add Fit')
@@ -119,25 +131,40 @@ class Options(QtGui.QWidget):
         QtCore.QObject.connect(self.get_fit_info_b,
                                QtCore.SIGNAL('clicked()'),
                                self.get_fit_info)
-                               
+        QtCore.QObject.connect(self.fit_type_chooser,
+                               QtCore.SIGNAL('activated(int)'),
+                               self.stacked_params.setCurrentIndex)
+        QtCore.QObject.connect(self.fit_type_chooser,
+                               QtCore.SIGNAL('activated(QString)'),
+                               self.set_current_fit) 
+                              
         buttons = QtGui.QHBoxLayout()
         
         buttons.addWidget(self.add_fit_b)
         buttons.addWidget(self.remove_fit_b)
         buttons.addWidget(self.get_fit_info_b)
         buttons.addWidget(self.save_params_b)
-
+        
+        top_layout = QtGui.QHBoxLayout()
+        top_layout.addWidget(self.fit_type_l)
+        top_layout.addWidget(self.fit_type_chooser)
+       
         layout = QtGui.QVBoxLayout()
         layout.setSpacing(10)
-        layout.addWidget(self.fit_type_chooser)
-        layout.addWidget(self.tabs)
+        layout.addLayout(top_layout)
+        layout.addLayout(self.stacked_params)
         layout.addLayout(buttons)
         self.setLayout(layout)
-        
+        self.type_of_fit = self.fit_type_chooser.currentText()
+
+    def set_current_fit(self,fit_name):
+        self.type_of_fit = fit_name
+
+    
     def save_params(self):
         """update params"""
-        for key in self.params.keys():
-            err = self.params_choose[key].readout()
+        for key in self.params[self.type_of_fit].keys():
+            err = self.params_choose[self.type_of_fit][key].readout()
             if err == 1:
                 print('Error')
         self.message.emit('Updated Parameters')
@@ -148,51 +175,75 @@ class Options(QtGui.QWidget):
         return 'Fit {0}'.format(index)
       
     def create_fit_panel(self):
-        key = self.make_key(self.num_fits)
-        if self.num_fits == 0:
+        """create a fit panel"""
+        key = self.make_key(self.num_fits[self.type_of_fit])
+        if self.num_fits[self.type_of_fit] == 0:
             first = True
         else:
             first = False
-        self.num_fits = self.num_fits + 1
-        self.params[key] = Parameters()
+        self.num_fits[self.type_of_fit] = self.num_fits[self.type_of_fit] + 1
+        self.params[self.type_of_fit][key] = Parameters()
            
     
         #name, Value, Vary,Min,Max, Expr
-        self.params[key].add_many(
-                ('ABEC',1,True,0,None,None),
-                ('ATherm',.2,True,.01,None,None),
-                ('dxBEC',10,True,0,None,None),
-                ('dyBEC',10,True,0,None,None),
-                ('dxTherm',30,True,25,None,None),
-                ('dyTherm',30,True,25,None,None),
-                ('x0BEC',120,True,0,None,None),
-                ('y0BEC',120,True,0,None,None),
-                ('x0Therm',120,True,0,None,None),
-                ('y0Therm',120,True,0,None,None),
-                ('offset',0,True,0,None,None),
-                ('theta',10,True,0,None,None))
-            
+        if self.type_of_fit == 'Mixture':
+            self.params[self.type_of_fit][key].add_many(
+                    ('ABEC',1,True,0,None,None),
+                    ('ATherm',.2,True,.01,None,None),
+                    ('dxBEC',10,True,0,None,None),
+                    ('dyBEC',10,True,0,None,None),
+                    ('dxTherm',30,True,25,None,None),
+                    ('dyTherm',30,True,25,None,None),
+                    ('x0BEC',120,True,0,None,None),
+                    ('y0BEC',120,True,0,None,None),
+                    ('x0Therm',120,True,0,None,None),
+                    ('y0Therm',120,True,0,None,None),
+                    ('offset',0,True,0,None,None),
+                    ('theta',0,True,0,None,None))
+                    
+        elif self.type_of_fit == 'Stern-Gerlach':
+            self.params[self.type_of_fit][key].add_many(
+                    ('ABECp1',1,True,0,None,None),
+                    ('ABEC0',1,True,0,None,None),
+                    ('ABECm1',1,True,0,None,None),
+                    ('dxBECp1',10,True,0,None,None),
+                    ('dxBEC0',10,True,0,None,None),
+                    ('dxBECm1',10,True,0,None,None),
+                    ('dyBECp1',10,True,0,None,None),
+                    ('dyBEC0',10,True,0,None,None),
+                    ('dyBECm1',10,True,0,None,None),
+                    ('x0BECp1',65,True,0,None,None),
+                    ('x0BEC0',120,True,0,None,None),
+                    ('x0BECm1',180,True,0,None,None),
+                    ('y0BECp1',120,True,0,None,None),
+                    ('y0BEC0',120,True,0,None,None),
+                    ('y0BECm1',120,True,0,None,None),
+                    ('offset',0,True,0,None,None),
+                    ('theta',0,True,0,None,None))
+     
         #spawn parameter chooser
-        self.params_choose[key] = ParameterEntry(self.params[key], first = first)
-        self.tabs.addTab(self.params_choose[key],key)
-        self.message.emit('Inialized Fit {0}'.format(self.num_fits-1))
+        self.params_choose[self.type_of_fit][key] = ParameterEntry(
+            self.params[self.type_of_fit][key], 
+            first = first)
+        self.tabs[self.type_of_fit].addTab(self.params_choose[self.type_of_fit][key],key)
+        self.message.emit('Inialized Fit {0}'.format(self.num_fits[self.type_of_fit]-1))
         
     def remove_fit_panel(self):
         """remove fit panel"""
-        if self.num_fits > 1:
-            self.num_fits = self.num_fits -1
-            key = self.make_key(self.num_fits)
-            self.tabs.removeTab(self.num_fits)
-            self.params.pop(key)
-            self.params_choose.pop(key)
-            self.message.emit('Removed Fit {0}'.format(self.num_fits))
+        if self.num_fits[self.type_of_fit] > 1:
+            self.num_fits[self.type_of_fit] = self.num_fits[self.type_of_fit] -1
+            key = self.make_key(self.num_fits[self.type_of_fit])
+            self.tabs.removeTab(self.num_fits[self.type_of_fit])
+            self.params[self.type_of_fit].pop(key)
+            self.params_choose[self.type_of_fit].pop(key)
+            self.message.emit('Removed Fit {0}'.format(self.num_fits[self.type_of_fit]))
         else:
             self.message.emit('Cannot remove all fits')
                 
          
     def get_fit_info(self):
          """popup window which has info of all fits"""
-         dialog = FitInfo(self.params)
+         dialog = FitInfo(self.params[self.type_of_fit])
          if dialog.exec_():
              pass
     

@@ -41,7 +41,7 @@ class DataPlots(QtGui.QWidget):
         self.graph_dict = {i:{} for i in self.graph_names.keys()}
         #dictionary to hold data items in graph
         self.graph_data_dict = {i:{} for i in self.graph_names.keys()}
-        self.key = 'Mixture' #type of fit to do!!!
+        
        
         self.plot_grid = {}
         #initiate all plots and put them in stacked widgets
@@ -73,7 +73,7 @@ class DataPlots(QtGui.QWidget):
         layout.setSpacing(0)
         layout.addWidget(self.plotting_stack)
         self.setLayout(layout)
-        
+        self.key = 'Mixture' #type of fit to do!!!
         
     def create_graphs(self):
         """function to create the graphs"""
@@ -197,8 +197,8 @@ class ImageWindow(pg.GraphicsLayoutWidget):
     
     def add_lines(self, results):
         """add lines to plot, input it numpy array which is then summed"""
-        self.xSlice.plot(results.sum(axis = 1))
-        self.ySlice.plot(results.sum(axis =0))
+        self.xSlice.plot(results.sum(axis = 0))
+        self.ySlice.plot(results.sum(axis = 1))
         
         
             
