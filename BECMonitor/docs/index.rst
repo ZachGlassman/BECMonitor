@@ -11,9 +11,20 @@ Contents:
 .. toctree::
    :maxdepth: 5
 	
-   BECMonitor
+   Fitobject
+   Datatablewidget
+   Auxfuncwidget
+   Ipython
+   Auxwidgets
+   Subroutines
+   Dataplots
+   Fitmodels
+   Image
+   SpinorMonitor
+   Optionswidgets
+   Auxfunctions
+   Visualplotterwidget
     
-
 
 Indices and tables
 ==================

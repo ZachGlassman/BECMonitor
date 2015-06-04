@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>VisualPlotter &mdash; BEC Monitor 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="BEC Monitor 0.0.1 documentation" href="index.html" />
+    <link rel="up" title="Visualplotterwidget" href="Visualplotterwidget.html" />
+    <link rel="prev" title="PopPlot" href="PopPlot.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="PopPlot.html" title="PopPlot"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">BEC Monitor 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="Visualplotterwidget.html" accesskey="U">Visualplotterwidget</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="visualplotter">
+<h1>VisualPlotter<a class="headerlink" href="#visualplotter" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="Visualplotterwidget.VisualPlotter">
+<em class="property">class </em><tt class="descclassname">Visualplotterwidget.</tt><tt class="descname">VisualPlotter</tt><big>(</big><em>parent=None</em><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to choose plotting visually so it is easy.  Will also 
+automatically update plots</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.add_fitting_widgets">
+<tt class="descname">add_fitting_widgets</tt><big>(</big><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.add_fitting_widgets" title="Permalink to this definition">¶</a></dt>
+<dd><p>function populates stacked box</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.avg_data">
+<tt class="descname">avg_data</tt><big>(</big><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.avg_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>average data and transform self.x_data and self.y_data
+this is a really crappy algorithm, but itm ight do the trick</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.do_fit">
+<tt class="descname">do_fit</tt><big>(</big><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.do_fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.filter_ignore">
+<tt class="descname">filter_ignore</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.filter_ignore" title="Permalink to this definition">¶</a></dt>
+<dd><p>filter data, list of indices to remove
+built list of indices not ignored</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.ignore_update">
+<tt class="descname">ignore_update</tt><big>(</big><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.ignore_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>update the ignore list parse out test</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.make_title_string">
+<tt class="descname">make_title_string</tt><big>(</big><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.make_title_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>make a title string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.make_updating_title_string">
+<tt class="descname">make_updating_title_string</tt><big>(</big><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.make_updating_title_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>make a title string</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Visualplotterwidget.VisualPlotter.message">
+<tt class="descname">message</tt><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.plot_clicked">
+<tt class="descname">plot_clicked</tt><big>(</big><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.plot_clicked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.static_plot">
+<tt class="descname">static_plot</tt><big>(</big><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.static_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>create new modal popup</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.test_fit">
+<tt class="descname">test_fit</tt><big>(</big><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.test_fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.test_plot">
+<tt class="descname">test_plot</tt><big>(</big><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.test_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.update_plots">
+<tt class="descname">update_plots</tt><big>(</big><em>df</em>, <em>index</em><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.update_plots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the updating plots whose references are stored in self.plots
+which is a dictionary
+Clean up the plots which are not there, I think if reference is lost
+garbage collection should clean them up? (need to check)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.updating_plot">
+<tt class="descname">updating_plot</tt><big>(</big><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.updating_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.validate">
+<tt class="descname">validate</tt><big>(</big><em>el</em><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>valid to make sure is a single integer or list comprehension
+and turn list comprehensions into their equivalent
+definee here since its an object method in QTGUI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.var_push">
+<tt class="descname">var_push</tt><big>(</big><em>var_list</em><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.var_push" title="Permalink to this definition">¶</a></dt>
+<dd><p>add a list of variables to options</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.VisualPlotter.verbose_avg">
+<tt class="descname">verbose_avg</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.verbose_avg" title="Permalink to this definition">¶</a></dt>
+<dd><p>average data and transform self.x_data and self.y_data
+this is a really crappy algorithm, but itm ight do the trick</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="PopPlot.html"
+                        title="previous chapter">PopPlot</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/VisualPlotter.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="PopPlot.html" title="PopPlot"
+             >previous</a> |</li>
+        <li><a href="index.html">BEC Monitor 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="Visualplotterwidget.html" >Visualplotterwidget</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Zachary Glassman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

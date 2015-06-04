@@ -1,0 +1,326 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>fit_object &mdash; BEC Monitor 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="BEC Monitor 0.0.1 documentation" href="index.html" />
+    <link rel="up" title="Fitobject" href="Fitobject.html" />
+    <link rel="next" title="Datatablewidget" href="Datatablewidget.html" />
+    <link rel="prev" title="Fitobject" href="Fitobject.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="Datatablewidget.html" title="Datatablewidget"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Fitobject.html" title="Fitobject"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">BEC Monitor 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="Fitobject.html" accesskey="U">Fitobject</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="fit-object">
+<h1>fit_object<a class="headerlink" href="#fit-object" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="Fitobject.fit_object">
+<em class="property">class </em><tt class="descclassname">Fitobject.</tt><tt class="descname">fit_object</tt><big>(</big><em>index</em>, <em>params</em>, <em>type_of_fit</em>, <em>roi</em>, <em>data</em><big>)</big><a class="headerlink" href="#Fitobject.fit_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>fit object holds all the information for a single fit_sequence</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>index</strong> (<em>string</em>) &#8211; Shot number</li>
+<li><strong>params</strong> (<em>dictionary</em>) &#8211; dictionary of Parameters objects containing fit parameters</li>
+<li><strong>type_of_fit</strong> (<em>string</em>) &#8211; type of fit to be performed</li>
+<li><strong>roi</strong> (<em>list</em>) &#8211; region of interest to crop data for fit</li>
+<li><strong>data</strong> (<em>numpy array</em>) &#8211; numpy array of image to be analyzed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="Fitobject.fit_object.BEC_num">
+<tt class="descname">BEC_num</tt><big>(</big><em>scalex</em>, <em>scaley</em><big>)</big><a class="headerlink" href="#Fitobject.fit_object.BEC_num" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.BEC_num_1">
+<tt class="descname">BEC_num_1</tt><big>(</big><em>scalex</em>, <em>scaley</em>, <em>A</em>, <em>dx</em>, <em>dy</em><big>)</big><a class="headerlink" href="#Fitobject.fit_object.BEC_num_1" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper function for BEC num</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.TF_2D">
+<tt class="descname">TF_2D</tt><big>(</big><big>)</big><a class="headerlink" href="#Fitobject.fit_object.TF_2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>two dimensional Thomas Fermi which is not normalized of the form:</p>
+<div class="math">
+\[TF = A \max\left\{\left[1-\left(\frac{x_c}{dx}\right)^2-\left(\frac{y_c}{dy}\right)^2\right],0\right\}^{3/2}\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x0</strong> &#8211; absolute x center</li>
+<li><strong>y0</strong> &#8211; absolute y center</li>
+<li><strong>xc</strong> &#8211; rotated x center</li>
+<li><strong>yc</strong> &#8211; rotated y center</li>
+<li><strong>theta</strong> &#8211; angle relative to x axis</li>
+<li><strong>A</strong> &#8211; amplitude</li>
+<li><strong>dx</strong> &#8211; Thomas-Fermi radius on rotated x axis</li>
+<li><strong>dy</strong> &#8211; Thomas-Fermi radius on rotated y axis</li>
+<li><strong>off</strong> &#8211; offsett</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.Therm_num">
+<tt class="descname">Therm_num</tt><big>(</big><em>scalex</em>, <em>scaley</em><big>)</big><a class="headerlink" href="#Fitobject.fit_object.Therm_num" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.bimod2min">
+<tt class="descname">bimod2min</tt><big>(</big><em>params</em><big>)</big><a class="headerlink" href="#Fitobject.fit_object.bimod2min" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to minimize, need to subtract offset since included
+in both terms</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.create_vecs">
+<tt class="descname">create_vecs</tt><big>(</big><em>roi</em><big>)</big><a class="headerlink" href="#Fitobject.fit_object.create_vecs" title="Permalink to this definition">¶</a></dt>
+<dd><p>create vectors scaled by pixel size</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>roi</strong> (<em>list</em>) &#8211; region of interest list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.fit_image">
+<tt class="descname">fit_image</tt><big>(</big><big>)</big><a class="headerlink" href="#Fitobject.fit_object.fit_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>fit corrected image with parameters from params</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.gauss_2D">
+<tt class="descname">gauss_2D</tt><big>(</big><big>)</big><a class="headerlink" href="#Fitobject.fit_object.gauss_2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>two dimensional Gaussian which is not normalized of the form:</p>
+<div class="math">
+\[G = A \exp\left(-\frac{(x-x_c)^2}{2dx^2}- \frac{(y-y_c)^2}{2dy^2}\right)+ Off\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x0</strong> &#8211; absolute x center</li>
+<li><strong>y0</strong> &#8211; absolute y center</li>
+<li><strong>xc</strong> &#8211; rotated x center</li>
+<li><strong>yc</strong> &#8211; rotated y center</li>
+<li><strong>theta</strong> &#8211; angle relative to x axis</li>
+<li><strong>A</strong> &#8211; amplitude</li>
+<li><strong>dx</strong> &#8211; standard deviation on rotated x axis</li>
+<li><strong>dy</strong> &#8211; standard deviation on rotated y axis</li>
+<li><strong>off</strong> &#8211; offsett</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.get_angled_line">
+<tt class="descname">get_angled_line</tt><big>(</big><em>x0</em>, <em>y0</em>, <em>theta</em><big>)</big><a class="headerlink" href="#Fitobject.fit_object.get_angled_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>get angled line for angle theta with formulas</p>
+<div class="math">
+\[x_c = (x-x_0) \cos(\theta) - (y-y_0) \sin(\theta)\]\[y_c = (x-x_0) \sin(\theta) - (y-y_0) \cos(\theta)\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x0</strong> &#8211; absolute x center</li>
+<li><strong>y0</strong> &#8211; absolute y center</li>
+<li><strong>xc</strong> &#8211; rotated x center</li>
+<li><strong>yc</strong> &#8211; rotated y center</li>
+<li><strong>theta</strong> &#8211; angle relative to x axis</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.line_profile">
+<tt class="descname">line_profile</tt><big>(</big><big>)</big><a class="headerlink" href="#Fitobject.fit_object.line_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate line profile, with zeroes to make full image</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.multiple_fits">
+<tt class="descname">multiple_fits</tt><big>(</big><big>)</big><a class="headerlink" href="#Fitobject.fit_object.multiple_fits" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to fit sequentially with input defined from SpinorMonitor
+we may need to take parameters of previous fit!!
+do fit, update values, do next fit</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.partial_TF_2D">
+<tt class="descname">partial_TF_2D</tt><big>(</big><em>xc</em>, <em>yc</em>, <em>A</em>, <em>dx</em>, <em>dy</em><big>)</big><a class="headerlink" href="#Fitobject.fit_object.partial_TF_2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>two dimensional non-rotated Thomas Fermi which is not normalized of the form:</p>
+<div class="math">
+\[TF = A \max\left\{\left[1-\left(\frac{x_c}{dx}\right)^2-\left(\frac{y_c}{dy}\right)^2\right],0\right\}^{3/2}\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xc</strong> &#8211; absolute x center</li>
+<li><strong>yc</strong> &#8211; absolute y center</li>
+<li><strong>A</strong> &#8211; amplitude</li>
+<li><strong>dx</strong> &#8211; Thomas-Fermi radius on rotated x axis</li>
+<li><strong>dy</strong> &#8211; Thomas-Fermi radius on rotated y axis</li>
+<li><strong>off</strong> &#8211; offsett</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.process_results">
+<tt class="descname">process_results</tt><big>(</big><em>scalex</em>, <em>scaley</em><big>)</big><a class="headerlink" href="#Fitobject.fit_object.process_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>process results of fit and allow output return dictonary
+scale with the appropriate pixel values after fit</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.sg2min">
+<tt class="descname">sg2min</tt><big>(</big><em>params</em><big>)</big><a class="headerlink" href="#Fitobject.fit_object.sg2min" title="Permalink to this definition">¶</a></dt>
+<dd><p>stern gerlach function to minimize</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.stern_gerlach_2D">
+<tt class="descname">stern_gerlach_2D</tt><big>(</big><big>)</big><a class="headerlink" href="#Fitobject.fit_object.stern_gerlach_2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>2 dimensional three thomas fermi distributions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Fitobject.fit_object.subtract_background">
+<tt class="descname">subtract_background</tt><big>(</big><big>)</big><a class="headerlink" href="#Fitobject.fit_object.subtract_background" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subtract background from image
+&#64;params</p>
+<blockquote>
+<div>none</div></blockquote>
+<dl class="docutils">
+<dt>&#64;returns</dt>
+<dd>null, but modifies image_corrected</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Fitobject.html"
+                        title="previous chapter">Fitobject</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Datatablewidget.html"
+                        title="next chapter">Datatablewidget</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/fit_object.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="Datatablewidget.html" title="Datatablewidget"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Fitobject.html" title="Fitobject"
+             >previous</a> |</li>
+        <li><a href="index.html">BEC Monitor 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="Fitobject.html" >Fitobject</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Zachary Glassman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

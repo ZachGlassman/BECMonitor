@@ -12,6 +12,7 @@ from imp import reload
 class AuxillaryFunctionContainerWidget(QtGui.QWidget):
     """class for displaying container of auxillary function widgets
     will hold a stacked layout of all auxillary functions"""
+    
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self)
         self.func_stack = QtGui.QStackedWidget()
@@ -132,15 +133,3 @@ class AuxillaryFunctionWidget(QtGui.QWidget):
         
         return source_l
         
-
-class testing(object):
-    def __init__(self,func):
-        self.func = getattr(af, func)
-        self.args = inspect.getargspec(self.func)[0]
-        self.source = inspect.getsource(self.func)
-        self.doc = self.func.__doc__
-   
-    
-
-func_list = [name for name, val in af.__dict__.items() if callable(val)]   
-testing(func_list[0])

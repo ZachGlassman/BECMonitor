@@ -18,9 +18,9 @@ import Subroutines as bs
 # Import the console machinery from ipython
 from Ipython import  QIPythonWidget
 from Image import ProcessImage, IncomingImage
-from Visualplotter import VisualPlotter
-from Options import Options, PlotOptions
-from Datatable import DataTable
+from Visualplotterwidget import VisualPlotter
+from Optionswidgets import Options, PlotOptions
+from Datatablewidget import DataTable
 from Auxwidgets import TextBox, FingerTabBarWidget
 from Dataplots import DataPlots, ImageWindow
 from Auxfuncwidget import AuxillaryFunctionContainerWidget
@@ -32,8 +32,27 @@ from Auxfuncwidget import AuxillaryFunctionContainerWidget
 
         
 class MainWindow(QtGui.QWidget):
-    """Main Window for the app, contains the graphs panel and the options
-      panel"""
+    """ Main Window for the app, contains the graphs panel and the options
+    panel.  Executes main control of all other panels.
+      
+    :var expData: Pandas dataframe where all experiment information is kept
+    :var run: Run number for the day
+    :var path: Path to data storage folder
+    :var processThreadPool: Dictionary of running threads
+    :var process: Convenience dictionary to initialize objects
+    :var ROI: region of interest
+    :var running: Boolean if data collection thread is active
+    :var index: keeps track of shot internally
+    :var image: ImageWindow widget
+    :var plots: DataPlots widget
+    :var options: Options widget
+    :var plot_options: PlotOptions widget
+    :var vis_plots: VisualPlotter widget
+    :var data_tables: DataTable widget
+    :var aux_funcs: AuxillaryFunctionContainerWidget widget
+    :var tabs: QTabWidget, contains other widgets
+    :var ipy: QIPythonWidget
+    """
     def __init__(self):
         QtGui.QWidget.__init__(self)
         self.run, self.path = bs.get_run_name()
@@ -51,7 +70,10 @@ class MainWindow(QtGui.QWidget):
 
         
     def initUI(self):
-        """Iniitalize UI and name it"""
+        """
+        Iniitalize UI and name it.  Creat all children widgets and place 
+        them in layout
+        """
         #self.showFullScreen()
         self.resize(1850,950) #work
         #self.resize(1650,900) #home
@@ -140,11 +162,25 @@ class MainWindow(QtGui.QWidget):
        
     @QtCore.pyqtSlot(object)
     def on_message(self,data):
+        """
+        Send message to output windows
+        
+        :param data: message to send
+        :type data: object
+        
+        """
         self.text_out.output(str(data))
         
     @QtCore.pyqtSlot(object)
     def on_fit_name(self, data):
+        """
+        Triggers the plots.change_key functions with argument data.
+        
+        :params data: name of fit
+        :type data: string
+        """
         self.plots.change_key(data)
+
         
     def center(self):
         """Centers Window"""
@@ -154,7 +190,10 @@ class MainWindow(QtGui.QWidget):
         self.move(qr.topLeft())
         
     def get_roi(self):
-        """returns region of interest in list [xstart,xend,ystart,yend,angle]"""
+        """returns region of interest in list
+        :returns: [xstart,xend,ystart,yend,angle]
+        :rtype: list
+        """
         start = self.image.roi.pos()
         size  = self.image.roi.size()
         angle = self.image.roi.angle()
@@ -163,14 +202,17 @@ class MainWindow(QtGui.QWidget):
         self.plot_options.set_roi(self.ROI)
       
     def change_state(self):
-        """control start and stop"""
+        """start and stop data collection thread"""
         if self.running:
             self.end()
         else:
             self.start()
             
     def start(self):
-        """Function to start listening thread"""
+        """Function to start listening thread, connect signals and 
+        :var imageThread: IncomingImage object listening for images
+        
+        """
         self.running = True
         self.imageThread = IncomingImage()
         QtCore.QObject.connect(self.imageThread,
@@ -183,7 +225,9 @@ class MainWindow(QtGui.QWidget):
         self.runButton.setStyleSheet("background-color: green")
     
     def end(self):
-        """functino to stop listening Thread"""
+        """function to stop listening Thread, writes out expData to csv
+        in smae folder as data printing
+        """
         self.running = False
         self.runButton.setStyleSheet("background-color: red")
             
@@ -197,6 +241,7 @@ class MainWindow(QtGui.QWidget):
            print('Thread not Terminated')
         
     def data_recieved(self):
+        """Send message that data was recieved"""
         self.text_out.output('Image {0} recieved'.format(self.index))
         
     def data_process(self, results_dict):

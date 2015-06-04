@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>MainWindow &mdash; BEC Monitor 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="BEC Monitor 0.0.1 documentation" href="index.html" />
+    <link rel="up" title="SpinorMonitor" href="SpinorMonitor.html" />
+    <link rel="next" title="Optionswidgets" href="Optionswidgets.html" />
+    <link rel="prev" title="SpinorMonitor" href="SpinorMonitor.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="Optionswidgets.html" title="Optionswidgets"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="SpinorMonitor.html" title="SpinorMonitor"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">BEC Monitor 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="SpinorMonitor.html" accesskey="U">SpinorMonitor</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mainwindow">
+<h1>MainWindow<a class="headerlink" href="#mainwindow" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="SpinorMonitor.MainWindow">
+<em class="property">class </em><tt class="descclassname">SpinorMonitor.</tt><tt class="descname">MainWindow</tt><a class="headerlink" href="#SpinorMonitor.MainWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main Window for the app, contains the graphs panel and the options
+panel.  Executes main control of all other panels.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>expData</strong> &#8211; Pandas dataframe where all experiment information is kept</li>
+<li><strong>run</strong> &#8211; Run number for the day</li>
+<li><strong>path</strong> &#8211; Path to data storage folder</li>
+<li><strong>processThreadPool</strong> &#8211; Dictionary of running threads</li>
+<li><strong>process</strong> &#8211; Convenience dictionary to initialize objects</li>
+<li><strong>ROI</strong> &#8211; region of interest</li>
+<li><strong>running</strong> &#8211; Boolean if data collection thread is active</li>
+<li><strong>index</strong> &#8211; keeps track of shot internally</li>
+<li><strong>image</strong> &#8211; ImageWindow widget</li>
+<li><strong>plots</strong> &#8211; DataPlots widget</li>
+<li><strong>options</strong> &#8211; Options widget</li>
+<li><strong>plot_options</strong> &#8211; PlotOptions widget</li>
+<li><strong>vis_plots</strong> &#8211; VisualPlotter widget</li>
+<li><strong>data_tables</strong> &#8211; DataTable widget</li>
+<li><strong>aux_funcs</strong> &#8211; AuxillaryFunctionContainerWidget widget</li>
+<li><strong>tabs</strong> &#8211; QTabWidget, contains other widgets</li>
+<li><strong>ipy</strong> &#8211; QIPythonWidget</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.center">
+<tt class="descname">center</tt><big>(</big><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.center" title="Permalink to this definition">¶</a></dt>
+<dd><p>Centers Window</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.change_state">
+<tt class="descname">change_state</tt><big>(</big><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.change_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>start and stop data collection thread</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.data_process">
+<tt class="descname">data_process</tt><big>(</big><em>results_dict</em><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.data_process" title="Permalink to this definition">¶</a></dt>
+<dd><p>process the data, including spawn a thread and increment index</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.data_recieved">
+<tt class="descname">data_recieved</tt><big>(</big><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.data_recieved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send message that data was recieved</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.end">
+<tt class="descname">end</tt><big>(</big><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to stop listening Thread, writes out expData to csv
+in smae folder as data printing</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.finish_thread">
+<tt class="descname">finish_thread</tt><big>(</big><em>ind</em><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.finish_thread" title="Permalink to this definition">¶</a></dt>
+<dd><p>pop the process should destroy it all I think/</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.get_options">
+<tt class="descname">get_options</tt><big>(</big><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.get_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>convenience function to return list of options
+note that function which recieves params must make
+deep copy or there will be problems!!</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.get_roi">
+<tt class="descname">get_roi</tt><big>(</big><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.get_roi" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns region of interest in list
+:returns: [xstart,xend,ystart,yend,angle]
+:rtype: list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.initUI">
+<tt class="descname">initUI</tt><big>(</big><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.initUI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iniitalize UI and name it.  Creat all children widgets and place 
+them in layout</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.on_fit_name">
+<tt class="descname">on_fit_name</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.on_fit_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triggers the plots.change_key functions with argument data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Params data:</th><td class="field-body">name of fit</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.on_message">
+<tt class="descname">on_message</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.on_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send message to output windows</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> (<em>object</em>) &#8211; message to send</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.set_up_ipy">
+<tt class="descname">set_up_ipy</tt><big>(</big><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.set_up_ipy" title="Permalink to this definition">¶</a></dt>
+<dd><p>setup the ipython console for use with useful functions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to start listening thread, connect signals and 
+:var imageThread: IncomingImage object listening for images</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.to_ipy">
+<tt class="descname">to_ipy</tt><big>(</big><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.to_ipy" title="Permalink to this definition">¶</a></dt>
+<dd><p>push all variables to Ipython notebook</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SpinorMonitor.MainWindow.update_data">
+<tt class="descname">update_data</tt><big>(</big><em>results_passed</em><big>)</big><a class="headerlink" href="#SpinorMonitor.MainWindow.update_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to update plots and push data to ipython notebook</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="SpinorMonitor.html"
+                        title="previous chapter">SpinorMonitor</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Optionswidgets.html"
+                        title="next chapter">Optionswidgets</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/MainWindow.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="Optionswidgets.html" title="Optionswidgets"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="SpinorMonitor.html" title="SpinorMonitor"
+             >previous</a> |</li>
+        <li><a href="index.html">BEC Monitor 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="SpinorMonitor.html" >SpinorMonitor</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Zachary Glassman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

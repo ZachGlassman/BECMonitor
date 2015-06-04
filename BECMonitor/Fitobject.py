@@ -8,34 +8,20 @@ import numpy as np
 from lmfit import minimize, Parameters, Parameter, report_fit
 import copy
 
-"""
-For all routines involved with fitting, we will use a global parameters object
-with the following attributes
-    ABEC    - amplitude of Thomas-Fermi profile - linked to NBEC atoms
-    ATherm  - amplitude of Gaussian profile - linked to NTherm
-    dxBEC   - x width of Thomas-Fermi
-    dyBEC   - y width of Thomas-Fermi
-    dxTherm - x width of Gaussian (or enhanced Gaussian) profile
-    dyTherm - y width of Gaussian (or enhanced Gaussian) profile
-    x0BEC   - x center of Thomas-Fermi profile
-    y0BEC   - y center of Thomas-Fermi profile
-    x0Therm - x center of Gaussian profile
-    offset  - offset to fits
-    theta   - rotation of x-y plane
-
-These routines  are mostly used with the BECMonitor program, however they are
-also proper for themselves.  They will be implemented within a fit object which
-contains the data and fitted routines.
-"""
             
 class fit_object(object):
-    """fit object holds all the information for a single fit
-        initiated with a name and a params_dict which contains:
-            file location of image
-            inital guesses for parameters
-            restrictions on parameters
-            fit type
-            region of interest
+    """fit object holds all the information for a single fit_sequence
+    
+    :param index: Shot number
+    :type index: string
+    :param params: dictionary of Parameters objects containing fit parameters
+    :type params: dictionary
+    :param type_of_fit: type of fit to be performed
+    :type type_of_fit: string
+    :param roi: region of interest to crop data for fit
+    :type roi: list
+    :param data: numpy array of image to be analyzed
+    :type data: numpy array
     """
     
     def __init__(self, index, params, type_of_fit, roi, data):
@@ -67,15 +53,31 @@ class fit_object(object):
 
             
     def create_vecs(self,roi):
-        """create vectors scaled by pixel size"""
+        """create vectors scaled by pixel size
+        
+        :param roi: region of interest list
+        :type roi: list
+        """
         y = np.arange(roi[0],roi[1],1)
         x = np.arange(roi[2],roi[3], 1)
         X,Y = np.meshgrid(x,y)
         return X,Y
         
     def gauss_2D(self):
-        """two dimensional Gaussian which is not normalized of the form
-         G = A * exp(-1/2 *(x-x0)^2/dx^2-1/2 * (y-y0)^2/dy^2)
+        """two dimensional Gaussian which is not normalized of the form:
+        
+        .. math::
+            G = A \\exp\\left(-\\frac{(x-x_c)^2}{2dx^2}- \\frac{(y-y_c)^2}{2dy^2}\\right)+ Off
+        
+        :var x0: absolute x center 
+        :var y0: absolute y center 
+        :var xc: rotated x center 
+        :var yc: rotated y center 
+        :var theta: angle relative to x axis
+        :var A: amplitude
+        :var dx: standard deviation on rotated x axis
+        :var dy: standard deviation on rotated y axis
+        :var off: offsett
         """
         #read out
         x0 = self.params['x0Therm'].value
@@ -92,8 +94,20 @@ class fit_object(object):
         return off + A * np.exp(-a-b)
       
     def TF_2D(self):
-        """two dimensional Thomas Fermi which is not normalized of the form
-        TF =
+        """two dimensional Thomas Fermi which is not normalized of the form:
+        
+        .. math::
+            TF = A \\max\\left\\{\\left[1-\\left(\\frac{x_c}{dx}\\right)^2-\\left(\\frac{y_c}{dy}\\right)^2\\right],0\\right\\}^{3/2}
+            
+        :var x0: absolute x center 
+        :var y0: absolute y center 
+        :var xc: rotated x center 
+        :var yc: rotated y center 
+        :var theta: angle relative to x axis
+        :var A: amplitude
+        :var dx: Thomas-Fermi radius on rotated x axis
+        :var dy: Thomas-Fermi radius on rotated y axis
+        :var off: offsett
         """
         x0 = self.params['x0BEC'].value
         y0 = self.params['y0BEC'].value
@@ -133,12 +147,24 @@ class fit_object(object):
         xcp1, ycp1 = self.get_angled_line(x0p1,y0p1,theta)
         xc0, yc0 = self.get_angled_line(x00,y00,theta)
         xcm1, ycm1 = self.get_angled_line(x0m1,y0m1,theta)
-        TFp1 = self.partial_TF_2D(xcp1,ycp1,Ap1,dxp1,dyp1,theta)
-        TF0 = self.partial_TF_2D(xc0,yc0,A0,dx0,dy0,theta)
-        TFm1 = self.partial_TF_2D(xcm1,ycm1,Am1,dxm1,dym1,theta)
+        TFp1 = self.partial_TF_2D(xcp1,ycp1,Ap1,dxp1,dyp1)
+        TF0 = self.partial_TF_2D(xc0,yc0,A0,dx0,dy0)
+        TFm1 = self.partial_TF_2D(xcm1,ycm1,Am1,dxm1,dym1)
         return TFp1 + TF0 + TFm1 + offset
     
-    def partial_TF_2D(self,xc,yc,A,dx,dy,theta):
+    def partial_TF_2D(self,xc,yc,A,dx,dy):
+        """two dimensional non-rotated Thomas Fermi which is not normalized of the form:
+        
+        .. math::
+            TF = A \\max\\left\\{\\left[1-\\left(\\frac{x_c}{dx}\\right)^2-\\left(\\frac{y_c}{dy}\\right)^2\\right],0\\right\\}^{3/2}
+            
+        :param xc: absolute x center 
+        :param yc: absolute y center 
+        :param A: amplitude
+        :param dx: Thomas-Fermi radius on rotated x axis
+        :param dy: Thomas-Fermi radius on rotated y axis
+        :param off: offsett
+        """
         a = (np.divide((xc),dx))**2
         aa = (np.divide((yc),dy))**2
         bb = np.subtract(np.subtract(1, a), aa)
@@ -147,6 +173,20 @@ class fit_object(object):
         return np.multiply(A,b) 
         
     def get_angled_line(self,x0,y0,theta):
+        """get angled line for angle theta with formulas
+        
+        .. math::
+           x_c = (x-x_0) \\cos(\\theta) - (y-y_0) \\sin(\\theta)
+           
+           y_c = (x-x_0) \\sin(\\theta) - (y-y_0) \\cos(\\theta)
+           
+        :param x0: absolute x center 
+        :param y0: absolute y center 
+        :param xc: rotated x center 
+        :param yc: rotated y center 
+        :param theta: angle relative to x axis
+           
+        """
         xc = (self.x-x0)*np.cos(theta) - (self.y-y0)*np.sin(theta)
         yc = (self.x-x0)*np.sin(theta) - (self.y-y0)*np.cos(theta)
         return xc, yc
@@ -159,6 +199,7 @@ class fit_object(object):
         return b.ravel()
        
     def sg2min(self, params):
+        """stern gerlach function to minimize"""
         a = self.stern_gerlach_2D() - self.image     
         return a.ravel()
         
