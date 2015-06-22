@@ -178,25 +178,47 @@
 <dt id="Visualplotterwidget.VisualPlotter">
 <em class="property">class </em><code class="descclassname">Visualplotterwidget.</code><code class="descname">VisualPlotter</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.VisualPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class to choose plotting visually so it is easy.  Will also 
-automatically update plots</p>
+automatically update plots for every shot.  Can automatically fit on a 
+single shot or updating shot basis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first simple">
+<li><a class="reference internal" href="#Visualplotterwidget.VisualPlotter.message" title="Visualplotterwidget.VisualPlotter.message"><strong>message</strong></a> &#8211; pyqtSignal which can be transmitted to main message box</li>
+<li><strong>plots</strong> &#8211; Dictionary to hold all the plots</li>
+<li><strong>data</strong> &#8211; local copy of entire pandas dataframe</li>
+<li><strong>index</strong> &#8211; index of shot</li>
+<li><a class="reference internal" href="MainWindow.html#SpinorMonitor.MainWindow.start" title="SpinorMonitor.MainWindow.start"><strong>start</strong></a> &#8211; start of plot region</li>
+<li><a class="reference internal" href="MainWindow.html#SpinorMonitor.MainWindow.end" title="SpinorMonitor.MainWindow.end"><strong>end</strong></a> &#8211; end of plot region</li>
+<li><strong>ignore_list</strong> &#8211; list of shots to ignore</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Fit_models:</th><td class="field-body"><p class="first last">different models to fit too needs to be updated when models added</p>
+</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Methods</p>
 <dl class="method">
 <dt id="Visualplotterwidget.VisualPlotter.add_fitting_widgets">
 <code class="descname">add_fitting_widgets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.add_fitting_widgets" title="Permalink to this definition">¶</a></dt>
-<dd><p>function populates stacked box</p>
+<dd><p>function populates stacked box for each type of fit</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Visualplotterwidget.VisualPlotter.avg_data">
 <code class="descname">avg_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.avg_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>average data and transform self.x_data and self.y_data
-this is a really crappy algorithm, but itm ight do the trick</p>
+this is a really crappy algorithm, but it does the trick</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Visualplotterwidget.VisualPlotter.do_fit">
 <code class="descname">do_fit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.do_fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>do a fit</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="Visualplotterwidget.VisualPlotter.filter_ignore">
@@ -231,37 +253,50 @@ built list of indices not ignored</p>
 <dl class="method">
 <dt id="Visualplotterwidget.VisualPlotter.plot_clicked">
 <code class="descname">plot_clicked</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.plot_clicked" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>function called when any plot option is called, sets the start and
+end values</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="Visualplotterwidget.VisualPlotter.static_plot">
 <code class="descname">static_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.static_plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>create new modal popup</p>
+<dd><p>create new modal popup static plot</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Visualplotterwidget.VisualPlotter.test_fit">
 <code class="descname">test_fit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.test_fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>do a fit on the test plto</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="Visualplotterwidget.VisualPlotter.test_plot">
 <code class="descname">test_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.test_plot" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>update the test plot</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="Visualplotterwidget.VisualPlotter.update_plots">
 <code class="descname">update_plots</code><span class="sig-paren">(</span><em>df</em>, <em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.update_plots" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update the updating plots whose references are stored in self.plots
-which is a dictionary
-Clean up the plots which are not there, I think if reference is lost
-garbage collection should clean them up? (need to check)</p>
+<dd><p>Update the updating plots whose references are stored in self.plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Params df:</th><td class="field-body">pandas dataframe holding data</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Params index:</th><td class="field-body">index of shot</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="Visualplotterwidget.VisualPlotter.updating_plot">
 <code class="descname">updating_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.updating_plot" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>create an updating plot and fill it with parameters 
+gathered from current state of widgets</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="Visualplotterwidget.VisualPlotter.validate">
@@ -281,7 +316,7 @@ definee here since its an object method in QTGUI</p>
 <dt id="Visualplotterwidget.VisualPlotter.verbose_avg">
 <code class="descname">verbose_avg</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.VisualPlotter.verbose_avg" title="Permalink to this definition">¶</a></dt>
 <dd><p>average data and transform self.x_data and self.y_data
-this is a really crappy algorithm, but itm ight do the trick</p>
+this is a really crappy algorithm, but it does the trick</p>
 </dd></dl>
 
 </dd></dl>

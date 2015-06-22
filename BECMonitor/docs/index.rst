@@ -3,8 +3,28 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to BEC Monitor's documentation!
+BEC Monitor
 =======================================
+
+This software is used in the Lett Lab of the Laser Cooling and 
+Trapping group at NIST/JQI for experiments on Spinor Na Bose-Einstein 
+condensates.  
+
+Usage
+---------
+
+Install the required packages
+
+- numpy
+- scipy
+- pyqtgraph
+- pyqt
+- lmfit
+- pandas
+
+To use just run SpinorMonitor.py
+
+
 
 Contents:
 

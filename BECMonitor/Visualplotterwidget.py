@@ -20,7 +20,19 @@ from Auxwidgets import TextBox
 
 class VisualPlotter(QtGui.QWidget):
     """Class to choose plotting visually so it is easy.  Will also 
-    automatically update plots"""
+    automatically update plots for every shot.  Can automatically fit on a 
+    single shot or updating shot basis.
+    
+    :var message: pyqtSignal which can be transmitted to main message box
+    :var plots: Dictionary to hold all the plots
+    :var data: local copy of entire pandas dataframe
+    :var index: index of shot
+    :var start: start of plot region
+    :var end: end of plot region
+    :var ignore_list: list of shots to ignore
+    :fit_models: different models to fit too needs to be updated when models added
+    
+    """
     
     message = QtCore.pyqtSignal(str, name = 'message')
     def __init__(self, parent = None):
@@ -182,7 +194,7 @@ class VisualPlotter(QtGui.QWidget):
          
     
     def add_fitting_widgets(self):
-        """function populates stacked box"""
+        """function populates stacked box for each type of fit"""
         fits = sorted(list(self.fit_models.keys()))
         #loop through fits
         fit_widget = {}
@@ -195,7 +207,7 @@ class VisualPlotter(QtGui.QWidget):
                 self.params_objects[i].add(j)
                 lay = QtGui.QHBoxLayout()
                 self.fit_param_dict[i][j] = QtGui.QDoubleSpinBox()
-                self.fit_param_dict[i][j].setMaximum(1e7)
+                self.fit_param_dict[i][j].setMaximum(1e17)
                 lay.addWidget(QtGui.QLabel(j))
                 lay.addWidget(self.fit_param_dict[i][j])
                 fit_widget[i].layout.addLayout(lay)
@@ -208,9 +220,11 @@ class VisualPlotter(QtGui.QWidget):
         
     def update_plots(self ,df, index):
         """Update the updating plots whose references are stored in self.plots
-        which is a dictionary
-        Clean up the plots which are not there, I think if reference is lost
-        garbage collection should clean them up? (need to check)"""
+        
+        :params df: pandas dataframe holding data
+        :type df: pandas.DataFrame
+        :params index: index of shot
+        """
         
         self.index = index
         self.data = df
@@ -242,6 +256,9 @@ class VisualPlotter(QtGui.QWidget):
         self.yvars.addItems(var_list)
      
     def plot_clicked(self):
+        """function called when any plot option is called, sets the start and
+        end values
+        """
         self.x = str(self.xvars.currentText())
         self.y = str(self.yvars.currentText())
         if self.checkstart.isChecked():
@@ -254,6 +271,9 @@ class VisualPlotter(QtGui.QWidget):
             self.end = list(self.data.index)[-1]
             
     def updating_plot(self):
+        """create an updating plot and fill it with parameters 
+        gathered from current state of widgets
+        """
         self.plot_clicked()
         #create new plot
         fit_type = self.fitting_select.currentText()
@@ -283,7 +303,7 @@ class VisualPlotter(QtGui.QWidget):
         
         
     def static_plot(self):
-        """create new modal popup"""
+        """create new modal popup static plot"""
         self.plot_clicked()
         x_data = self.filter_ignore(self.data[self.x]).get_values()
         y_data = self.filter_ignore(self.data[self.y]).get_values()
@@ -305,6 +325,7 @@ class VisualPlotter(QtGui.QWidget):
         staticplot.show()
         
     def test_plot(self):
+        """update the test plot"""
         self.plot_clicked()
         self.ax.hold(False)
         #get the variables
@@ -325,6 +346,7 @@ class VisualPlotter(QtGui.QWidget):
         self.canvas.draw()
     
     def test_fit(self):
+        """do a fit on the test plto"""
         self.ax.hold(True)
         self.plot_clicked()
         #get the variables
@@ -343,6 +365,7 @@ class VisualPlotter(QtGui.QWidget):
        
       
     def do_fit(self):
+        """ do a fit"""
         self.ax.hold(True)
         self.plot_clicked()
         self.x_data = self.filter_ignore(self.data[self.x]).get_values()
@@ -423,7 +446,7 @@ class VisualPlotter(QtGui.QWidget):
                 
     def avg_data(self):
         """average data and transform self.x_data and self.y_data
-        this is a really crappy algorithm, but itm ight do the trick"""
+        this is a really crappy algorithm, but it does the trick"""
         x = self.x_data
         y = self.y_data
         ans = []
@@ -442,7 +465,7 @@ class VisualPlotter(QtGui.QWidget):
     
     def verbose_avg(self,x,y):
         """average data and transform self.x_data and self.y_data
-        this is a really crappy algorithm, but itm ight do the trick"""
+        this is a really crappy algorithm, but it does the trick"""
         ans = []
         distinct = set(list(x))
         for i in distinct:
@@ -459,7 +482,19 @@ class VisualPlotter(QtGui.QWidget):
 
         
 class PopPlot(QtGui.QDialog):
-    """popup class for plots"""
+    """popup class for plots both static and updating
+    
+    :var ax: matplotlib axis
+    :var figure: matplotlib figure
+    :var canvas: matplotlib canvas
+    :var toolbar: matplotlib navigation toolbar
+    :param mod: lmfit Model object for fitting
+    :type mod: lmfit.Model
+    :param do_fit: Boolean if fitting should occur
+    :type do_fit: Boolean
+    :param params: fit parameters
+    :type params: lmfit.Parameters
+    """
     def __init__(self,mod = None, params = None,do_fit = False, parent = None):
         QtGui.QDialog.__init__(self)
         self.figure = plt.figure()
@@ -484,6 +519,17 @@ class PopPlot(QtGui.QDialog):
         
         
     def update_init(self,xl,yl,title,ignore,start):
+        """update the parameters to start
+        
+        :param title: title of plot
+        :type title: string
+        :param xl: x label
+        :type xl: string
+        :param yl: y label
+        :type yl: string
+        :param start: starting index
+        :type start: int
+        """
         self.xl = xl
         self.yl = yl
         self.start = start
@@ -491,6 +537,21 @@ class PopPlot(QtGui.QDialog):
         self.ignore = ignore
     
     def plot(self,x,y,xl,yl,title,std):
+        """plot the data with a new fit if do_fit == True
+        
+        :params x: x vector of points
+        :type x: list,numpy.array
+        :params y: y vector of points
+        :type y: y list,numpy.array
+        :params xl: x label
+        :type xl: string
+        :params yl: y label
+        :type yl: string
+        :params title: title of plot
+        :type title: string
+        :params std: standard devation of points
+        :type std: numpy.array
+        """
         self.ax.hold(True)
         self.ax.errorbar(x,y, marker='o',yerr = std, linestyle='--', color='r')
         self.ax.set_xlabel(xl)
@@ -508,6 +569,15 @@ class PopPlot(QtGui.QDialog):
         self.canvas.draw()
         
     def update(self,x,y,std = None):
+        """update the plots call the plot function
+        
+        :params x: x vector of points
+        :type x: list,numpy.array
+        :params y: y vector of points
+        :type y: y list,numpy.array
+        :params std: standard devation of points
+        :type std: numpy.array
+        """
         self.plot(x,y,self.xl,self.yl,self.title,std)
         
    

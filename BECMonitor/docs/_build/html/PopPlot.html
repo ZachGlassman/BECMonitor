@@ -178,22 +178,90 @@
 <dl class="class">
 <dt id="Visualplotterwidget.PopPlot">
 <em class="property">class </em><code class="descclassname">Visualplotterwidget.</code><code class="descname">PopPlot</code><span class="sig-paren">(</span><em>mod=None</em>, <em>params=None</em>, <em>do_fit=False</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.PopPlot" title="Permalink to this definition">¶</a></dt>
-<dd><p>popup class for plots</p>
+<dd><p>popup class for plots both static and updating</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first simple">
+<li><strong>ax</strong> &#8211; matplotlib axis</li>
+<li><strong>figure</strong> &#8211; matplotlib figure</li>
+<li><strong>canvas</strong> &#8211; matplotlib canvas</li>
+<li><strong>toolbar</strong> &#8211; matplotlib navigation toolbar</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>mod</strong> (<em>lmfit.Model</em>) &#8211; lmfit Model object for fitting</li>
+<li><strong>do_fit</strong> (<em>Boolean</em>) &#8211; Boolean if fitting should occur</li>
+<li><strong>params</strong> (<em>lmfit.Parameters</em>) &#8211; fit parameters</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Methods</p>
 <dl class="method">
 <dt id="Visualplotterwidget.PopPlot.plot">
 <code class="descname">plot</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>xl</em>, <em>yl</em>, <em>title</em>, <em>std</em><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.PopPlot.plot" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>plot the data with a new fit if do_fit == True</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Params x:</th><td class="field-body">x vector of points</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Params y:</th><td class="field-body">y vector of points</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Params xl:</th><td class="field-body">x label</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Params yl:</th><td class="field-body">y label</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Params title:</th><td class="field-body">title of plot</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Params std:</th><td class="field-body">standard devation of points</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="Visualplotterwidget.PopPlot.update">
 <code class="descname">update</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>std=None</em><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.PopPlot.update" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>update the plots call the plot function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Params x:</th><td class="field-body">x vector of points</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Params y:</th><td class="field-body">y vector of points</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Params std:</th><td class="field-body">standard devation of points</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="Visualplotterwidget.PopPlot.update_init">
 <code class="descname">update_init</code><span class="sig-paren">(</span><em>xl</em>, <em>yl</em>, <em>title</em>, <em>ignore</em>, <em>start</em><span class="sig-paren">)</span><a class="headerlink" href="#Visualplotterwidget.PopPlot.update_init" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>update the parameters to start</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>title</strong> (<em>string</em>) &#8211; title of plot</li>
+<li><strong>xl</strong> (<em>string</em>) &#8211; x label</li>
+<li><strong>yl</strong> (<em>string</em>) &#8211; y label</li>
+<li><strong>start</strong> (<em>int</em>) &#8211; starting index</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 

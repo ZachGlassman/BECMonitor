@@ -1,0 +1,214 @@
+\begin{theindex}
+
+  \item add\_element() (Auxfuncwidget.AuxillaryFunctionContainerWidget method), 
+		\hyperpage{7}
+  \item add\_fitting\_widgets() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item add\_lines() (Dataplots.ImageWindow method), \hyperpage{10}
+  \item add\_plot() (Ipython.PlotObj method), \hyperpage{8}
+  \item AuxillaryFunctionContainerWidget (class in Auxfuncwidget), 
+		\hyperpage{7}
+  \item AuxillaryFunctionWidget (class in Auxfuncwidget), \hyperpage{7}
+  \item avg\_data() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+
+  \indexspace
+
+  \item BEC\_num() (Fitobject.fit\_object method), \hyperpage{4}
+  \item BEC\_num\_1() (Fitobject.fit\_object method), \hyperpage{4}
+  \item bimod2min() (Fitobject.fit\_object method), \hyperpage{5}
+
+  \indexspace
+
+  \item calculate() (Auxfuncwidget.AuxillaryFunctionWidget method), 
+		\hyperpage{7}
+  \item center() (SpinorMonitor.MainWindow method), \hyperpage{12}
+  \item change\_state() (SpinorMonitor.MainWindow method), 
+		\hyperpage{12}
+  \item clearTerminal() (Ipython.QIPythonWidget method), \hyperpage{8}
+  \item close() (Optionswidgets.FitInfo method), \hyperpage{13}
+  \item create\_fit\_panel() (Optionswidgets.Options method), 
+		\hyperpage{13}
+  \item create\_vecs() (Fitobject.fit\_object method), \hyperpage{5}
+
+  \indexspace
+
+  \item data\_process() (SpinorMonitor.MainWindow method), 
+		\hyperpage{12}
+  \item data\_recieved() (SpinorMonitor.MainWindow method), 
+		\hyperpage{12}
+  \item DataTable (class in Datatablewidget), \hyperpage{7}
+  \item do\_fit() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+
+  \indexspace
+
+  \item end() (SpinorMonitor.MainWindow method), \hyperpage{12}
+  \item executeCommand() (Ipython.QIPythonWidget method), \hyperpage{8}
+
+  \indexspace
+
+  \item filter\_ignore() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item FingerTabBarWidget (class in Auxwidgets), \hyperpage{9}
+  \item finish\_thread() (SpinorMonitor.MainWindow method), 
+		\hyperpage{12}
+  \item fit\_image() (Fitobject.fit\_object method), \hyperpage{5}
+  \item fit\_name (Optionswidgets.Options attribute), \hyperpage{13}
+  \item fit\_object (class in Fitobject), \hyperpage{3}
+  \item FitInfo (class in Optionswidgets), \hyperpage{13}
+
+  \indexspace
+
+  \item gauss\_2D() (Fitobject.fit\_object method), \hyperpage{5}
+  \item generate\_info\_widgets() (Auxfuncwidget.AuxillaryFunctionWidget method), 
+		\hyperpage{7}
+  \item generate\_params\_widgets() (Auxfuncwidget.AuxillaryFunctionWidget method), 
+		\hyperpage{7}
+  \item get\_angled\_line() (Fitobject.fit\_object method), 
+		\hyperpage{6}
+  \item get\_fit\_info() (Optionswidgets.Options method), 
+		\hyperpage{13}
+  \item get\_options() (SpinorMonitor.MainWindow method), 
+		\hyperpage{12}
+  \item get\_params() (Auxfuncwidget.AuxillaryFunctionWidget method), 
+		\hyperpage{7}
+  \item get\_roi() (SpinorMonitor.MainWindow method), \hyperpage{12}
+  \item get\_vars() (Ipython.SpinorPlot method), \hyperpage{9}
+
+  \indexspace
+
+  \item ignore\_update() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item ImageWindow (class in Dataplots), \hyperpage{10}
+  \item IncomingImage (class in Image), \hyperpage{10}
+  \item initUI() (SpinorMonitor.MainWindow method), \hyperpage{12}
+
+  \indexspace
+
+  \item line\_profile() (Fitobject.fit\_object method), \hyperpage{6}
+
+  \indexspace
+
+  \item MainWindow (class in SpinorMonitor), \hyperpage{11}
+  \item make\_key() (Optionswidgets.Options method), \hyperpage{13}
+  \item make\_title\_string() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item make\_updating\_title\_string() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item message (Optionswidgets.Options attribute), \hyperpage{13}
+  \item message (Visualplotterwidget.VisualPlotter attribute), 
+		\hyperpage{16}
+  \item multiple\_fits() (Fitobject.fit\_object method), \hyperpage{6}
+
+  \indexspace
+
+  \item newImage() (Image.IncomingImage method), \hyperpage{10}
+
+  \indexspace
+
+  \item on\_fit\_name() (SpinorMonitor.MainWindow method), 
+		\hyperpage{12}
+  \item on\_message() (SpinorMonitor.MainWindow method), \hyperpage{12}
+  \item Options (class in Optionswidgets), \hyperpage{13}
+  \item output() (Auxwidgets.TextBox method), \hyperpage{9}
+
+  \indexspace
+
+  \item paintEvent() (Auxwidgets.FingerTabBarWidget method), 
+		\hyperpage{9}
+  \item ParamEntry (class in Visualplotterwidget), \hyperpage{14}
+  \item ParameterEntry (class in Optionswidgets), \hyperpage{13}
+  \item parse\_params() (Optionswidgets.FitInfo method), \hyperpage{13}
+  \item partial\_TF\_2D() (Fitobject.fit\_object method), \hyperpage{6}
+  \item plot() (Visualplotterwidget.PopPlot method), \hyperpage{15}
+  \item plot\_clicked() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item PlotGrid (class in Dataplots), \hyperpage{10}
+  \item PlotObj (class in Ipython), \hyperpage{8}
+  \item PlotOptions (class in Optionswidgets), \hyperpage{14}
+  \item PopPlot (class in Visualplotterwidget), \hyperpage{14}
+  \item popup() (Dataplots.ImageWindow method), \hyperpage{10}
+  \item printText() (Ipython.QIPythonWidget method), \hyperpage{8}
+  \item process\_results() (Fitobject.fit\_object method), 
+		\hyperpage{6}
+  \item ProcessImage (class in Image), \hyperpage{11}
+  \item pushVariables() (Ipython.QIPythonWidget method), \hyperpage{8}
+
+  \indexspace
+
+  \item QIPythonWidget (class in Ipython), \hyperpage{8}
+  \item QIPythonWidgetContainer (class in Ipython), \hyperpage{8}
+
+  \indexspace
+
+  \item re\_import() (Auxfuncwidget.AuxillaryFunctionContainerWidget method), 
+		\hyperpage{7}
+  \item readout() (Optionswidgets.ParameterEntry method), 
+		\hyperpage{13}
+  \item remove\_fit\_panel() (Optionswidgets.Options method), 
+		\hyperpage{13}
+  \item run() (Image.IncomingImage method), \hyperpage{10}
+  \item run() (Image.ProcessImage method), \hyperpage{11}
+
+  \indexspace
+
+  \item save\_params() (Optionswidgets.Options method), \hyperpage{13}
+  \item set\_axis() (Ipython.SpinorPlot method), \hyperpage{9}
+  \item set\_current\_fit() (Optionswidgets.Options method), 
+		\hyperpage{13}
+  \item set\_roi() (Optionswidgets.PlotOptions method), \hyperpage{14}
+  \item set\_up\_ipy() (SpinorMonitor.MainWindow method), 
+		\hyperpage{12}
+  \item setImage() (Dataplots.ImageWindow method), \hyperpage{10}
+  \item sg2min() (Fitobject.fit\_object method), \hyperpage{6}
+  \item SpinorPlot (class in Ipython), \hyperpage{9}
+  \item start() (SpinorMonitor.MainWindow method), \hyperpage{12}
+  \item static\_plot() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item stern\_gerlach\_2D() (Fitobject.fit\_object method), 
+		\hyperpage{6}
+  \item subtract\_background() (Fitobject.fit\_object method), 
+		\hyperpage{6}
+
+  \indexspace
+
+  \item tabSizeHint() (Auxwidgets.FingerTabBarWidget method), 
+		\hyperpage{9}
+  \item test\_fit() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item test\_plot() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item TextBox (class in Auxwidgets), \hyperpage{9}
+  \item TF\_2D() (Fitobject.fit\_object method), \hyperpage{4}
+  \item Therm\_num() (Fitobject.fit\_object method), \hyperpage{5}
+  \item to\_ipy() (SpinorMonitor.MainWindow method), \hyperpage{12}
+
+  \indexspace
+
+  \item update() (Ipython.PlotObj method), \hyperpage{8}
+  \item update() (Visualplotterwidget.PopPlot method), \hyperpage{15}
+  \item update\_data() (SpinorMonitor.MainWindow method), 
+		\hyperpage{12}
+  \item update\_init() (Visualplotterwidget.PopPlot method), 
+		\hyperpage{15}
+  \item update\_pandas\_table() (Datatablewidget.DataTable method), 
+		\hyperpage{7}
+  \item update\_plot() (Ipython.SpinorPlot method), \hyperpage{9}
+  \item update\_plots() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item updatePlot() (Dataplots.ImageWindow method), \hyperpage{10}
+  \item updating\_plot() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+
+  \indexspace
+
+  \item validate() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item var\_push() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item verbose\_avg() (Visualplotterwidget.VisualPlotter method), 
+		\hyperpage{16}
+  \item VisualPlotter (class in Visualplotterwidget), \hyperpage{15}
+
+\end{theindex}

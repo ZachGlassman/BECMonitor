@@ -97,6 +97,7 @@ class AuxillaryFunctionWidget(QtGui.QWidget):
         self.setLayout(layout)
     
     def calculate(self):
+        """calculate the function"""
         self.answer.clear()
         ans = self.func(**self.get_params())
         self.answer.setText(str(ans))

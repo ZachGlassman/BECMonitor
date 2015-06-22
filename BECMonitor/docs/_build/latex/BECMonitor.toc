@@ -1,0 +1,63 @@
+\select@language {english}
+\contentsline {chapter}{\numberline {1}Usage}{3}{chapter.1}
+\contentsline {section}{\numberline {1.1}Fitobject}{3}{section.1.1}
+\contentsline {subsection}{\numberline {1.1.1}fit\_object}{3}{subsection.1.1.1}
+\contentsline {paragraph}{Methods}{4}{paragraph*.4}
+\contentsline {section}{\numberline {1.2}Datatablewidget}{7}{section.1.2}
+\contentsline {subsection}{\numberline {1.2.1}DataTable}{7}{subsection.1.2.1}
+\contentsline {paragraph}{Methods}{7}{paragraph*.22}
+\contentsline {section}{\numberline {1.3}Auxfuncwidget}{7}{section.1.3}
+\contentsline {subsection}{\numberline {1.3.1}AuxillaryFunctionContainerWidget}{7}{subsection.1.3.1}
+\contentsline {paragraph}{Methods}{7}{paragraph*.25}
+\contentsline {subsection}{\numberline {1.3.2}AuxillaryFunctionWidget}{7}{subsection.1.3.2}
+\contentsline {paragraph}{Methods}{7}{paragraph*.29}
+\contentsline {section}{\numberline {1.4}Ipython}{8}{section.1.4}
+\contentsline {subsection}{\numberline {1.4.1}PlotObj}{8}{subsection.1.4.1}
+\contentsline {paragraph}{Methods}{8}{paragraph*.35}
+\contentsline {subsection}{\numberline {1.4.2}QIPythonWidget}{8}{subsection.1.4.2}
+\contentsline {paragraph}{Attributes}{8}{paragraph*.39}
+\contentsline {paragraph}{Methods}{8}{paragraph*.40}
+\contentsline {subsection}{\numberline {1.4.3}QIPythonWidgetContainer}{8}{subsection.1.4.3}
+\contentsline {paragraph}{Methods}{9}{paragraph*.46}
+\contentsline {subsection}{\numberline {1.4.4}SpinorPlot}{9}{subsection.1.4.4}
+\contentsline {paragraph}{Methods}{9}{paragraph*.48}
+\contentsline {section}{\numberline {1.5}Auxwidgets}{9}{section.1.5}
+\contentsline {subsection}{\numberline {1.5.1}FingerTabBarWidget}{9}{subsection.1.5.1}
+\contentsline {paragraph}{Methods}{9}{paragraph*.53}
+\contentsline {subsection}{\numberline {1.5.2}TextBox}{9}{subsection.1.5.2}
+\contentsline {paragraph}{Methods}{9}{paragraph*.57}
+\contentsline {section}{\numberline {1.6}Subroutines}{9}{section.1.6}
+\contentsline {section}{\numberline {1.7}Dataplots}{9}{section.1.7}
+\contentsline {subsection}{\numberline {1.7.1}ImageWindow}{10}{subsection.1.7.1}
+\contentsline {paragraph}{Attributes}{10}{paragraph*.60}
+\contentsline {paragraph}{Methods}{10}{paragraph*.61}
+\contentsline {subsection}{\numberline {1.7.2}PlotGrid}{10}{subsection.1.7.2}
+\contentsline {paragraph}{Methods}{10}{paragraph*.67}
+\contentsline {section}{\numberline {1.8}Fitmodels}{10}{section.1.8}
+\contentsline {section}{\numberline {1.9}Image}{10}{section.1.9}
+\contentsline {subsection}{\numberline {1.9.1}IncomingImage}{10}{subsection.1.9.1}
+\contentsline {paragraph}{Methods}{10}{paragraph*.69}
+\contentsline {subsection}{\numberline {1.9.2}ProcessImage}{11}{subsection.1.9.2}
+\contentsline {paragraph}{Methods}{11}{paragraph*.73}
+\contentsline {section}{\numberline {1.10}SpinorMonitor}{11}{section.1.10}
+\contentsline {subsection}{\numberline {1.10.1}MainWindow}{11}{subsection.1.10.1}
+\contentsline {paragraph}{Methods}{12}{paragraph*.76}
+\contentsline {section}{\numberline {1.11}Optionswidgets}{13}{section.1.11}
+\contentsline {subsection}{\numberline {1.11.1}FitInfo}{13}{subsection.1.11.1}
+\contentsline {paragraph}{Methods}{13}{paragraph*.93}
+\contentsline {subsection}{\numberline {1.11.2}Options}{13}{subsection.1.11.2}
+\contentsline {paragraph}{Methods}{13}{paragraph*.97}
+\contentsline {subsection}{\numberline {1.11.3}ParameterEntry}{13}{subsection.1.11.3}
+\contentsline {paragraph}{Methods}{13}{paragraph*.107}
+\contentsline {subsection}{\numberline {1.11.4}PlotOptions}{14}{subsection.1.11.4}
+\contentsline {paragraph}{Methods}{14}{paragraph*.110}
+\contentsline {section}{\numberline {1.12}Auxfunctions}{14}{section.1.12}
+\contentsline {section}{\numberline {1.13}Visualplotterwidget}{14}{section.1.13}
+\contentsline {subsection}{\numberline {1.13.1}ParamEntry}{14}{subsection.1.13.1}
+\contentsline {paragraph}{Methods}{14}{paragraph*.113}
+\contentsline {subsection}{\numberline {1.13.2}PopPlot}{14}{subsection.1.13.2}
+\contentsline {paragraph}{Methods}{15}{paragraph*.115}
+\contentsline {subsection}{\numberline {1.13.3}VisualPlotter}{15}{subsection.1.13.3}
+\contentsline {paragraph}{Methods}{16}{paragraph*.120}
+\contentsline {chapter}{\numberline {2}Indices and tables}{17}{chapter.2}
+\contentsline {chapter}{Index}{19}{section*.138}
