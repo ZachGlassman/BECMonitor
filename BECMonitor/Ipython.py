@@ -7,8 +7,8 @@ BECMonitor IPYTHON routines
 import inspect
 import matplotlib.pyplot as plt
 import numpy as np
-from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
-from IPython.qt.inprocess import QtInProcessKernelManager
+from qtconsole.rich_ipython_widget import RichJupyterWidget
+from qtconsole.inprocess import QtInProcessKernelManager
 from IPython.lib import guisupport
 from pyqtgraph import QtCore
 
@@ -19,13 +19,12 @@ class QIPythonWidgetContainer(QtCore.QObject):
         QtCore.QObject.__init__(self)
         self.ipy = QIPythonWidget()
 
-class QIPythonWidget(RichIPythonWidget):
+class QIPythonWidget(RichJupyterWidget):
     """ Convenience class for a live IPython console widget.
     This widget lives within the main GUI
     """
     def __init__(self,customBanner=None,*args,**kwargs):
-        if customBanner!=None: 
-            self.banner=customBanner
+    
         super(QIPythonWidget, self).__init__(*args,**kwargs)
         self.kernel_manager = kernel_manager = QtInProcessKernelManager()
         kernel_manager.start_kernel()
@@ -37,22 +36,23 @@ class QIPythonWidget(RichIPythonWidget):
         def stop():
             kernel_client.stop_channels()
             kernel_manager.shutdown_kernel()
-            guisupport.get_app_qt4().exit()            
+            guisupport.get_app_qt4().exit()
         self.exit_requested.connect(stop)
 
     def pushVariables(self,variableDict):
-        """ Given a dictionary containing name / value pairs, 
+        """ Given a dictionary containing name / value pairs,
         push those variables to the IPython console widget """
         self.kernel_manager.kernel.shell.push(variableDict)
+     
         
     def clearTerminal(self):
         """ Clears the terminal """
-        self._control.clear()    
+        self._control.clear()
       
         
     def printText(self,text):
         """ Prints some plain text to the console """
-        self._append_plain_text(text)   
+        self._append_plain_text(text)
         
     def executeCommand(self,command):
         """ Execute a command in the frame of the console widget """

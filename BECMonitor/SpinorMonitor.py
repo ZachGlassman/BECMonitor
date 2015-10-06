@@ -27,7 +27,6 @@ from Auxfuncwidget import AuxillaryFunctionContainerWidget
 #Set main options
 #pg.setConfigOption('background', 'b')
 #pg.setConfigOption('foreground', 'k')
-#testing
 
 
         
@@ -71,7 +70,7 @@ class MainWindow(QtGui.QWidget):
         
     def initUI(self):
         """
-        Iniitalize UI and name it.  Creat all children widgets and place 
+        Iniitalize UI and name it.  Creat all children widgets and place
         them in layout
         """
         #self.showFullScreen()
@@ -209,7 +208,7 @@ class MainWindow(QtGui.QWidget):
             self.start()
             
     def start(self):
-        """Function to start listening thread, connect signals and 
+        """Function to start listening thread, connect signals and
         :var imageThread: IncomingImage object listening for images
         
         """
@@ -306,7 +305,7 @@ class MainWindow(QtGui.QWidget):
         self.data_tables.update_pandas_table(self.expData)
         #update update
         self.to_ipy()
-        self.ipy._execute('Plot_obj.update()', True)
+        self.ipy._execute('Plot_obj.update()', False)
         
         #update plots
         self.plots.update_plots(self.expData)
@@ -322,7 +321,7 @@ class MainWindow(QtGui.QWidget):
         """setup the ipython console for use with useful functions"""
         self.ipy.executeCommand('from Ipython import *')
         self.ipy.printText('imported numpy and matplotlib as np and plt')
-      
+        self.ipy.pushVariables({'help_str':'testing this'})
 
         
     def to_ipy(self):

@@ -79,8 +79,8 @@ class IncomingImage(QtCore.QThread):
             if found, it reads it in and then deletes it"""
         #in future go to custom directory for now, just work
         try:
-            self.data = np.loadtxt('C:\\Users\\zag\\Documents\\BECMonitor\\newimage.txt')
-            os.remove('C:\\Users\\zag\\Documents\\BECMonitor\\newimage.txt')   
+            self.data = np.loadtxt('C:\\Users\\Administrator\\Documents\BECMonitor\\newimage.txt')
+            os.remove('C:\\Users\\Administrator\\Documents\BECMonitor\\newimage.txt')
             #for now read in parameters in some useless format
             return True
         except:

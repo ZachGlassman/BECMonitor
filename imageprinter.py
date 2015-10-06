@@ -8,7 +8,7 @@ import numpy as np
 import time
 
 data = np.loadtxt('319bec_avg.txt')
-data = np.loadtxt('sgimage.txt')
+#data = np.loadtxt('sgimage.txt')
 def add_noise(data):
     x,y = data.shape
     add = np.random.randn(x,y)/20

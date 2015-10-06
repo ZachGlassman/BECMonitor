@@ -10,7 +10,7 @@ import time
 def get_run_name():
     """get name of run and generate proper file structure if not already structured
     start_path points to overall data folder"""
-    start_path = "C:\\Users\\zag\\Documents\\BECMonitor\\Data"
+    start_path = "C:\\Users\\Administrator\\Documents\\BECMonitor\\Data"
     a = time.strftime("%d/%m/%Y").split('/')
     day = a[0]
     month = a[1]
