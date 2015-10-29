@@ -4,7 +4,7 @@ Created on Wed Jun  3 11:03:42 2015
 File for auxillary functions, every function in this file will
 be parsed and added to SpinorMonitor.
 
-Please add a documentation string in quotes underneath the functino
+Please add a documentation string in quotes underneath the function
 @author: zag
 """
 import numpy as np
@@ -15,7 +15,7 @@ def calculateQ(Rf_resonance_frequency,microwave_power,microwave_detuning):
         Rf resonance frequency (Hz)
         microwave power (dB(m))
         microwave detuning (hz)
-        
+
     returns:
         q in Hz
     """
@@ -25,5 +25,3 @@ def calculateQ(Rf_resonance_frequency,microwave_power,microwave_detuning):
     qm = (Rf_resonance_frequency/700000)**2*qz
     qu = 10**((microwave_power-Pcalib)/10)*fRabi**2/(4 * microwave_detuning)
     return qm-qu
-    
-    

@@ -8,10 +8,10 @@ import numpy as np
 from lmfit import minimize, Parameters, Parameter, report_fit
 import copy
 
-            
+
 class fit_object(object):
     """fit object holds all the information for a single fit_sequence
-    
+
     :param index: Shot number
     :type index: string
     :param params: dictionary of Parameters objects containing fit parameters
@@ -23,7 +23,7 @@ class fit_object(object):
     :param data: numpy array of image to be analyzed
     :type data: numpy array
     """
-    
+
     def __init__(self, index, params, type_of_fit, roi, data):
         """initalize with name and params_dict and global object variables
           variables:
@@ -32,7 +32,7 @@ class fit_object(object):
           image_fitted - image once its been fitted
           fit_results_raw - dictionary raw results of fit
           fit_results - dictionary of final results of fit
-          
+
         """
         self.name = index
         self.init_image = data
@@ -45,17 +45,17 @@ class fit_object(object):
         self.fit_names =  ['Fit {0}'.format(i) for i in range(self.num_fits)]
         self.all_params = copy.deepcopy(params[type_of_fit])#deep copy just to make sure
         self.fit_type = type_of_fit
-        
-        #dictionary binding type of fits to functions        
+
+        #dictionary binding type of fits to functions
         self.fit_dict = {
             'Mixture':self.bimod2min,
             'Stern-Gerlach': self.sg2min
         }
 
-            
+
     def create_vecs(self,roi):
         """create vectors scaled by pixel size
-        
+
         :param roi: region of interest list
         :type roi: list
         :return X: x vector from meshgrid
@@ -65,17 +65,17 @@ class fit_object(object):
         x = np.arange(roi[2],roi[3], 1)
         X,Y = np.meshgrid(x,y)
         return X,Y
-        
-    def gauss_2D(self):
+
+    def gauss_2D(self, params):
         """two dimensional Gaussian which is not normalized of the form:
-        
+
         .. math::
             G = A \\exp\\left(-\\frac{(x-x_c)^2}{2dx^2}- \\frac{(y-y_c)^2}{2dy^2}\\right)+ Off
-        
-        :var x0: absolute x center 
-        :var y0: absolute y center 
-        :var xc: rotated x center 
-        :var yc: rotated y center 
+
+        :var x0: absolute x center
+        :var y0: absolute y center
+        :var xc: rotated x center
+        :var yc: rotated y center
         :var theta: angle relative to x axis
         :var A: amplitude
         :var dx: standard deviation on rotated x axis
@@ -83,42 +83,42 @@ class fit_object(object):
         :var off: offsett
         """
         #read out
-        x0 = self.params['x0Therm'].value
-        y0 = self.params['y0Therm'].value
-        theta = self.params['theta'].value
-        A = self.params['ATherm'].value
-        dx = self.params['dxTherm'].value
-        dy = self.params['dyTherm'].value
-        off = self.params['offset'].value
+        x0 = params['x0Therm'].value
+        y0 = params['y0Therm'].value
+        theta = params['theta'].value
+        A = params['ATherm'].value
+        dx = params['dxTherm'].value
+        dy = params['dyTherm'].value
+        off = params['offset'].value
         xc = (self.x-x0)*np.cos(theta) - (self.y-y0)*np.sin(theta)
         yc = (self.x-x0)*np.sin(theta) - (self.y-y0)*np.cos(theta)
         a = np.divide(np.power(xc,2), (2 * dx**2))
         b = np.divide(np.power(yc,2), (2 * dy**2))
         return off + A * np.exp(-a-b)
-      
-    def TF_2D(self):
+
+    def TF_2D(self,params):
         """two dimensional Thomas Fermi which is not normalized of the form:
-        
+
         .. math::
             TF = A \\max\\left\\{\\left[1-\\left(\\frac{x_c}{dx}\\right)^2-\\left(\\frac{y_c}{dy}\\right)^2\\right],0\\right\\}^{3/2}
-            
-        :var x0: absolute x center 
-        :var y0: absolute y center 
-        :var xc: rotated x center 
-        :var yc: rotated y center 
+
+        :var x0: absolute x center
+        :var y0: absolute y center
+        :var xc: rotated x center
+        :var yc: rotated y center
         :var theta: angle relative to x axis
         :var A: amplitude
         :var dx: Thomas-Fermi radius on rotated x axis
         :var dy: Thomas-Fermi radius on rotated y axis
         :var off: offsett
         """
-        x0 = self.params['x0BEC'].value
-        y0 = self.params['y0BEC'].value
-        theta = self.params['theta'].value
-        A = self.params['ABEC'].value
-        dx = self.params['dxBEC'].value
-        dy = self.params['dyBEC'].value
-        off = self.params['offset'].value
+        x0 = params['x0BEC'].value
+        y0 = params['y0BEC'].value
+        theta = params['theta'].value
+        A = params['ABEC'].value
+        dx = params['dxBEC'].value
+        dy = params['dyBEC'].value
+        off = params['offset'].value
         xc = (self.x-x0)*np.cos(theta) - (self.y-y0)*np.sin(theta)
         yc = (self.x-x0)*np.sin(theta) - (self.y-y0)*np.cos(theta)
         a = (np.divide((xc),dx))**2
@@ -126,27 +126,27 @@ class fit_object(object):
         bb = np.subtract(np.subtract(1, a), aa)
         c = np.zeros(bb.shape)
         b = np.power(np.maximum(bb,c),3/2)
-        return off + np.multiply(A,b) 
-        
-    def stern_gerlach_2D(self):
+        return off + np.multiply(A,b)
+
+    def stern_gerlach_2D(self,params):
         """2 dimensional three thomas fermi distributions"""
-        Ap1 = self.params['ABECp1'].value
-        A0 = self.params['ABEC0'].value
-        Am1 = self.params['ABECm1'].value
-        dxp1 = self.params['dxBECp1'].value
-        dx0 = self.params['dxBEC0'].value
-        dxm1 = self.params['dxBECm1'].value
-        dyp1 = self.params['dyBECp1'].value
-        dy0 = self.params['dyBEC0'].value
-        dym1 = self.params['dyBECm1'].value
-        x0p1 = self.params['x0BECp1'].value
-        x00 = self.params['x0BEC0'].value
-        x0m1 = self.params['x0BECm1'].value
-        y0p1 = self.params['y0BECp1'].value
-        y00 = self.params['y0BEC0'].value
-        y0m1 = self.params['y0BECm1'].value
-        offset = self.params['offset'].value
-        theta = self.params['theta'].value
+        Ap1 =params['ABECp1'].value
+        A0 = params['ABEC0'].value
+        Am1 = params['ABECm1'].value
+        dxp1 = params['dxBECp1'].value
+        dx0 = params['dxBEC0'].value
+        dxm1 = params['dxBECm1'].value
+        dyp1 = params['dyBECp1'].value
+        dy0 = params['dyBEC0'].value
+        dym1 = params['dyBECm1'].value
+        x0p1 = params['x0BECp1'].value
+        x00 = params['x0BEC0'].value
+        x0m1 = params['x0BECm1'].value
+        y0p1 = params['y0BECp1'].value
+        y00 = params['y0BEC0'].value
+        y0m1 = params['y0BECm1'].value
+        offset = params['offset'].value
+        theta = params['theta'].value
         xcp1, ycp1 = self.get_angled_line(x0p1,y0p1,theta)
         xc0, yc0 = self.get_angled_line(x00,y00,theta)
         xcm1, ycm1 = self.get_angled_line(x0m1,y0m1,theta)
@@ -154,15 +154,15 @@ class fit_object(object):
         TF0 = self.partial_TF_2D(xc0,yc0,A0,dx0,dy0)
         TFm1 = self.partial_TF_2D(xcm1,ycm1,Am1,dxm1,dym1)
         return TFp1 + TF0 + TFm1 + offset
-    
+
     def partial_TF_2D(self,xc,yc,A,dx,dy):
         """two dimensional non-rotated Thomas Fermi which is not normalized of the form:
-        
+
         .. math::
             TF = A \\max\\left\\{\\left[1-\\left(\\frac{x_c}{dx}\\right)^2-\\left(\\frac{y_c}{dy}\\right)^2\\right],0\\right\\}^{3/2}
-            
-        :param xc: absolute x center 
-        :param yc: absolute y center 
+
+        :param xc: absolute x center
+        :param yc: absolute y center
         :param A: amplitude
         :param dx: Thomas-Fermi radius on rotated x axis
         :param dy: Thomas-Fermi radius on rotated y axis
@@ -173,40 +173,40 @@ class fit_object(object):
         bb = np.subtract(np.subtract(1, a), aa)
         c = np.zeros(bb.shape)
         b = np.power(np.maximum(bb,c),3/2)
-        return np.multiply(A,b) 
-        
+        return np.multiply(A,b)
+
     def get_angled_line(self,x0,y0,theta):
         """get angled line for angle theta with formulas
-        
+
         .. math::
            x_c = (x-x_0) \\cos(\\theta) - (y-y_0) \\sin(\\theta)
-           
+
            y_c = (x-x_0) \\sin(\\theta) - (y-y_0) \\cos(\\theta)
-           
-        :param x0: absolute x center 
-        :param y0: absolute y center 
-        :param xc: rotated x center 
-        :param yc: rotated y center 
+
+        :param x0: absolute x center
+        :param y0: absolute y center
+        :param xc: rotated x center
+        :param yc: rotated y center
         :param theta: angle relative to x axis
-           
+
         """
         xc = (self.x-x0)*np.cos(theta) - (self.y-y0)*np.sin(theta)
         yc = (self.x-x0)*np.sin(theta) - (self.y-y0)*np.cos(theta)
         return xc, yc
-        
-    def bimod2min(self,params):
+
+    def bimod2min(self, params):
         """function to minimize, need to subtract offset since included
             in both terms"""
-        a = self.TF_2D() + self.gauss_2D() - self.params['offset'].value 
+        a = self.TF_2D(params) + self.gauss_2D(params) - params['offset'].value
         b = a - self.image
         return b.ravel()
-       
+
     def sg2min(self, params):
         """stern gerlach function to minimize"""
-        a = self.stern_gerlach_2D() - self.image     
+        a = self.stern_gerlach_2D(params) - self.image
         return a.ravel()
-        
-        
+
+
     def subtract_background(self):
         """Subtract background from image looking at first and last 20
         rows of the inital image far away from experiment
@@ -214,16 +214,17 @@ class fit_object(object):
         n = 20
         back = (np.average(self.init_image[:n])+np.average(self.init_image[-n:]))/2
         self.image = np.subtract(self.image,back)
-      
-      
+
+
     #need to add functionality for other stuff
     def fit_image(self):
         """fit corrected image with parameters from params"""
         self.params = self.all_params['Fit 0']
-        self.fit_results = minimize(self.fit_dict[self.fit_type], self.params, 
+        self.fit_results = minimize(self.fit_dict[self.fit_type], self.params,
                                     args = ())
         #report_fit(self.fit_results)
-                                    
+        sel.fparams = self.fit_results.params
+
     def multiple_fits(self):
         """function to fit sequentially with input defined from SpinorMonitor
         we may need to take parameters of previous fit!!
@@ -232,26 +233,29 @@ class fit_object(object):
         k = 1
         for key in self.fit_names:
             #get params for this fit
+            #with new lmfit might not need to do this
             self.params = copy.deepcopy(self.all_params[key])
-            
-            results = minimize(self.fit_dict[self.fit_type], self.params, 
+
+            results = minimize(self.fit_dict[self.fit_type], self.params,
                                     args = ())
-                                   
+            self.params = results.params
+
             #then if k > num_fits copy result values to params dictionary and fit
             if k < self.num_fits:
                 #update parameters
                 next_key = self.fit_names[k]
                 for i in self.all_params[next_key].keys():
                     self.all_params[next_key][i].value = self.params[i].value
-                   
+
                 #move to next iteration
                 k = k + 1
-            
+
         self.fit_results = results
-        
-                                    
-                                    
-                                    
+
+
+
+
+
     def process_results(self, scalex,scaley):
         """process results of fit and allow output return dictonary
            scale with the appropriate pixel values after fit"""
@@ -270,9 +274,9 @@ class fit_object(object):
             Ap1 = self.params['ABECp1'].value
             A0 = self.params['ABEC0'].value
             Am1 = self.params['ABECm1'].value
-            dxp1 = self.params['dxBECp1'].value 
-            dx0 = self.params['dxBEC0'].value 
-            dxm1 = self.params['dxBECm1'].value 
+            dxp1 = self.params['dxBECp1'].value
+            dx0 = self.params['dxBEC0'].value
+            dxm1 = self.params['dxBECm1'].value
             dyp1 = self.params['dyBECp1'].value
             dy0 = self.params['dyBEC0'].value
             dym1 = self.params['dyBECm1'].value
@@ -288,15 +292,15 @@ class fit_object(object):
                        "Magnetization":Np1-Nm1/(Np1+N0+Nm1),
                        }
             results['Index'] = self.name
-        
+
         return [results, self.line_profile()]
-        
+
     def BEC_num(self, scalex,scaley):
         """get number of BEC atoms from fit from equation
-        
+
         .. math::
            N = \\left(\\frac{2 \\pi}{3\\lambda^2}\\right)\\frac{2\\pi A}{5}R_x R_y
-           
+
         :param scalex: x scale of pixel
         :param scaley: y scale of pixel
         :var A: fitted Thomas-Fermi amplitude
@@ -311,14 +315,14 @@ class fit_object(object):
         sigma =  3 * (0.5891583264**2)/(2 * np.pi)
         V = 2*np.pi/5 * A* Rx * Ry
         return V/sigma
-        
+
     def BEC_num_1(self, scalex,scaley,A,dx,dy):
         """helper function for BEC num
         get number of BEC atoms from fit from equation
-        
+
         .. math::
            N = \\left(\\frac{2 \\pi}{3\\lambda^2}\\right)\\frac{2\\pi A}{5}R_x R_y
-           
+
         :param scalex: x scale of pixel
         :param scaley: y scale of pixel
         :param A: fitted Thomas-Fermi amplitude
@@ -332,13 +336,13 @@ class fit_object(object):
         sigma =  3 * (0.5891583264**2)/(2 * np.pi)
         V = 2*np.pi/5 * A* Rx * Ry
         return V/sigma
-    
+
     def Therm_num(self, scalex,scaley):
         """get number of BEC atoms from fit from equation
-        
+
         .. math::
            N = \\left(\\frac{2 \\pi}{3\\lambda^2}\\right)\\frac{2\\pi A}{5}R_x R_y
-           
+
         :param scalex: x scale of pixel
         :param scaley: y scale of pixel
         :var A: fitted Gaussian amplitude
@@ -353,17 +357,17 @@ class fit_object(object):
         sigma =  3 * (0.5891583264**2)/(2 * np.pi)
         V = 2*np.pi* A* Rx * Ry
         return V/sigma
-        
+
     def line_profile(self):
         """calculate line profile, with zeroes to make full image
-        
+
         :return: two-dimensional array which has padding outside of the region of
         interest and can be summed for profiles.
         """
         if self.fit_type == 'Mixture':
-            calc = self.TF_2D() + self.gauss_2D() - self.params['offset'].value
+            calc = self.TF_2D(self.params) + self.gauss_2D(self.params) - self.params['offset'].value
         else:
             calc = self.stern_gerlach_2D()
-        a = np.pad(calc, ((self.pad[0],self.pad[1]), (self.pad[2],self.pad[3])), 
+        a = np.pad(calc, ((self.pad[0],self.pad[1]), (self.pad[2],self.pad[3])),
                    mode='constant', constant_values=0)
         return a

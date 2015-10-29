@@ -32,7 +32,7 @@ class ProcessImage(QtCore.QObject):
         self.savePath = os.path.join(path,name)
         self.data = data
         self.exp_data = exp_data
-           
+
     @QtCore.pyqtSlot()
     def run(self):
         """process results using methods from fit process and emit"""
@@ -42,14 +42,14 @@ class ProcessImage(QtCore.QObject):
         self.fit.multiple_fits()
         #eventually modify for different pixel sizes
         results = self.fit.process_results(7.04,7.04)
-        
+
         results[0].update(self.exp_data)
-        
+
         self.emit(QtCore.SIGNAL('fit_obj'),results)
         time.sleep(2)
         self.emit(QtCore.SIGNAL('finished()'))
-        
-        
+
+
 
 class IncomingImage(QtCore.QThread):
     """check for images, if found obtain image and send back to main GUI"""
@@ -57,7 +57,7 @@ class IncomingImage(QtCore.QThread):
         QtCore.QThread.__init__(self)
         self.data = None
         self.exp_params = {'timing':0, 'spin':2}
-        
+
     def run(self):
         """every second search folder for new images, if found
             get image and emit back to main gui for processing"""
@@ -70,10 +70,10 @@ class IncomingImage(QtCore.QThread):
                 self.emit(QtCore.SIGNAL('packetReceived(PyQt_PyObject)'),
                           results)
                 self.data = None
-                
+
     def __del__(self):
         self.wait()
-        
+
     def newImage(self):
         """This function checks in directory for new image with proper name
             if found, it reads it in and then deletes it"""
@@ -85,7 +85,3 @@ class IncomingImage(QtCore.QThread):
             return True
         except:
             return False
-            
-
-        
-    
