@@ -7,7 +7,7 @@ Image objects for handling incoming images for SpinorMonitor
 
 from pyqtgraph.Qt import QtCore
 import numpy as np
-import Fitobject as fo
+import BECMonitor.Fitobject as fo
 import time
 import os
 
@@ -53,10 +53,11 @@ class ProcessImage(QtCore.QObject):
 
 class IncomingImage(QtCore.QThread):
     """check for images, if found obtain image and send back to main GUI"""
-    def __init__(self):
+    def __init__(self,fname):
         QtCore.QThread.__init__(self)
         self.data = None
         self.exp_params = {'timing':0, 'spin':2}
+        self.fname = fname
 
     def run(self):
         """every second search folder for new images, if found
@@ -79,8 +80,8 @@ class IncomingImage(QtCore.QThread):
             if found, it reads it in and then deletes it"""
         #in future go to custom directory for now, just work
         try:
-            self.data = np.loadtxt('C:\\Users\\Administrator\\Documents\BECMonitor\\newimage.txt')
-            os.remove('C:\\Users\\Administrator\\Documents\BECMonitor\\newimage.txt')
+            self.data = np.loadtxt(self.fname)
+            os.remove(self.fname)
             #for now read in parameters in some useless format
             return True
         except:

@@ -7,10 +7,10 @@ This Contains Routines called by BECMonitor
 import os
 import time
 
-def get_run_name():
+def get_run_name(start_path):
     """get name of run and generate proper file structure if not already structured
     start_path points to overall data folder"""
-    start_path = "C:\\Users\\Administrator\\Documents\\BECMonitor\\Data"
+    #start_path = "C:\\Users\\Administrator\\Documents\\BECMonitor\\Data"
     a = time.strftime("%d/%m/%Y").split('/')
     day = a[0]
     month = a[1]
@@ -35,4 +35,3 @@ def get_run_name():
             fp.write('1' + '\n')
             last_run = 0
     return last_run + 1, path
-    

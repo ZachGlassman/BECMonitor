@@ -14,16 +14,16 @@ import os
 import numpy as np
 from pyqtgraph.Qt import QtCore, QtGui
 import pandas as pd
-import Subroutines as bs
-# Import the console machinery from ipython
-from Ipython import  QIPythonWidget
-from Image import ProcessImage, IncomingImage
-from Visualplotterwidget import VisualPlotter
-from Optionswidgets import Options, PlotOptions
-from Datatablewidget import DataTable
-from Auxwidgets import TextBox, FingerTabBarWidget
-from Dataplots import DataPlots, ImageWindow
-from Auxfuncwidget import AuxillaryFunctionContainerWidget
+#import objects and functions from other files
+import BECMonitor.Subroutines as bs
+from BECMonitor.Ipython import  QIPythonWidget
+from BECMonitor.Image import ProcessImage, IncomingImage
+from BECMonitor.Visualplotterwidget import VisualPlotter
+from BECMonitor.Optionswidgets import Options, PlotOptions
+from BECMonitor.Datatablewidget import DataTable
+from BECMonitor.Auxwidgets import TextBox, FingerTabBarWidget
+from BECMonitor.Dataplots import DataPlots, ImageWindow
+from BECMonitor.Auxfuncwidget import AuxillaryFunctionContainerWidget
 #import pyqtgraph as pg
 #Set main options
 #pg.setConfigOption('background', 'k')
@@ -53,10 +53,10 @@ class MainWindow(QtGui.QWidget):
     :var tabs: QTabWidget, contains other widgets
     :var ipy: QIPythonWidget
     """
-    def __init__(self):
+    def __init__(self, fname, start_path):
         QtGui.QWidget.__init__(self)
-        self.run, self.path = bs.get_run_name()
-
+        self.run, self.path = bs.get_run_name(start_path)
+        self.fname = fname
         #pandas dataframe for results
         self.expData = pd.DataFrame()
         self.processThreadPool = {}
@@ -65,9 +65,6 @@ class MainWindow(QtGui.QWidget):
         self.ROI = [20,200,20,200]
 
         self.index = 0
-
-
-
 
     def initUI(self):
         """
@@ -100,15 +97,15 @@ class MainWindow(QtGui.QWidget):
         self.tabs.addTab(self.data_tables, 'Data Tables')
         self.tabs.addTab(self.aux_funcs, 'Aux Functions')
 
-
-
+        ###################
+        # Ipython interpreter
+        ###################
         self.ipy =  QIPythonWidget(customBanner="Spinor BEC Ipython console\n")
-
-
         self.set_up_ipy()
 
-
-        #run button and stop button
+        ##################
+        #run button and big screen button
+        ###########################
         self.runButton = QtGui.QPushButton("Run")
         self.runButton.setStyleSheet("background-color: red; color:white")
         self.bigScreen = QtGui.QPushButton("Big Screen")
@@ -182,7 +179,6 @@ class MainWindow(QtGui.QWidget):
         """
         self.plots.change_key(data)
 
-
     def center(self):
         """Centers Window"""
         qr = self.frameGeometry()
@@ -215,7 +211,7 @@ class MainWindow(QtGui.QWidget):
 
         """
         self.running = True
-        self.imageThread = IncomingImage()
+        self.imageThread = IncomingImage(self.fname)
         QtCore.QObject.connect(self.imageThread,
                                QtCore.SIGNAL('update(QString)'),
                                self.data_recieved)
@@ -278,7 +274,6 @@ class MainWindow(QtGui.QWidget):
         self.processThreadPool[ind].start()
         self.index = self.index + 1
 
-
     def finish_thread(self,ind):
         """pop the process should destroy it all I think/"""
         self.process.pop(ind)
@@ -298,7 +293,7 @@ class MainWindow(QtGui.QWidget):
         results = results_passed[0]
         self.text_out.output('Image {0} processed'.format(self.index-1))
 
-        #####make into series then push to pandas array
+        ##make into series then push to pandas array
         results['Shot'] = results['Index']
         self.expData = self.expData.append(
             pd.DataFrame(results, index = [results['Shot']]).drop('Index',1))
@@ -307,7 +302,7 @@ class MainWindow(QtGui.QWidget):
         self.data_tables.update_pandas_table(self.expData)
         #update update
         self.to_ipy()
-        self.ipy._execute('Plot_obj.update()', False)
+        #self.ipy._execute('Plot_obj.update()', False)
 
         #update plots
         self.plots.update_plots(self.expData)
@@ -318,13 +313,12 @@ class MainWindow(QtGui.QWidget):
         self.image.add_lines(results_passed[1])
         self.text_out.output('Updated Internal Structure')
 
-
     def set_up_ipy(self):
         """setup the ipython console for use with useful functions"""
-        self.ipy.executeCommand('from Ipython import *')
+        self.ipy.executeCommand('from BECMonitor.Ipython import *')
+        self.ipy.executeCommand('%matplotlib inline')
         self.ipy.printText('imported numpy and matplotlib as np and plt')
         self.ipy.pushVariables({'help_str':'testing this'})
-
 
     def to_ipy(self):
         """push all variables to Ipython notebook"""
@@ -334,33 +328,9 @@ class MainWindow(QtGui.QWidget):
         self.ipy.pushVariables(ans)
 
 
-
-
-
-
-
-
 #main routine
 if __name__ == '__main__':
       app = QtGui.QApplication(sys.argv)
       win = MainWindow()
-      #some stuff for nice looking app
-      """
-      myappid = u'SpinorApp' # arbitrary string
-      try:
-          ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-      except:
-          print('Not on windows')
-      #different icon sizes for use
-      app_icon = QtGui.QIcon()
-      app_icon.addFile('icon56x56.png', QtCore.QSize(56,56))
-      app_icon.addFile('icon70x70.png', QtCore.QSize(70,70))
-      app_icon.addFile('icon139x139.png', QtCore.QSize(139,139))
-      app_icon.addFile('icon173x173.png', QtCore.QSize(173,173))
-      app_icon.addFile('icon216x216.png', QtCore.QSize(216,216))
-      app_icon.addFile('icon216x216.ico', QtCore.QSize(216,216))
-      app.setWindowIcon(app_icon)
-      """
-
       #run this baby
       sys.exit(app.exec_())
