@@ -9,7 +9,7 @@ import inspect
 #go into each file in directory if it is a .py file and not an .init
 #and pull out the classes
 
-path = 'C:\\Users\\zag\\Documents\\BECMonitor\\BECMonitor\\'
+path = 'C:\\Users\\Administrator\\Documents\\BECMonitor\\BECMonitor'
 os.chdir(path)
 
 onlyfile = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path,f))]
@@ -26,7 +26,7 @@ for i in files:
     classes[i] = [m[0] for m in temp if m[1].__module__ == i]
 
 #for for each class, create a page
-os.chdir( 'C:\\Users\\zag\\Documents\\BECMonitor\\BECMonitor\\docs\\')  
+os.chdir('C:\\Users\\Administrator\\Documents\\BECMonitor\\BECMonitor\\docs')
 for i in classes.keys():
     #print('import',i)
     print('   '+i)

@@ -16,7 +16,7 @@ def add_noise(data):
 
 k = 1
 while(1 > 0):
-    time.sleep(3)
+    time.sleep(4)
     np.savetxt('newimage.txt',add_noise(data))
     print('Printed image {0}'.format(k))
     k +=1

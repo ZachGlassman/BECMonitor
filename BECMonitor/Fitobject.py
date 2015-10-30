@@ -367,7 +367,7 @@ class fit_object(object):
         if self.fit_type == 'Mixture':
             calc = self.TF_2D(self.params) + self.gauss_2D(self.params) - self.params['offset'].value
         else:
-            calc = self.stern_gerlach_2D()
+            calc = self.stern_gerlach_2D(self.params)
         a = np.pad(calc, ((self.pad[0],self.pad[1]), (self.pad[2],self.pad[3])),
                    mode='constant', constant_values=0)
         return a
