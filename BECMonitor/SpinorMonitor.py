@@ -268,8 +268,6 @@ class MainWindow(QtGui.QWidget):
                                QtCore.SIGNAL('finished()'),
                                 lambda: self.finish_thread(ind))
 
-
-
         #start thread
         self.processThreadPool[ind].start()
         self.index = self.index + 1
@@ -309,7 +307,6 @@ class MainWindow(QtGui.QWidget):
         self.vis_plots.update_plots(self.expData, self.index)
 
         #possibly check if image has taken next shot for complicated processing
-
         self.image.add_lines(results_passed[1])
         self.text_out.output('Updated Internal Structure')
 

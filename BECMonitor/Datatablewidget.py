@@ -10,25 +10,24 @@ class DataTable(QtGui.QWidget):
     """tabbed tables to show system parameters and fitted parameters"""
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self)
-              
+
         self.pandas_table = QtGui.QTableWidget()
-      
+
         self.pandas_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
     
-        
         layout = QtGui.QVBoxLayout()
         layout.addWidget(self.pandas_table)
         self.setLayout(layout)
-        
+
 
         self.pandas_table_H_Labels = []
-     
-    
+
+
     def update_pandas_table(self, df):
         """update tables, check if cols are different"""
         new_cols = [i for i in df.columns.values.tolist() if i not in self.pandas_table_H_Labels]
         #now add new cols
-        for i in range(len(new_cols)): 
+        for i in range(len(new_cols)):
             """if 0 no loop will occur"""
             col = self.pandas_table.columnCount()
             self.pandas_table.insertColumn(col)
@@ -40,14 +39,13 @@ class DataTable(QtGui.QWidget):
                                               str(df.iloc[row,i])))
         #now add new row and fill data
         num_rows = self.pandas_table.rowCount()
-        self.pandas_table.insertRow(num_rows) 
+        self.pandas_table.insertRow(num_rows)
         col = 0
         for i in self.pandas_table_H_Labels:
             self.pandas_table.setItem(num_rows, col,
                                           QtGui.QTableWidgetItem(
                                               str(df[i][num_rows])))
             col = col + 1
-        
-      
+
+
         self.pandas_table.setHorizontalHeaderLabels(self.pandas_table_H_Labels)
-    

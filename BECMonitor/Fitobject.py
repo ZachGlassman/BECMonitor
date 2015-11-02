@@ -7,8 +7,9 @@ This Contains Routines called by BECMonitor
 import numpy as np
 from lmfit import minimize, Parameters, Parameter, report_fit
 import copy
+from BECMonitor.Procedure import Procedure
 
-
+#class fit_object(Procedure):
 class fit_object(object):
     """fit object holds all the information for a single fit_sequence
 

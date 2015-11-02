@@ -6,6 +6,7 @@ Classes for plotting in the top
 """
 from pyqtgraph import QtGui, QtCore
 import pyqtgraph as pg
+import numpy as np
 import matplotlib.pyplot as plt
 class PlotGrid(QtGui.QWidget):
     def __init__(self, parent = None):
@@ -13,6 +14,7 @@ class PlotGrid(QtGui.QWidget):
         QtGui.QWidget.__init__(self)
         self.layout = QtGui.QVBoxLayout()
         self.setLayout(self.layout)
+
 
 class DataPlots(QtGui.QWidget):
     """graphs to populate different stuff
@@ -78,8 +80,8 @@ class DataPlots(QtGui.QWidget):
     def update_plots(self, df):
         """Update all the Plots"""
         for i in self.graph_dict[self.key].keys():
-            self.graph_data_dict[self.key][i].setData(list(df.index),
-                                            list(df[i]))
+            self.graph_data_dict[self.key][i].setData(df.index.values,
+                                            df[i].values)
 
 
     def emit_it(self, item,points):
@@ -135,11 +137,6 @@ class ImageWindow(pg.GraphicsLayoutWidget):
         self.ySlice = self.addPlot(title = 'y Slice',
                                    symbolSize=2,
                                    symbolBrush=self.brush)
-
-        #self.nextRow()
-        #self.pop = QtGui.QPushButton("Large Window",self)
-        #self.addItem(self.pop)
-        #QtCore.QObject.connect(self.param_select, QtCore.SIGNAL('clicked()'), self.popup)
 
 
         self.roi.sigRegionChanged.connect(self.updatePlot)
