@@ -4,7 +4,7 @@ Created on Mon Nov 2 2015
 @author: zachglassman
 """
 import numpy as np
-from lmfit import Model
+from lmfit import Model, Parameters, Parameter
 import copy
 from BECMonitor.Procedure import Procedure
 from numba import autojit
@@ -205,22 +205,22 @@ def Therm_num(A,sigx, sigy, scalex,scaley):
 #################
 #Model initialization
 #################
-gauss_2d_mod = Model(gauss_2D, independent_vars = ['x','y'],prefix='gauss_')
-tf_2d_mod = Model(TF_2D, independent_vars = ['x','y'],prefix='tf_')
-bimod_2d_mod = Model(bimod_2D, independent_vars = ['x','y'],prefix='bimod_')
-bimod_flat_2d_mod = Model(bimod_flat_2D, independent_vars = ['x','y','mask'],prefix='bimod_')
+gauss_2d_mod = Model(gauss_2D, independent_vars = ['x','y'])
+tf_2d_mod = Model(TF_2D, independent_vars = ['x','y'])
+bimod_2d_mod = Model(bimod_2D, independent_vars = ['x','y'])
+bimod_flat_2d_mod = Model(bimod_flat_2D, independent_vars = ['x','y','mask'])
 
 #starting parameters for bimodal fits
-start_bimod_params = {'bimod_centerx': {'value':92,'min':40, 'max':200},
-                      'bimod_centery':{'value':71,'min':40, 'max':200},
-                      'bimod_peakg':{'value':.02,'min' : .009,'max':.05},
-                      'bimod_peaktf':{'value':.15,'min' : 0,'max':.5},
-                      'bimod_Rx':{'value':13 ,'min' : 9,'max':14},
-                      'bimod_Ry':{'value':13,'min' : 9,'max':14},
-                      'bimod_sigx':{'value':17,'min' :14,'max':24},
-                      'bimod_sigy':{'value':17,'min' : 14,'max':24},
-                      'bimod_off':{'value':0 ,'min' : -1,'max': 1},
-                      'bimod_theta':{'value':48.5, 'min' : 48, 'max': 50}
+start_bimod_params = {'centerx': {'value':92,'min':40, 'max':200},
+                      'centery':{'value':71,'min':40, 'max':200},
+                      'peakg':{'value':.02,'min' : .009,'max':.05},
+                      'peaktf':{'value':.15,'min' : 0,'max':.5},
+                      'Rx':{'value':13 ,'min' : 9,'max':14},
+                      'Ry':{'value':13,'min' : 9,'max':14},
+                      'sigx':{'value':17,'min' :14,'max':24},
+                      'sigy':{'value':17,'min' : 14,'max':24},
+                      'off':{'value':0 ,'min' : -1,'max': 1},
+                      'theta':{'value':48.5, 'min' : 48, 'max': 50}
                       }
 
 
@@ -231,7 +231,7 @@ for key, value in start_bimod_params.items():
 ##################
 #Fitting
 ##################
-def fit_image(args, data_in, filename, filepath):
+def fit_mask_bimodal_2D(data_in, pars, ROI):
     """
     function to fit image.  For a sequential fit, proceed as follows
     1. Do full bimodal fit to determine approximate TF radius
@@ -240,12 +240,9 @@ def fit_image(args, data_in, filename, filepath):
 
     :param args: arguments passed from command line
     :param data_in: image data
-    :param filename: filename of thing being fit
-    :param filepath: path to results folder
-
     """
     data = subtract_back(data_in,20)
-    pars = bimod_2d_mod.make_params()
+    pars = bimod_2d_mod.make_params(pars)
      #find center for image ROI
     idx = np.argmax(data, axis = None)
     center_idx = np.unravel_index(idx,data.shape)
@@ -258,84 +255,95 @@ def fit_image(args, data_in, filename, filepath):
     #now find center for fit parameters
     idx = np.argmax(data, axis = None)
     center_idx = np.unravel_index(idx,data.shape)
-    pars['bimod_centerx'].value = center_idx[1]
-    pars['bimod_centery'].value = center_idx[0]
+    pars['centerx'].value = center_idx[1]
+    pars['centery'].value = center_idx[0]
+
+
+    first_fit = bimod_2d_mod.fit(data.ravel(),pars,x=x.ravel(),y=y.ravel())
+    pars = copy.deepcopy(first_fit.params)
+    #now figure out mask by finding square region of larger TF radius after rotation
+    mask = find_mask(args,pars,data.shape) #array for mask
+
+    # now make maskd array
+    ma = np.ma.array(data, mask = mask)
+    #now we apply the same mask to the vectors
+    xm = np.ma.array(x, mask = mask)
+    ym = np.ma.array(y, mask = mask)
+    #now fix TFpeak to 0 and fix center
+    TF_val = pars['peaktf'].value
+
+    pars['peaktf'].value = 0
+    pars['peaktf'].vary = False
+    pars['Rx'].vary = False
+    pars['Ry'].vary = False
+    pars['centerx'].vary = False
+    pars['centery'].vary = False
+    #set gaussian wings to good guesses
+    pars['sigx'].value = 10
+    if not args.lock_sig:
+        pars['sigy'].value = 10
+    pars['peakg'].value = 0.1
+    #fit to notmral gaussian
+    second_fit = 2d_mod.fit(ma.compressed(),
+                                  pars,
+                                  x=xm.compressed(),
+                                  y=ym.compressed())
 
 
 
-    if args.lock_sig:
-        pars['bimod_sigy'].expr = 'bimod_sigx'
+    pars = copy.deepcopy(second_fit.params)
+    #now free the TF parameters
+    pars['peaktf'].value = TF_val
+    pars['peaktf'].vary = True
+    pars['Rx'].vary = True
+    pars['Ry'].vary = True
+    #fix gaussian parameters
+    pars['sigx'].vary = False
+    pars['sigy'].vary = False
+    pars['peakg'].vary = False
 
-    if args.single:
-        out = bimod_2d_mod.fit(data.ravel(),
-                               pars,
-                               x=x.ravel(),
-                               y=y.ravel())
-        report = out.fit_report()
-        results =  {key:out.params[key].value for key in out.params.keys()}
-
+    #do third fit to either flat or gaussian
+    if args.gauss:
+        out = bimdod_2d_mod.fit(data.ravel(),pars,x=x.ravel(),y=y.ravel())
     else:
-        first_fit = bimod_2d_mod.fit(data.ravel(),pars,x=x.ravel(),y=y.ravel())
-        pars = copy.deepcopy(first_fit.params)
-        #now figure out mask by finding square region of larger TF radius after rotation
-        mask = find_mask(args,pars,data.shape) #array for mask
+        #find new mask with s =0
+        temps = args.s
+        args.s = 1
+        mask2 = find_mask(args,pars,data.shape)
+        args.s = temps
+        out = bimod_flat_2d_mod.fit(data.ravel(),
+                                pars,
+                                mask = mask2,
+                                x=x.ravel(),
+                                y=y.ravel())
+    #results
+    report = out.fit_report()
+    results =  {key:out.params[key].value for key in out.params.keys()}
 
-        # now make maskd array
-        ma = np.ma.array(data, mask = mask)
-        #now we apply the same mask to the vectors
-        xm = np.ma.array(x, mask = mask)
-        ym = np.ma.array(y, mask = mask)
-        #now fix TFpeak to 0 and fix center
-        TF_val = pars['bimod_peaktf'].value
-
-        pars['bimod_peaktf'].value = 0
-        pars['bimod_peaktf'].vary = False
-        pars['bimod_Rx'].vary = False
-        pars['bimod_Ry'].vary = False
-        pars['bimod_centerx'].vary = False
-        pars['bimod_centery'].vary = False
-        #set gaussian wings to good guesses
-        pars['bimod_sigx'].value = 10
-        if not args.lock_sig:
-            pars['bimod_sigy'].value = 10
-        pars['bimod_peakg'].value = 0.1
-        #fit to notmral gaussian
-        second_fit = bimod_2d_mod.fit(ma.compressed(),
-                                      pars,
-                                      x=xm.compressed(),
-                                      y=ym.compressed())
-
-
-
-        pars = copy.deepcopy(second_fit.params)
-        #now free the TF parameters
-        pars['bimod_peaktf'].value = TF_val
-        pars['bimod_peaktf'].vary = True
-        pars['bimod_Rx'].vary = True
-        pars['bimod_Ry'].vary = True
-        #fix gaussian parameters
-        pars['bimod_sigx'].vary = False
-        if not args.lock_sig:
-            pars['bimod_sigy'].vary = False
-        pars['bimod_peakg'].vary = False
-
-        #do third fit to either flat or gaussian
-        if args.gauss:
-            out = bimod_2d_mod.fit(data.ravel(),pars,x=x.ravel(),y=y.ravel())
-        else:
-            #find new mask with s =0
-            temps = args.s
-            args.s = 1
-            mask2 = find_mask(args,pars,data.shape)
-            args.s = temps
-            out = bimod_flat_2d_mod.fit(data.ravel(),
-                                    pars,
-                                    mask = mask2,
-                                    x=x.ravel(),
-                                    y=y.ravel())
-        #results
-        report = out.fit_report()
-        results =  {key:out.params[key].value for key in out.params.keys()}
-
-class AbsorbtionFit_2D(Procedure):
+class Bimodal_Mask_2D(Procedure):
     """2D absorbtion Fitting"""
+    self.pars = par_in = {'centerx':Parameter,
+              'centery':Parameter,
+              'peakg':Parameter,
+              'peaktf':Parameter,
+              'Rx':Parameter,
+              'Ry':Parameter,
+              'sigx':Parameter,
+              'sigy':Parameter,
+              'off':Parameter,
+              'theta':Parameter
+              }
+    self.plot_vars()
+
+
+class Bimodal_Single_2D(Procedure):
+    pass
+
+class Gaussian_2D(Procedure):
+    pass
+
+class Thomas_Fermi_2D(Procedure):
+    pass
+
+class Stern_Gerlach_2D(Procedure):
+    pass
