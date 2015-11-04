@@ -8,6 +8,7 @@ from lmfit import Model, Parameters, Parameter
 import copy
 from BECMonitor.Procedure import Procedure
 from numba import autojit
+from collections import OrderedDict
 
 def TF_2D(x,y,peak, Rx,Ry, centerx, centery, off, theta):
     """ 2 Dimensional Thomas-Fermi profile
@@ -210,28 +211,24 @@ tf_2d_mod = Model(TF_2D, independent_vars = ['x','y'])
 bimod_2d_mod = Model(bimod_2D, independent_vars = ['x','y'])
 bimod_flat_2d_mod = Model(bimod_flat_2D, independent_vars = ['x','y','mask'])
 
-#starting parameters for bimodal fits
-start_bimod_params = {'centerx': {'value':92,'min':40, 'max':200},
-                      'centery':{'value':71,'min':40, 'max':200},
-                      'peakg':{'value':.02,'min' : .009,'max':.05},
-                      'peaktf':{'value':.15,'min' : 0,'max':.5},
-                      'Rx':{'value':13 ,'min' : 9,'max':14},
-                      'Ry':{'value':13,'min' : 9,'max':14},
-                      'sigx':{'value':17,'min' :14,'max':24},
-                      'sigy':{'value':17,'min' : 14,'max':24},
-                      'off':{'value':0 ,'min' : -1,'max': 1},
-                      'theta':{'value':48.5, 'min' : 48, 'max': 50}
-                      }
-
-
-#set parameter hings in model
-for key, value in start_bimod_params.items():
-    bimod_2d_mod.set_param_hint(key, **value)
-
 ##################
 #Fitting
+# all input parameters MUST have default inputs as ordered dictionaries, this is import!!!
+# It will allow for automatic generation of widgets
+#
 ##################
-def fit_mask_bimodal_2D(data_in, pars, ROI):
+def fit_mask_bimodal_2D(data_in,
+                        ROI,
+                        centerx=OrderedDict((('value',92),('min',40),('max',200))),
+                        centery=OrderedDict((('value',71),('min',40),('max',200))),
+                        peakg=OrderedDict((('value',.02),('min',.009),('max',.05))),
+                        peaktf=OrderedDict((('value',.15),('min',0),('max',.5))),
+                        Rx=OrderedDict((('value',13 ),('min',9),('max',14))),
+                        Ry=OrderedDict((('value',13),('min',9),('max',14))),
+                        sigx=OrderedDict((('value',17),('min',14),('max',24))),
+                        sigy=OrderedDict((('value',17),('min',14),('max',24))),
+                        off=OrderedDict((('value',0 ),('min',-1),('max', 1))),
+                        theta=OrderedDict((('value',48.5),('min',48),('max',50)))):
     """
     function to fit image.  For a sequential fit, proceed as follows
     1. Do full bimodal fit to determine approximate TF radius
@@ -242,7 +239,18 @@ def fit_mask_bimodal_2D(data_in, pars, ROI):
     :param data_in: image data
     """
     data = subtract_back(data_in,20)
-    pars = bimod_2d_mod.make_params(pars)
+    in_pars = {'centerx':centerx,
+              'centery':centery,
+              'peakg':peakg,
+              'peaktf':peaktf,
+              'Rx':Rx,
+              'Ry':Ry,
+              'sigx':sigx,
+              'sigy':sigy,
+              'off':off,
+              'theta':theta
+              }
+    pars = bimod_2d_mod.make_params(in_pars)
      #find center for image ROI
     idx = np.argmax(data, axis = None)
     center_idx = np.unravel_index(idx,data.shape)
@@ -284,7 +292,7 @@ def fit_mask_bimodal_2D(data_in, pars, ROI):
         pars['sigy'].value = 10
     pars['peakg'].value = 0.1
     #fit to notmral gaussian
-    second_fit = 2d_mod.fit(ma.compressed(),
+    second_fit = bimdod_2d_mod.fit(ma.compressed(),
                                   pars,
                                   x=xm.compressed(),
                                   y=ym.compressed())
@@ -319,21 +327,25 @@ def fit_mask_bimodal_2D(data_in, pars, ROI):
     #results
     report = out.fit_report()
     results =  {key:out.params[key].value for key in out.params.keys()}
-
+    return results
+bimodal_mask_2d = Procedure('bimod_mask_2d',fit_mask_bimodal_2D,data='data_in',other=['ROI'])
+'''
 class Bimodal_Mask_2D(Procedure):
     """2D absorbtion Fitting"""
-    self.pars = par_in = {'centerx':Parameter,
-              'centery':Parameter,
-              'peakg':Parameter,
-              'peaktf':Parameter,
-              'Rx':Parameter,
-              'Ry':Parameter,
-              'sigx':Parameter,
-              'sigy':Parameter,
-              'off':Parameter,
-              'theta':Parameter
-              }
-    self.plot_vars()
+    def __init__(self):
+        Procedure.__init__(self)
+        self.pars = par_in = {'centerx':Parameter,
+                  'centery':Parameter,
+                  'peakg':Parameter,
+                  'peaktf':Parameter,
+                  'Rx':Parameter,
+                  'Ry':Parameter,
+                  'sigx':Parameter,
+                  'sigy':Parameter,
+                  'off':Parameter,
+                  'theta':Parameter
+                  }
+        #self.plot_vars()
 
 
 class Bimodal_Single_2D(Procedure):
@@ -347,3 +359,4 @@ class Thomas_Fermi_2D(Procedure):
 
 class Stern_Gerlach_2D(Procedure):
     pass
+'''

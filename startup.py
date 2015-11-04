@@ -12,6 +12,10 @@ from lxml import etree
 from pyqtgraph import QtGui
 import sys
 from BECMonitor.SpinorMonitor import MainWindow
+from BECMonitor.Procedure import Procedure
+import importlib
+import gc
+
 def elem2dict(node):
     """
     Convert an lxml.etree node tree into a dict.
@@ -24,6 +28,14 @@ def elem2dict(node):
         d[key] = value
     return d
 
+def find_procedures(files):
+    """function to find procedures from files in startup config
+    first import all files
+    then get all instances of Procedure"""
+    procs = {i: importlib.import_module('BECMonitor.{0}'.format(i)) for i in files.split(',')}
+    #now bind into dictionary
+    return {i.name:i for i in gc.get_objects() if isinstance(i,Procedure)}
+
 message = 'Welcome to BECMonitor version {0}.\n You have initalized \
  with\n data_path : {1}\n image_path : {2}'
 #main routine
@@ -31,8 +43,15 @@ if __name__ == '__main__':
       info =  elem2dict(etree.parse('experiment.config').getroot())
       fname = info['image_path']
       start_path = info['data_path']
+      files = info['procedures']
+      procs = find_procedures(files)
+
+
       print(message.format(__version__,start_path,fname))
+      print('Imported Procedures are:')
+      for i in procs.keys():
+          print(i)
       app = QtGui.QApplication(sys.argv)
-      win = MainWindow(fname,start_path)
+      win = MainWindow(fname,start_path, procs)
       #run this baby
       sys.exit(app.exec_())

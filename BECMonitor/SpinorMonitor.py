@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
+__doc__= """
 Created on Sun Mar 15 20:12:32 2015
 Spinor Monitor
 This is the data aquisition software for Paul Lett's sodium spinor experiment.
@@ -53,7 +53,7 @@ class MainWindow(QtGui.QWidget):
     :var tabs: QTabWidget, contains other widgets
     :var ipy: QIPythonWidget
     """
-    def __init__(self, fname, start_path):
+    def __init__(self, fname, start_path, procs):
         QtGui.QWidget.__init__(self)
         self.run, self.path = bs.get_run_name(start_path)
         self.fname = fname
@@ -63,8 +63,10 @@ class MainWindow(QtGui.QWidget):
         self.process = {}
         self.initUI()
         self.ROI = [20,200,20,200]
-
+        self.procs = procs
         self.index = 0
+        print('#############')
+        print('Program Initialized')
 
     def initUI(self):
         """
@@ -73,6 +75,7 @@ class MainWindow(QtGui.QWidget):
         """
         #self.showFullScreen()
         self.resize(1850,950) #work
+        self.showMaximized()
         #self.resize(1650,900) #home
 
         self.center()
@@ -154,6 +157,9 @@ class MainWindow(QtGui.QWidget):
 
         self.text_out.output('Initializing run ' + str(self.run))
         self.get_roi()
+        #now create menu bar
+        #menubar = QtGui.QMenuBar(self)
+        #fileMenu = menubar.addMenu('&File')
         self.show()
 
 

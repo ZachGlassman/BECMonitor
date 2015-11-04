@@ -10,17 +10,15 @@ Specific procedures will be subclassed.
 @author: zachglassman
 """
 from collections import OrderedDict
-
+import inspect
 class Procedure(object):
     """Class for defining procedure to operate on data"""
-    def __init__(self,name):
-        if isinstance(name,str):
-            self.name = name
-        else:
-            print('Need real name for this')
-
+    def __init__(self,name,func = None, data = None, other = []):
+        self.name = name
         #input, output, data, names bound to types for specific purpose
         #will be ordered dictionary for consistence
+        #input is user input, other is things like ROI which are not parameters
+        #input will be passed with default arguments
         self.input = OrderedDict()
         self.output = OrderedDict()
         self.data = OrderedDict()
@@ -31,6 +29,8 @@ class Procedure(object):
         self.plot_func = None
         #list of plotted variables must be six or less
         self.plot_vars = []
+        if func:
+            self.create_from_function(func,data)
 
 
     @property
@@ -49,3 +49,8 @@ class Procedure(object):
     @plot_vars.setter
     def plot_vars(self, var_list):
         self._plot_vars = var_list[:6]
+
+    def create_from_function(self,func,data=None,other=[]):
+        self.operation = func
+        func_sig = inspect.getfullargspec(func)
+        self.input = None
