@@ -328,6 +328,8 @@ def fit_mask_bimodal_2D(data_in,
     report = out.fit_report()
     results =  {key:out.params[key].value for key in out.params.keys()}
     return results
+
+###Procedure
 bimodal_mask_2d = Procedure('bimod_mask_2d',fit_mask_bimodal_2D,data='data_in',other=['ROI'])
 '''
 class Bimodal_Mask_2D(Procedure):

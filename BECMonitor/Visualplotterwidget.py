@@ -16,6 +16,7 @@ from lmfit import Parameters, fit_report
 import numpy as np
 import copy
 from BECMonitor.Auxwidgets import TextBox
+import seaborn #for nice plots
 #need to add them to dict of models
 
 class VisualPlotter(QtGui.QWidget):

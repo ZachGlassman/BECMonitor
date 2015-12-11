@@ -34,7 +34,7 @@ def find_procedures(files):
     then get all instances of Procedure"""
     procs = {i: importlib.import_module('BECMonitor.{0}'.format(i)) for i in files.split(',')}
     #now bind into dictionary
-    return {i.name:i for i in gc.get_objects() if isinstance(i,Procedure)}
+    return {i.name:i for i in gc.get_objects() if isinstance(i, Procedure)}
 
 message = 'Welcome to BECMonitor version {0}.\n You have initalized \
  with\n data_path : {1}\n image_path : {2}'
@@ -51,7 +51,7 @@ if __name__ == '__main__':
       print('Imported Procedures are:')
       for i in procs.keys():
           print(i)
-      app = QtGui.QApplication(sys.argv)
-      win = MainWindow(fname,start_path, procs)
+      #app = QtGui.QApplication(sys.argv)
+      #win = MainWindow(fname,start_path, procs)
       #run this baby
-      sys.exit(app.exec_())
+      #sys.exit(app.exec_())

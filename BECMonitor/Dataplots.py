@@ -98,7 +98,7 @@ class ImageWindow(pg.GraphicsLayoutWidget):
     def __init__(self, parent = None):
         pg.GraphicsLayoutWidget.__init__(self, parent)
         #define colormap
-        self.cmap = plt.get_cmap()
+        self.cmap = plt.get_cmap('jet')
         #raw image plot
         self.rawImagePlot = self.addPlot(title = 'Raw Image')
         self.img = pg.ImageItem()

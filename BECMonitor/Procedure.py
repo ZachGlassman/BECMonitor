@@ -53,4 +53,5 @@ class Procedure(object):
     def create_from_function(self,func,data=None,other=[]):
         self.operation = func
         func_sig = inspect.getfullargspec(func)
+        print(func_sig)
         self.input = None
