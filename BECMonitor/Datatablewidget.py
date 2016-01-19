@@ -19,7 +19,6 @@ class DataTable(QtGui.QWidget):
         layout.addWidget(self.pandas_table)
         self.setLayout(layout)
 
-
         self.pandas_table_H_Labels = []
 
 
@@ -49,3 +48,19 @@ class DataTable(QtGui.QWidget):
 
 
         self.pandas_table.setHorizontalHeaderLabels(self.pandas_table_H_Labels)
+
+#main routine for testing purposes
+
+if __name__ == '__main__':
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    win = DataTable()
+    win.show()
+    #run this baby
+    #now add fake data
+    import pandas as pd
+    import numpy as np
+    df = pd.DataFrame(np.random.rand(10))
+    print(df)
+    win.update_pandas_table(df)
+    sys.exit(app.exec_())
