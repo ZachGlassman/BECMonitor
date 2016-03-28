@@ -294,6 +294,7 @@ class MainWindow(QtGui.QWidget):
                                QtCore.SIGNAL('finished()'),
                                 lambda: self.finish_thread(ind))
 
+
         #start thread
         self.processThreadPool[ind].start()
         self.index = self.index + 1
@@ -301,7 +302,10 @@ class MainWindow(QtGui.QWidget):
     def finish_thread(self,ind):
         """pop the process should destroy it all I think/"""
         self.process.pop(ind)
+        self.processThreadPool[ind].terminate()
         self.processThreadPool.pop(ind)
+
+
 
     def get_options(self):
         """convenience function to return list of options
