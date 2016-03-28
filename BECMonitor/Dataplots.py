@@ -7,7 +7,7 @@ Classes for plotting in the top
 from pyqtgraph import QtGui, QtCore
 import pyqtgraph as pg
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 class PlotGrid(QtGui.QWidget):
     def __init__(self, parent = None):
         """convenience container widget"""
@@ -16,7 +16,7 @@ class PlotGrid(QtGui.QWidget):
         self.setLayout(self.layout)
 
 
-class DataPlots(QtGui.QWidget):
+class DataPlotsWidget(QtGui.QWidget):
     """graphs to populate different stuff
     we will create all the plots, but only update the ones we care about
     to save some computation"""
@@ -79,9 +79,12 @@ class DataPlots(QtGui.QWidget):
 
     def update_plots(self, df):
         """Update all the Plots"""
+
         for i in self.graph_dict[self.key].keys():
             self.graph_data_dict[self.key][i].setData(df.index.values,
                                             df[i].values)
+
+        print(df.columns)
 
 
     def emit_it(self, item,points):
@@ -98,7 +101,7 @@ class ImageWindow(pg.GraphicsLayoutWidget):
     def __init__(self, parent = None):
         pg.GraphicsLayoutWidget.__init__(self, parent)
         #define colormap
-        self.cmap = plt.get_cmap('jet')
+        self.cmap = cm.get_cmap('viridis')
         #raw image plot
         self.rawImagePlot = self.addPlot(title = 'Raw Image')
         self.img = pg.ImageItem()

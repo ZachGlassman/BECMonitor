@@ -1,0 +1,803 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Visualplotterwidget &mdash; BEC Monitor 1.0.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BEC Monitor 1.0.2 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BEC Monitor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../Fitobject.html">Fitobject</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Datatablewidget.html">Datatablewidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxfuncwidget.html">Auxfuncwidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ipython.html">Ipython</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxwidgets.html">Auxwidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Subroutines.html">Subroutines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dataplots.html">Dataplots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Fitmodels.html">Fitmodels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Image.html">Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SpinorMonitor.html">SpinorMonitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Optionswidgets.html">Optionswidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxfunctions.html">Auxfunctions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Visualplotterwidget.html">Visualplotterwidget</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">BEC Monitor</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>Visualplotterwidget</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for Visualplotterwidget</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Tue May 26 14:44:12 2015</span>
+<span class="sd">Class to choose plots</span>
+<span class="sd">@author: zag</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">pyqtgraph.Qt</span> <span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span>
+
+<span class="c1">#going to use matplotlib here</span>
+<span class="kn">from</span> <span class="nn">matplotlib.backends.backend_qt4agg</span> <span class="kn">import</span> <span class="n">FigureCanvasQTAgg</span> <span class="k">as</span> <span class="n">FigureCanvas</span>
+<span class="kn">from</span> <span class="nn">matplotlib.backends.backend_qt4agg</span> <span class="kn">import</span> <span class="n">NavigationToolbar2QT</span> <span class="k">as</span> <span class="n">NavigationToolbar</span>
+<span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">Figure</span>
+<span class="kn">from</span> <span class="nn">lmfit</span> <span class="kn">import</span> <span class="n">Parameters</span><span class="p">,</span> <span class="n">fit_report</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="c1">#here we import models for fits</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Fitmodels</span> <span class="kn">import</span> <span class="n">sinMod</span><span class="p">,</span> <span class="n">gaussMod</span><span class="p">,</span> <span class="n">expMod</span><span class="p">,</span> <span class="n">lorentzMod</span><span class="p">,</span> <span class="n">sincMod</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Auxwidgets</span> <span class="kn">import</span> <span class="n">TextBox</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">Fitmodels</span> <span class="kn">import</span> <span class="n">sinMod</span><span class="p">,</span> <span class="n">gaussMod</span><span class="p">,</span> <span class="n">expMod</span><span class="p">,</span> <span class="n">lorentzMod</span><span class="p">,</span> <span class="n">sincMod</span>
+    <span class="kn">from</span> <span class="nn">Auxwidgets</span> <span class="kn">import</span> <span class="n">TextBox</span>
+
+
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="c1">#for nice plots</span>
+<span class="n">seaborn</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s1">&#39;whitegrid&#39;</span><span class="p">)</span>
+<span class="c1">#need to add them to dict of models</span>
+
+<div class="viewcode-block" id="VisualPlotter"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter">[docs]</a><span class="k">class</span> <span class="nc">VisualPlotter</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class to choose plotting visually so it is easy.  Will also</span>
+<span class="sd">    automatically update plots for every shot.  Can automatically fit on a</span>
+<span class="sd">    single shot or updating shot basis.</span>
+
+<span class="sd">    :var message: pyqtSignal which can be transmitted to main message box</span>
+<span class="sd">    :var plots: Dictionary to hold all the plots</span>
+<span class="sd">    :var data: local copy of entire pandas dataframe</span>
+<span class="sd">    :var index: index of shot</span>
+<span class="sd">    :var start: start of plot region</span>
+<span class="sd">    :var end: end of plot region</span>
+<span class="sd">    :var ignore_list: list of shots to ignore</span>
+<span class="sd">    :fit_models: different models to fit too needs to be updated when models added</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">message</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;message&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+         <span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">plots</span> <span class="o">=</span> <span class="p">{}</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="bp">None</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_list</span> <span class="o">=</span> <span class="p">[]</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">WA_DeleteOnClose</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+         <span class="c1">#fitting models dict</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">fit_models</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Sin&quot;</span><span class="p">:</span><span class="n">sinMod</span><span class="p">,</span>
+                            <span class="s2">&quot;Gaussian&quot;</span><span class="p">:</span><span class="n">gaussMod</span><span class="p">,</span>
+                            <span class="s2">&quot;Exponential&quot;</span><span class="p">:</span><span class="n">expMod</span><span class="p">,</span>
+                            <span class="s2">&quot;Lorentzian&quot;</span><span class="p">:</span><span class="n">lorentzMod</span><span class="p">,</span>
+                            <span class="s2">&quot;Sinc&quot;</span><span class="p">:</span><span class="n">sincMod</span>
+                            <span class="p">}</span>
+
+         <span class="bp">self</span><span class="o">.</span><span class="n">labelx</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">labelx</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;X variable&#39;</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">labely</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">labely</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Y variable&#39;</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">label_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+         <span class="bp">self</span><span class="o">.</span><span class="n">entrystart</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSpinBox</span><span class="p">()</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">entryend</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSpinBox</span><span class="p">()</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">entrystart</span><span class="o">.</span><span class="n">setMinimum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">entryend</span><span class="o">.</span><span class="n">setMinimum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+         <span class="bp">self</span><span class="o">.</span><span class="n">checkstart</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s1">&#39;Set Start Index&#39;</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">checkend</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s1">&#39;Set End Index&#39;</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_b</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Ignore Indices&#39;</span><span class="p">)</span>
+
+         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_b</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="s1">&#39;Enter Indices to ignore separated by ;, can use list slicing&#39;</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">ignore</span> <span class="o">=</span>  <span class="n">TextBox</span><span class="p">()</span>
+
+
+
+         <span class="c1">#fitting check box</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">fitting_check</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s1">&#39;Do Fitting&#39;</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">fitting_select</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">()</span>
+
+         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_models</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">fitting_select</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+         <span class="c1">#variable combo boxes</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">xvars</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">()</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">yvars</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">()</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">var_push</span><span class="p">([</span><span class="s1">&#39;Shot&#39;</span><span class="p">])</span>
+
+
+         <span class="bp">self</span><span class="o">.</span><span class="n">fitting_stack</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStackedWidget</span><span class="p">()</span>
+         <span class="c1">#param dictionary of dictionary to hold parameter values</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">fit_param_dict</span> <span class="o">=</span> <span class="p">{}</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">params_objects</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#dictionary of parameters objects</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">add_fitting_widgets</span><span class="p">()</span>
+
+
+
+         <span class="c1">#set up matplotlib figure</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">preview</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">FigureCanvas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preview</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preview</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+
+
+         <span class="c1">#buttons</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">plot_b</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Updating Plot&#39;</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">static_plot_b</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Static Plot&#39;</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">try_fit_b</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Try Fit&#39;</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">do_fit_b</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Do Fit&#39;</span><span class="p">)</span>
+
+
+
+         <span class="c1">#going to use box layout</span>
+         <span class="c1">#first row</span>
+         <span class="n">row1</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+         <span class="n">row1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labelx</span><span class="p">)</span>
+         <span class="n">row1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labely</span><span class="p">)</span>
+         <span class="c1">#second row</span>
+         <span class="n">row2</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+         <span class="n">row2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xvars</span><span class="p">)</span>
+         <span class="n">row2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yvars</span><span class="p">)</span>
+         <span class="c1">#third row</span>
+         <span class="n">row3</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+         <span class="n">row3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="n">stretch</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+         <span class="c1">#third row column</span>
+         <span class="n">row3c2</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+         <span class="n">row3c2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkstart</span><span class="p">)</span>
+         <span class="n">row3c2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entrystart</span><span class="p">)</span>
+         <span class="n">row3c2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkend</span><span class="p">)</span>
+         <span class="n">row3c2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entryend</span><span class="p">)</span>
+         <span class="n">row3c2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">)</span>
+         <span class="n">row3c2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_b</span><span class="p">)</span>
+
+         <span class="n">row3c3</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+         <span class="n">row3c3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fitting_check</span><span class="p">)</span>
+         <span class="n">row3c3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fitting_select</span><span class="p">)</span>
+         <span class="n">row3c3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fitting_stack</span><span class="p">)</span>
+         <span class="n">row3c3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">try_fit_b</span><span class="p">)</span>
+         <span class="n">row3c3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">do_fit_b</span><span class="p">)</span>
+
+
+         <span class="n">row3</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">row3c2</span><span class="p">)</span>
+         <span class="n">row3</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">row3c3</span><span class="p">)</span>
+
+         <span class="n">row4</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+
+         <span class="n">row4</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_b</span><span class="p">)</span>
+         <span class="n">row4</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">static_plot_b</span><span class="p">)</span>
+
+         <span class="n">layout</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+         <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">row1</span><span class="p">)</span>
+         <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">row2</span><span class="p">)</span>
+         <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">row3</span><span class="p">)</span>
+         <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">row4</span><span class="p">)</span>
+
+
+         <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+
+         <span class="c1">#wire up the buttons</span>
+         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">static_plot_b</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;clicked()&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">static_plot</span><span class="p">)</span>
+         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_b</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;clicked()&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_update</span><span class="p">)</span>
+
+         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_b</span><span class="p">,</span>
+                                <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;clicked()&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">updating_plot</span><span class="p">)</span>
+         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">try_fit_b</span><span class="p">,</span>
+                                <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;clicked()&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_fit</span><span class="p">)</span>
+         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">do_fit_b</span><span class="p">,</span>
+                                <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;clicked()&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_fit</span><span class="p">)</span>
+
+
+         <span class="c1">#connect changes to the test plot so it updates</span>
+         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xvars</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;activated(QString)&#39;</span><span class="p">),</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">test_plot</span><span class="p">)</span>
+         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yvars</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;activated(QString)&#39;</span><span class="p">),</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">test_plot</span><span class="p">)</span>
+         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkstart</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;stateChanged(int)&#39;</span><span class="p">),</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">test_plot</span><span class="p">)</span>
+         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkend</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;stateChanged(int)&#39;</span><span class="p">),</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">test_plot</span><span class="p">)</span>
+         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entrystart</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;valueChanged(int)&#39;</span><span class="p">),</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">test_plot</span><span class="p">)</span>
+         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entryend</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;valueChanged(int)&#39;</span><span class="p">),</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">test_plot</span><span class="p">)</span>
+         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fitting_select</span><span class="p">,</span>
+                                <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;activated(int)&#39;</span><span class="p">),</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">fitting_stack</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="VisualPlotter.add_fitting_widgets"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.add_fitting_widgets">[docs]</a>    <span class="k">def</span> <span class="nf">add_fitting_widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;function populates stacked box for each type of fit&quot;&quot;&quot;</span>
+        <span class="n">fits</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_models</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="c1">#loop through fits</span>
+        <span class="n">fit_widget</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fits</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fit_param_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="c1">#initiate widget of parameter entry</span>
+            <span class="n">fit_widget</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span> <span class="n">ParamEntry</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params_objects</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_models</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">param_names</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">params_objects</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+                <span class="n">lay</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit_param_dict</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QDoubleSpinBox</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit_param_dict</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">setMaximum</span><span class="p">(</span><span class="mf">1e17</span><span class="p">)</span>
+                <span class="n">lay</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="n">j</span><span class="p">))</span>
+                <span class="n">lay</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_param_dict</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">fit_widget</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">lay</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fitting_stack</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">fit_widget</span><span class="p">[</span><span class="n">i</span><span class="p">])</span></div>
+
+
+
+
+
+
+<div class="viewcode-block" id="VisualPlotter.update_plots"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.update_plots">[docs]</a>    <span class="k">def</span> <span class="nf">update_plots</span><span class="p">(</span><span class="bp">self</span> <span class="p">,</span><span class="n">df</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the updating plots whose references are stored in self.plots</span>
+
+<span class="sd">        :params df: pandas dataframe holding data</span>
+<span class="sd">        :type df: pandas.DataFrame</span>
+<span class="sd">        :params index: index of shot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="c1">#push variables that are not there</span>
+        <span class="n">new_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_push</span><span class="p">(</span><span class="n">new_names</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_list</span> <span class="o">+</span> <span class="n">new_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_plot</span><span class="p">()</span>
+
+        <span class="c1">#filter for plots that are gone</span>
+        <span class="n">remove</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">isHidden</span><span class="p">()]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">remove</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="c1">#update remaining plots</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">x_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignore</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">xl</span><span class="p">])</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+            <span class="n">y_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignore</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">yl</span><span class="p">])</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+
+            <span class="n">xx</span><span class="p">,</span><span class="n">yy</span><span class="p">,</span><span class="n">std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose_avg</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span><span class="n">y_data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span><span class="n">yy</span><span class="p">,</span><span class="n">std</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="VisualPlotter.var_push"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.var_push">[docs]</a>    <span class="k">def</span> <span class="nf">var_push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">var_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;add a list of variables to options&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xvars</span><span class="o">.</span><span class="n">addItems</span><span class="p">(</span><span class="n">var_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yvars</span><span class="o">.</span><span class="n">addItems</span><span class="p">(</span><span class="n">var_list</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VisualPlotter.plot_clicked"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.plot_clicked">[docs]</a>    <span class="k">def</span> <span class="nf">plot_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;function called when any plot option is called, sets the start and</span>
+<span class="sd">        end values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xvars</span><span class="o">.</span><span class="n">currentText</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yvars</span><span class="o">.</span><span class="n">currentText</span><span class="p">())</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkstart</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entrystart</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkend</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entryend</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="VisualPlotter.updating_plot"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.updating_plot">[docs]</a>    <span class="k">def</span> <span class="nf">updating_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;create an updating plot and fill it with parameters</span>
+<span class="sd">        gathered from current state of widgets</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_clicked</span><span class="p">()</span>
+        <span class="c1">#create new plot</span>
+        <span class="n">fit_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitting_select</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_models</span><span class="p">[</span><span class="n">fit_type</span><span class="p">]</span>
+            <span class="c1">#update paramter values</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">param_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params_objects</span><span class="p">[</span><span class="n">fit_type</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_param_dict</span><span class="p">[</span><span class="n">fit_type</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+
+        <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_updating_title_string</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">title</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">title</span><span class="p">]</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">title</span><span class="p">]</span> <span class="o">=</span> <span class="n">PopPlot</span><span class="p">(</span><span class="n">mod</span> <span class="o">=</span> <span class="n">mod</span><span class="p">,</span>
+                                        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_objects</span><span class="p">[</span><span class="n">fit_type</span><span class="p">],</span>
+                                        <span class="n">do_fit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitting_check</span><span class="o">.</span><span class="n">isChecked</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">title</span><span class="p">]</span><span class="o">.</span><span class="n">update_init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                                        <span class="n">title</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_list</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;Plotted updating: &#39;</span> <span class="o">+</span> <span class="n">title</span><span class="p">)</span>
+        <span class="n">x_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">title</span><span class="p">]</span><span class="o">.</span><span class="n">xl</span><span class="p">])</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+        <span class="n">y_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">title</span><span class="p">]</span><span class="o">.</span><span class="n">yl</span><span class="p">])</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+        <span class="n">xx</span><span class="p">,</span><span class="n">yy</span><span class="p">,</span><span class="n">std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose_avg</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span><span class="n">y_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">title</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span><span class="n">yy</span><span class="p">,</span><span class="n">std</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">title</span><span class="p">]</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VisualPlotter.static_plot"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.static_plot">[docs]</a>    <span class="k">def</span> <span class="nf">static_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;create new modal popup static plot&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_clicked</span><span class="p">()</span>
+        <span class="n">x_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+        <span class="n">y_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">])</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+
+        <span class="n">std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_data</span><span class="p">()</span>
+
+
+        <span class="n">fit_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitting_select</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_models</span><span class="p">[</span><span class="n">fit_type</span><span class="p">]</span>
+            <span class="c1">#update paramter values</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">param_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params_objects</span><span class="p">[</span><span class="n">fit_type</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_param_dict</span><span class="p">[</span><span class="n">fit_type</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">staticplot</span> <span class="o">=</span> <span class="n">PopPlot</span><span class="p">(</span><span class="n">mod</span> <span class="o">=</span> <span class="n">mod</span><span class="p">,</span>
+                             <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_objects</span><span class="p">[</span><span class="n">fit_type</span><span class="p">],</span>
+                             <span class="n">do_fit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitting_check</span><span class="o">.</span><span class="n">isChecked</span><span class="p">())</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_title_string</span><span class="p">()</span>
+        <span class="n">staticplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span><span class="n">y_data</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="n">title</span><span class="p">,</span><span class="n">std</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;Plotted: &#39;</span> <span class="o">+</span> <span class="n">title</span><span class="p">)</span>
+        <span class="n">staticplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VisualPlotter.test_plot"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.test_plot">[docs]</a>    <span class="k">def</span> <span class="nf">test_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;update the test plot&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_clicked</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">hold</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="c1">#get the variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">])</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+        <span class="c1">#now we need to averaging if it is on:::</span>
+
+        <span class="n">std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_data</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_data</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">y_data</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span> <span class="n">std</span><span class="p">,</span>
+                     <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">make_title_string</span><span class="p">())</span>
+        <span class="c1">#if fit is clicked also update that data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitting_check</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_fit</span><span class="p">()</span> <span class="c1">#eventually make this a line for now, okay</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VisualPlotter.test_fit"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.test_fit">[docs]</a>    <span class="k">def</span> <span class="nf">test_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;do a fit on the test plto&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">hold</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_clicked</span><span class="p">()</span>
+        <span class="c1">#get the variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+        <span class="n">fit_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitting_select</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_models</span><span class="p">[</span><span class="n">fit_type</span><span class="p">]</span>
+            <span class="c1">#update paramter values</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">param_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params_objects</span><span class="p">[</span><span class="n">fit_type</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_param_dict</span><span class="p">[</span><span class="n">fit_type</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="c1">#make a smooth interpolation of data</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">x_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="mi">1000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">mod</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params_objects</span><span class="p">[</span><span class="n">fit_type</span><span class="p">],</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">),</span>
+                                <span class="n">linestyle</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VisualPlotter.do_fit"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.do_fit">[docs]</a>    <span class="k">def</span> <span class="nf">do_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; do a fit&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">hold</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_clicked</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">])</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_data</span><span class="p">()</span>
+        <span class="n">fit_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitting_select</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_models</span><span class="p">[</span><span class="n">fit_type</span><span class="p">]</span>
+            <span class="c1">#update paramter values</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">param_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params_objects</span><span class="p">[</span><span class="n">fit_type</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_param_dict</span><span class="p">[</span><span class="n">fit_type</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_data</span><span class="p">,</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_data</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params_objects</span><span class="p">[</span><span class="n">fit_type</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_data</span><span class="p">,</span><span class="n">result</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;c&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">fit_report</span><span class="p">(</span><span class="n">result</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="VisualPlotter.make_title_string"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.make_title_string">[docs]</a>    <span class="k">def</span> <span class="nf">make_title_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;make a title string&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">ans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span>
+
+        <span class="k">return</span> <span class="s1">&#39;{0} vs. {1} in ({2},{3})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span><span class="n">ans</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VisualPlotter.make_updating_title_string"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.make_updating_title_string">[docs]</a>    <span class="k">def</span> <span class="nf">make_updating_title_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;make a title string&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;{0} vs. {1} in ({2},</span><span class="se">\u221E</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VisualPlotter.filter_ignore"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.filter_ignore">[docs]</a>    <span class="k">def</span> <span class="nf">filter_ignore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;filter data, list of indices to remove</span>
+<span class="sd">        built list of indices not ignored&quot;&quot;&quot;</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_list</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="VisualPlotter.ignore_update"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.ignore_update">[docs]</a>    <span class="k">def</span> <span class="nf">ignore_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;update the ignore list parse out test&quot;&quot;&quot;</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="o">.</span><span class="n">toPlainText</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ignore_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+            <span class="c1">#validate elements, should be int, or list comprehension</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">]</span>
+            <span class="n">flat_val</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">val</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">False</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;Some Invalid Input&#39;</span><span class="p">)</span>
+            <span class="c1">#filter elements for false</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ignore_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">flat_val</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="bp">False</span><span class="p">]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+            <span class="s1">&#39;Ignoring&#39;</span><span class="o">+</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_list</span><span class="p">)</span> <span class="o">-</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_plot</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VisualPlotter.validate"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">el</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;valid to make sure is a single integer or list comprehension</span>
+<span class="sd">        and turn list comprehensions into their equivalent</span>
+<span class="sd">        definee here since its an object method in QTGUI&quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">my_int</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">el</span><span class="p">)]</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+
+                <span class="n">left</span><span class="p">,</span><span class="n">right</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;[&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">my_int</span><span class="p">(</span><span class="n">right</span><span class="p">))]</span>
+                <span class="k">return</span> <span class="n">pos</span><span class="p">[</span><span class="n">my_int</span><span class="p">(</span><span class="n">left</span><span class="p">):</span><span class="n">my_int</span><span class="p">(</span><span class="n">right</span><span class="p">)]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span></div>
+
+<div class="viewcode-block" id="VisualPlotter.avg_data"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.avg_data">[docs]</a>    <span class="k">def</span> <span class="nf">avg_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;average data and transform self.x_data and self.y_data</span>
+<span class="sd">        this is a really crappy algorithm, but it does the trick&quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_data</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_data</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">distinct</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">distinct</span><span class="p">:</span>
+            <span class="n">tempans</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="n">tempans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">ans</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span><span class="p">,</span><span class="n">tempans</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ans</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ans</span><span class="p">]</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ans</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">std</span></div>
+
+<div class="viewcode-block" id="VisualPlotter.verbose_avg"><a class="viewcode-back" href="../VisualPlotter.html#Visualplotterwidget.VisualPlotter.verbose_avg">[docs]</a>    <span class="k">def</span> <span class="nf">verbose_avg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;average data and transform self.x_data and self.y_data</span>
+<span class="sd">        this is a really crappy algorithm, but it does the trick&quot;&quot;&quot;</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">distinct</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">distinct</span><span class="p">:</span>
+            <span class="n">tempans</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="n">tempans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">ans</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span><span class="p">,</span><span class="n">tempans</span><span class="p">])</span>
+        <span class="n">xx</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ans</span><span class="p">]</span>
+        <span class="n">yy</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ans</span><span class="p">]</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ans</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">xx</span><span class="p">,</span><span class="n">yy</span><span class="p">,</span><span class="n">std</span></div></div>
+
+
+
+<div class="viewcode-block" id="PopPlot"><a class="viewcode-back" href="../PopPlot.html#Visualplotterwidget.PopPlot">[docs]</a><span class="k">class</span> <span class="nc">PopPlot</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;popup class for plots both static and updating</span>
+
+<span class="sd">    :var ax: matplotlib axis</span>
+<span class="sd">    :var figure: matplotlib figure</span>
+<span class="sd">    :var canvas: matplotlib canvas</span>
+<span class="sd">    :var toolbar: matplotlib navigation toolbar</span>
+<span class="sd">    :param mod: lmfit Model object for fitting</span>
+<span class="sd">    :type mod: lmfit.Model</span>
+<span class="sd">    :param do_fit: Boolean if fitting should occur</span>
+<span class="sd">    :type do_fit: Boolean</span>
+<span class="sd">    :param params: fit parameters</span>
+<span class="sd">    :type params: lmfit.Parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mod</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">do_fit</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="n">QtGui</span><span class="o">.</span><span class="n">QDialog</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">FigureCanvas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolbar</span> <span class="o">=</span> <span class="n">NavigationToolbar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">hold</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_fit</span> <span class="o">=</span> <span class="n">do_fit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mod</span> <span class="o">=</span> <span class="n">mod</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">layout1</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="n">layout1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">)</span>
+        <span class="n">layout1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toolbar</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">layout1</span><span class="p">)</span>
+        <span class="c1">#add fit section if need to fit</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_fit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fit_res</span> <span class="o">=</span> <span class="n">TextBox</span><span class="p">()</span>
+            <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_res</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="PopPlot.update_init"><a class="viewcode-back" href="../PopPlot.html#Visualplotterwidget.PopPlot.update_init">[docs]</a>    <span class="k">def</span> <span class="nf">update_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">xl</span><span class="p">,</span><span class="n">yl</span><span class="p">,</span><span class="n">title</span><span class="p">,</span><span class="n">ignore</span><span class="p">,</span><span class="n">start</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;update the parameters to start</span>
+
+<span class="sd">        :param title: title of plot</span>
+<span class="sd">        :type title: string</span>
+<span class="sd">        :param xl: x label</span>
+<span class="sd">        :type xl: string</span>
+<span class="sd">        :param yl: y label</span>
+<span class="sd">        :type yl: string</span>
+<span class="sd">        :param start: starting index</span>
+<span class="sd">        :type start: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xl</span> <span class="o">=</span> <span class="n">xl</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yl</span> <span class="o">=</span> <span class="n">yl</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore</span> <span class="o">=</span> <span class="n">ignore</span></div>
+
+<div class="viewcode-block" id="PopPlot.plot"><a class="viewcode-back" href="../PopPlot.html#Visualplotterwidget.PopPlot.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">xl</span><span class="p">,</span><span class="n">yl</span><span class="p">,</span><span class="n">title</span><span class="p">,</span><span class="n">std</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;plot the data with a new fit if do_fit == True</span>
+
+<span class="sd">        :params x: x vector of points</span>
+<span class="sd">        :type x: list,numpy.array</span>
+<span class="sd">        :params y: y vector of points</span>
+<span class="sd">        :type y: y list,numpy.array</span>
+<span class="sd">        :params xl: x label</span>
+<span class="sd">        :type xl: string</span>
+<span class="sd">        :params yl: y label</span>
+<span class="sd">        :type yl: string</span>
+<span class="sd">        :params title: title of plot</span>
+<span class="sd">        :type title: string</span>
+<span class="sd">        :params std: standard devation of points</span>
+<span class="sd">        :type std: numpy.array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">hold</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">yerr</span> <span class="o">=</span> <span class="n">std</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xl</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">yl</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_fit</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit_line</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="n">fitted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fit_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">fitted</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fit_res</span><span class="o">.</span><span class="n">insertPlainText</span><span class="p">(</span><span class="n">fitted</span><span class="o">.</span><span class="n">fit_report</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fit_res</span><span class="o">.</span><span class="n">insertPlainText</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;#&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PopPlot.update"><a class="viewcode-back" href="../PopPlot.html#Visualplotterwidget.PopPlot.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">std</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;update the plots call the plot function</span>
+
+<span class="sd">        :params x: x vector of points</span>
+<span class="sd">        :type x: list,numpy.array</span>
+<span class="sd">        :params y: y vector of points</span>
+<span class="sd">        :type y: y list,numpy.array</span>
+<span class="sd">        :params std: standard devation of points</span>
+<span class="sd">        :type std: numpy.array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">xl</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">yl</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span><span class="n">std</span><span class="p">)</span></div></div>
+
+
+
+
+<div class="viewcode-block" id="ParamEntry"><a class="viewcode-back" href="../ParamEntry.html#Visualplotterwidget.ParamEntry">[docs]</a><span class="k">class</span> <span class="nc">ParamEntry</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;convenience container widget to hold parameters&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;convenience container widget&quot;&quot;&quot;</span>
+        <span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Zachary Glassman (JQI).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -9,14 +9,21 @@ from pyqtgraph.Qt import QtCore, QtGui
 #going to use matplotlib here
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
-import matplotlib.pyplot as plt
-#here we import models for fits
-from BECMonitor.Fitmodels import sinMod, gaussMod, expMod, lorentzMod, sincMod
+from matplotlib.figure import Figure
 from lmfit import Parameters, fit_report
 import numpy as np
 import copy
-from BECMonitor.Auxwidgets import TextBox
+#here we import models for fits
+try:
+    from BECMonitor.Fitmodels import sinMod, gaussMod, expMod, lorentzMod, sincMod
+    from BECMonitor.Auxwidgets import TextBox
+except:
+    from Fitmodels import sinMod, gaussMod, expMod, lorentzMod, sincMod
+    from Auxwidgets import TextBox
+
+
 import seaborn #for nice plots
+seaborn.set_style('whitegrid')
 #need to add them to dict of models
 
 class VisualPlotter(QtGui.QWidget):
@@ -97,7 +104,7 @@ class VisualPlotter(QtGui.QWidget):
 
 
          #set up matplotlib figure
-         self.preview = plt.figure(figsize=(3,4))
+         self.preview = Figure(figsize=(3,4))
          self.canvas = FigureCanvas(self.preview)
          self.ax = self.preview.add_subplot(111)
 
@@ -498,7 +505,7 @@ class PopPlot(QtGui.QDialog):
     """
     def __init__(self,mod = None, params = None,do_fit = False, parent = None):
         QtGui.QDialog.__init__(self)
-        self.figure = plt.figure()
+        self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         self.toolbar = NavigationToolbar(self.canvas, self)
 

@@ -7,10 +7,13 @@ This Contains Routines called by BECMonitor
 import numpy as np
 from lmfit import minimize, Parameters, Parameter, report_fit
 import copy
-from BECMonitor.Procedure import Procedure
-
+try:
+    from BECMonitor.Procedure import Procedure
+except:
+    from Procedure import Procedure
+from multiprocessing import Process
 #class fit_object(Procedure):
-class fit_object(object):
+class fit_object(Process):
     """fit object holds all the information for a single fit_sequence
 
     :param index: Shot number
@@ -25,7 +28,7 @@ class fit_object(object):
     :type data: numpy array
     """
 
-    def __init__(self, index, params, type_of_fit, roi, data):
+    def __init__(self, queue, index, params, type_of_fit, roi, data):
         """initalize with name and params_dict and global object variables
           variables:
           image_raw - image to analyze
@@ -35,7 +38,9 @@ class fit_object(object):
           fit_results - dictionary of final results of fit
 
         """
-        self.name = index
+        super(fit_object,self).__init__()
+        self.queue = queue
+        self.index = index
         self.init_image = data
         self.image = data[roi[0]:roi[1],roi[2]:roi[3]]
         self.image_fitted = None
@@ -253,7 +258,9 @@ class fit_object(object):
 
         self.fit_results = results
 
-
+    def run(self):
+        self.multiple_fits()
+        self.queue.put(self.process_results(7.04,7.04))
 
 
 
@@ -270,7 +277,7 @@ class fit_object(object):
                        "Y_Width":self.params['dyBEC'].value * scaley,
                        "Temperature":self.params['dxTherm'].value * scalex,
                        "All":1}
-            results['Index'] = self.name
+            results['Index'] = self.index
         elif self.fit_type == 'Stern-Gerlach':
             Ap1 = self.params['ABECp1'].value
             A0 = self.params['ABEC0'].value
@@ -292,7 +299,7 @@ class fit_object(object):
                        "X_Width-1":dxm1*scalex,
                        "Magnetization":Np1-Nm1/(Np1+N0+Nm1),
                        }
-            results['Index'] = self.name
+            results['Index'] = self.index
 
         return [results, self.line_profile()]
 

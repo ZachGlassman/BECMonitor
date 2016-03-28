@@ -6,7 +6,10 @@ Created on Mon Nov 2 2015
 import numpy as np
 from lmfit import Model, Parameters, Parameter
 import copy
-from BECMonitor.Procedure import Procedure
+try:
+    from BECMonitor.Procedure import Procedure
+except:
+    from Procedure import Procedure
 from numba import autojit
 from collections import OrderedDict
 

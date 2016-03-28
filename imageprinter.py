@@ -14,12 +14,12 @@ def add_noise(data):
     add = np.random.randn(x,y)/20
     return data + add
 
-k = 1
-while(1 > 0):
-    time.sleep(4)
+#k = 1
+for k in range(2000):
+    time.sleep(1.5)
     np.savetxt('newimage.txt',add_noise(data))
     print('Printed image {0}'.format(k))
-    k +=1
+    #k +=1
 
 def make_name(k):
     """note k start at 313"""

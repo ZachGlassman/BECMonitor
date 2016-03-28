@@ -15,15 +15,26 @@ import numpy as np
 from pyqtgraph.Qt import QtCore, QtGui
 import pandas as pd
 #import objects and functions from other files
-import BECMonitor.Subroutines as bs
-from BECMonitor.Ipython import  QIPythonWidget
-from BECMonitor.Image import ProcessImage, IncomingImage
-from BECMonitor.Visualplotterwidget import VisualPlotter
-from BECMonitor.Optionswidgets import Options, PlotOptions
-from BECMonitor.Datatablewidget import DataTable
-from BECMonitor.Auxwidgets import TextBox, FingerTabBarWidget
-from BECMonitor.Dataplots import DataPlots, ImageWindow
-from BECMonitor.Auxfuncwidget import AuxillaryFunctionContainerWidget
+try:
+    import BECMonitor.Subroutines as bs
+    from BECMonitor.Ipython import  QIPythonWidget
+    from BECMonitor.Image import ProcessImage, IncomingImage
+    from BECMonitor.Visualplotterwidget import VisualPlotter
+    from BECMonitor.Optionswidgets import Options, PlotOptions
+    from BECMonitor.Datatablewidget import DataTable
+    from BECMonitor.Auxwidgets import TextBox, FingerTabBarWidget
+    from BECMonitor.Dataplots import DataPlotsWidget, ImageWindow
+    from BECMonitor.Auxfuncwidget import AuxillaryFunctionContainerWidget
+except:
+    import Subroutines as bs
+    from Ipython import  QIPythonWidget
+    from Image import ProcessImage, IncomingImage
+    from Visualplotterwidget import VisualPlotter
+    from Optionswidgets import Options, PlotOptions
+    from Datatablewidget import DataTable
+    from Auxwidgets import TextBox, FingerTabBarWidget
+    from Dataplots import DataPlotsWidget, ImageWindow
+    from Auxfuncwidget import AuxillaryFunctionContainerWidget
 #import pyqtgraph as pg
 #Set main options
 #pg.setConfigOption('background', 'k')
@@ -44,7 +55,7 @@ class MainWindow(QtGui.QWidget):
     :var running: Boolean if data collection thread is active
     :var index: keeps track of shot internally
     :var image: ImageWindow widget
-    :var plots: DataPlots widget
+    :var plots: DataPlotsWidget widget
     :var options: Options widget
     :var plot_options: PlotOptions widget
     :var vis_plots: VisualPlotter widget
@@ -53,18 +64,28 @@ class MainWindow(QtGui.QWidget):
     :var tabs: QTabWidget, contains other widgets
     :var ipy: QIPythonWidget
     """
-    def __init__(self, fname, start_path, procs):
+    def __init__(self, fname, start_path, procs, testingFrame):
         QtGui.QWidget.__init__(self)
         self.run, self.path = bs.get_run_name(start_path)
         self.fname = fname
         #pandas dataframe for results
-        self.expData = pd.DataFrame()
+        try:
+            self.expData = testingFrame
+            print(self.expData.index)
+            self.index = len(self.expData)
+            testing = True
+        except:
+            self.expData = pd.DataFrame()
+            self.index = 0
+            testing = False
         self.processThreadPool = {}
         self.process = {}
         self.initUI()
+        if testing:
+            self.data_tables.bulk_update_pandas_table(self.expData)
         self.ROI = [20,200,20,200]
         self.procs = procs
-        self.index = 0
+
         print('#############')
         print('Program Initialized')
 
@@ -83,7 +104,7 @@ class MainWindow(QtGui.QWidget):
         self.setWindowIcon(QtGui.QIcon('icon.png'))
         #subwidgets
         self.image = ImageWindow(self)
-        self.plots = DataPlots(self)
+        self.plots = DataPlotsWidget(self)
         self.options = Options(self)
         self.plot_options = PlotOptions(self)
         self.vis_plots = VisualPlotter(self)
@@ -133,7 +154,6 @@ class MainWindow(QtGui.QWidget):
         row2col3.addWidget(self.text_out)
         row2col3.addWidget(self.bigScreen)
         row2col3.addWidget(self.runButton)
-
 
         row2.addLayout(row2col3)
         layout.addLayout(row1)
@@ -293,14 +313,17 @@ class MainWindow(QtGui.QWidget):
                 self.index]
 
     def update_data(self, results_passed):
-        """function to update plots and push data to ipython notebook"""
+        """function to update plots and push data to ipython notebook
+        CHANGE THIS SO IT UPDATES PROPER INDEX FOR LONG PROCESSING
+        """
         results = results_passed[0]
-        self.text_out.output('Image {0} processed'.format(self.index-1))
+        self.text_out.output('Image {0} processed'.format(results_passed[-1]))
 
         ##make into series then push to pandas array
         results['Shot'] = results['Index']
         self.expData = self.expData.append(
             pd.DataFrame(results, index = [results['Shot']]).drop('Index',1))
+
 
         #Do updates of different widgets
         self.data_tables.update_pandas_table(self.expData)
@@ -316,6 +339,11 @@ class MainWindow(QtGui.QWidget):
         self.image.add_lines(results_passed[1])
         self.text_out.output('Updated Internal Structure')
 
+        #############################
+        #TESTING
+        #############################
+        print('len thread pool',len(self.processThreadPool))
+        print('lenprocess', len(self.process))
     def set_up_ipy(self):
         """setup the ipython console for use with useful functions"""
         self.ipy.executeCommand('from BECMonitor.Ipython import *')
@@ -329,7 +357,6 @@ class MainWindow(QtGui.QWidget):
         for i in self.expData.columns:
             ans[i] = self.expData[i].get_values()
         self.ipy.pushVariables(ans)
-
 
 #main routine
 if __name__ == '__main__':

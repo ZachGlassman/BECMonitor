@@ -49,7 +49,7 @@ if "%1" == "clean" (
 
 
 REM Check if sphinx-build is available and fallback to Python version if any
-%SPHINXBUILD% 2> nul
+%SPHINXBUILD% 1>NUL 2>NUL
 if errorlevel 9009 goto sphinx_python
 goto sphinx_ok
 
@@ -127,9 +127,9 @@ if "%1" == "qthelp" (
 	echo.
 	echo.Build finished; now you can run "qcollectiongenerator" with the ^
 .qhcp project file in %BUILDDIR%/qthelp, like this:
-	echo.^> qcollectiongenerator %BUILDDIR%\qthelp\ExperimentMonitor.qhcp
+	echo.^> qcollectiongenerator %BUILDDIR%\qthelp\BECMonitor.qhcp
 	echo.To view the help file:
-	echo.^> assistant -collectionFile %BUILDDIR%\qthelp\ExperimentMonitor.ghc
+	echo.^> assistant -collectionFile %BUILDDIR%\qthelp\BECMonitor.ghc
 	goto end
 )
 

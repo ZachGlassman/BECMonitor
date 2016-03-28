@@ -5,7 +5,10 @@ Class for auxillary functions
 @author: zag
 """
 from pyqtgraph import QtGui, QtCore
-import BECMonitor.Auxfunctions as af
+try:
+    import BECMonitor.Auxfunctions as af
+except:
+    import Auxfunctions as af
 import inspect
 from imp import reload
 

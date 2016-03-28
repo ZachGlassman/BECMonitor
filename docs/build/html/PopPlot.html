@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>PopPlot &mdash; BEC Monitor 1.0.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BEC Monitor 1.0.2 documentation" href="index.html"/>
+        <link rel="up" title="Visualplotterwidget" href="Visualplotterwidget.html"/>
+        <link rel="next" title="VisualPlotter" href="VisualPlotter.html"/>
+        <link rel="prev" title="ParamEntry" href="ParamEntry.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BEC Monitor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Fitobject.html">Fitobject</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Datatablewidget.html">Datatablewidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Auxfuncwidget.html">Auxfuncwidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Ipython.html">Ipython</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Auxwidgets.html">Auxwidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Subroutines.html">Subroutines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dataplots.html">Dataplots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Fitmodels.html">Fitmodels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Image.html">Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SpinorMonitor.html">SpinorMonitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Optionswidgets.html">Optionswidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Auxfunctions.html">Auxfunctions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="Visualplotterwidget.html">Visualplotterwidget</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ParamEntry.html">ParamEntry</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">PopPlot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VisualPlotter.html">VisualPlotter</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">BEC Monitor</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="Visualplotterwidget.html">Visualplotterwidget</a> &raquo;</li>
+      
+    <li>PopPlot</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/PopPlot.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="popplot">
+<h1>PopPlot<a class="headerlink" href="#popplot" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="Visualplotterwidget.PopPlot">
+<em class="property">class </em><code class="descclassname">Visualplotterwidget.</code><code class="descname">PopPlot</code><span class="sig-paren">(</span><em>mod=None</em>, <em>params=None</em>, <em>do_fit=False</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Visualplotterwidget.html#PopPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Visualplotterwidget.PopPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>popup class for plots both static and updating</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first simple">
+<li><strong>ax</strong> &#8211; matplotlib axis</li>
+<li><strong>figure</strong> &#8211; matplotlib figure</li>
+<li><strong>canvas</strong> &#8211; matplotlib canvas</li>
+<li><strong>toolbar</strong> &#8211; matplotlib navigation toolbar</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>mod</strong> (<em>lmfit.Model</em>) &#8211; lmfit Model object for fitting</li>
+<li><strong>do_fit</strong> (<em>Boolean</em>) &#8211; Boolean if fitting should occur</li>
+<li><strong>params</strong> (<em>lmfit.Parameters</em>) &#8211; fit parameters</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="Visualplotterwidget.PopPlot.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>xl</em>, <em>yl</em>, <em>title</em>, <em>std</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Visualplotterwidget.html#PopPlot.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Visualplotterwidget.PopPlot.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot the data with a new fit if do_fit == True</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Params x:</th><td class="field-body">x vector of points</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Params y:</th><td class="field-body">y vector of points</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Params xl:</th><td class="field-body">x label</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Params yl:</th><td class="field-body">y label</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Params title:</th><td class="field-body">title of plot</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Params std:</th><td class="field-body">standard devation of points</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.PopPlot.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>std=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Visualplotterwidget.html#PopPlot.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Visualplotterwidget.PopPlot.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>update the plots call the plot function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Params x:</th><td class="field-body">x vector of points</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Params y:</th><td class="field-body">y vector of points</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Params std:</th><td class="field-body">standard devation of points</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Visualplotterwidget.PopPlot.update_init">
+<code class="descname">update_init</code><span class="sig-paren">(</span><em>xl</em>, <em>yl</em>, <em>title</em>, <em>ignore</em>, <em>start</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Visualplotterwidget.html#PopPlot.update_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Visualplotterwidget.PopPlot.update_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>update the parameters to start</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>title</strong> (<a class="reference external" href="https://docs.python.org/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; title of plot</li>
+<li><strong>xl</strong> (<a class="reference external" href="https://docs.python.org/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; x label</li>
+<li><strong>yl</strong> (<a class="reference external" href="https://docs.python.org/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; y label</li>
+<li><strong>start</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; starting index</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="VisualPlotter.html" class="btn btn-neutral float-right" title="VisualPlotter" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="ParamEntry.html" class="btn btn-neutral" title="ParamEntry" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Zachary Glassman (JQI).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

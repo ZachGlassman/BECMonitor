@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Datatablewidget &mdash; BEC Monitor 1.0.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BEC Monitor 1.0.2 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BEC Monitor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../Fitobject.html">Fitobject</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Datatablewidget.html">Datatablewidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxfuncwidget.html">Auxfuncwidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ipython.html">Ipython</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxwidgets.html">Auxwidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Subroutines.html">Subroutines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dataplots.html">Dataplots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Fitmodels.html">Fitmodels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Image.html">Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SpinorMonitor.html">SpinorMonitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Optionswidgets.html">Optionswidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxfunctions.html">Auxfunctions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Visualplotterwidget.html">Visualplotterwidget</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">BEC Monitor</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>Datatablewidget</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for Datatablewidget</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Thu May 28 19:13:32 2015</span>
+<span class="sd">Data Table class to record information on each shot</span>
+<span class="sd">@author: zag</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">pyqtgraph.Qt</span> <span class="kn">import</span> <span class="n">QtGui</span><span class="p">,</span><span class="n">QtCore</span>
+
+<div class="viewcode-block" id="DataTableModel"><a class="viewcode-back" href="../DataTableModel.html#Datatablewidget.DataTableModel">[docs]</a><span class="k">class</span> <span class="nc">DataTableModel</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QAbstractTableModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Abstract model for datatable</span>
+<span class="sd">    need to imlement several functions&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_in</span><span class="p">,</span> <span class="n">header_data</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QAbstractTableModel</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data_in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_data</span> <span class="o">=</span> <span class="n">header_data</span>
+
+<div class="viewcode-block" id="DataTableModel.rowCount"><a class="viewcode-back" href="../DataTableModel.html#Datatablewidget.DataTableModel.rowCount">[docs]</a>    <span class="k">def</span> <span class="nf">rowCount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;count rows in padnas DataFrame&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataTableModel.columnCount"><a class="viewcode-back" href="../DataTableModel.html#Datatablewidget.DataTableModel.columnCount">[docs]</a>    <span class="k">def</span> <span class="nf">columnCount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;count columns in pandas DataFrame&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataTableModel.headerData"><a class="viewcode-back" href="../DataTableModel.html#Datatablewidget.DataTableModel.headerData">[docs]</a>    <span class="k">def</span> <span class="nf">headerData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">orientation</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span> <span class="ow">and</span> <span class="n">role</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">QVariant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataTableModel.data"><a class="viewcode-back" href="../DataTableModel.html#Datatablewidget.DataTableModel.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="DataTableModel.insertRows"><a class="viewcode-back" href="../DataTableModel.html#Datatablewidget.DataTableModel.insertRows">[docs]</a>    <span class="k">def</span> <span class="nf">insertRows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beginInsertRows</span><span class="p">()</span>
+        <span class="c1">#do stuff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endInsertRows</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DataTableModel.insertColumns"><a class="viewcode-back" href="../DataTableModel.html#Datatablewidget.DataTableModel.insertColumns">[docs]</a>    <span class="k">def</span> <span class="nf">insertColumns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beginInsertColumns</span><span class="p">()</span>
+        <span class="c1">#do stuff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endInsertColumns</span><span class="p">()</span></div></div>
+
+<div class="viewcode-block" id="DataTable"><a class="viewcode-back" href="../DataTable.html#Datatablewidget.DataTable">[docs]</a><span class="k">class</span> <span class="nc">DataTable</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;tabbed tables to show system parameters and fitted parameters&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTableWidget</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table</span><span class="o">.</span><span class="n">setEditTriggers</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QAbstractItemView</span><span class="o">.</span><span class="n">NoEditTriggers</span><span class="p">)</span>
+
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pandas_table</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table_H_Labels</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<div class="viewcode-block" id="DataTable.bulk_update_pandas_table"><a class="viewcode-back" href="../DataTable.html#Datatablewidget.DataTable.bulk_update_pandas_table">[docs]</a>    <span class="k">def</span> <span class="nf">bulk_update_pandas_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;update tables with more than one element&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_pandas_table</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DataTable.update_pandas_table"><a class="viewcode-back" href="../DataTable.html#Datatablewidget.DataTable.update_pandas_table">[docs]</a>    <span class="k">def</span> <span class="nf">update_pandas_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;update tables, check if cols are different&quot;&quot;&quot;</span>
+        <span class="n">new_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table_H_Labels</span><span class="p">]</span>
+        <span class="c1">#now add new cols</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_cols</span><span class="p">)):</span>
+            <span class="sd">&quot;&quot;&quot;if 0 no loop will occur&quot;&quot;&quot;</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table</span><span class="o">.</span><span class="n">columnCount</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table</span><span class="o">.</span><span class="n">insertColumn</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table_H_Labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_cols</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="c1">#might want to make this more veristile with not numbers</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pandas_table</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span>
+                                          <span class="n">QtGui</span><span class="o">.</span><span class="n">QTableWidgetItem</span><span class="p">(</span>
+                                              <span class="nb">str</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">row</span><span class="p">,</span><span class="n">i</span><span class="p">])))</span>
+        <span class="c1">#now add new row and fill data</span>
+        <span class="n">num_rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table</span><span class="o">.</span><span class="n">insertRow</span><span class="p">(</span><span class="n">num_rows</span><span class="p">)</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table_H_Labels</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">num_rows</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span>
+                                          <span class="n">QtGui</span><span class="o">.</span><span class="n">QTableWidgetItem</span><span class="p">(</span>
+                                              <span class="nb">str</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">num_rows</span><span class="p">])))</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="n">col</span> <span class="o">+</span> <span class="mi">1</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pandas_table</span><span class="o">.</span><span class="n">setHorizontalHeaderLabels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pandas_table_H_Labels</span><span class="p">)</span></div></div>
+
+<span class="c1">#main routine for testing purposes</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">win</span> <span class="o">=</span> <span class="n">DataTable</span><span class="p">()</span>
+    <span class="n">win</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="c1">#run this baby</span>
+    <span class="c1">#now add fake data</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+    <span class="n">num_rows</span> <span class="o">=</span> <span class="mi">5000</span>
+    <span class="n">num_columns</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">num_rows</span><span class="p">,</span><span class="n">num_columns</span><span class="p">))</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="o">*</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_columns</span><span class="p">)]</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)):</span>
+        <span class="n">win</span><span class="o">.</span><span class="n">update_pandas_table</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Zachary Glassman (JQI).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

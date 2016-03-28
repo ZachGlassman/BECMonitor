@@ -6,27 +6,29 @@ Program to Generate Sphinx Documentation
 """
 import os
 import inspect
+import importlib
+import sys
+
 #go into each file in directory if it is a .py file and not an .init
 #and pull out the classes
-
-path = 'C:\\Users\\Administrator\\Documents\\BECMonitor\\BECMonitor'
+cur_dir = os.getcwd()
+path = os.path.join(cur_dir,'BECMonitor')
 os.chdir(path)
-
+sys.path.insert(0, path)
 onlyfile = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path,f))]
 files = [i.rstrip('.py') for i in onlyfile if i != '__init__.py' and i != 'icon.png' and i!= 'sphinxgenerator.py']
-
 
 mods = {}
 classes = {}
 
 for i in files:
-    mods[i] = __import__(i)
+    mods[i] = importlib.import_module(i)
     temp = inspect.getmembers(mods[i], inspect.isclass)
     #print([m[1].__module__ for m in temp])
     classes[i] = [m[0] for m in temp if m[1].__module__ == i]
 
 #for for each class, create a page
-os.chdir('C:\\Users\\Administrator\\Documents\\BECMonitor\\BECMonitor\\docs')
+os.chdir(os.path.join(cur_dir,'docs','source'))
 for i in classes.keys():
     #print('import',i)
     print('   '+i)
@@ -42,7 +44,7 @@ for i in classes.keys():
         g.write(j + '\n')
         g.write(''.join('=' for k in range(len(j)))+'\n')
         f.write('   ' + j + '\n')
-        g.write('.. autoclass:: '+ i+'.'+ j + '\n')
+        g.write('.. autoclass:: ' + i+'.'+ j + '\n')
         g.write('    :members:\n')
         g.write('    :undoc-members:')
         g.close()

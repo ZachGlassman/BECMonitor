@@ -27,7 +27,14 @@ def find_procedures(files):
 
 message = 'Welcome to BECMonitor version {0}.\n You have initalized \
  with\n data_path : {1}\n image_path : {2}'
- 
+
+def get_testing_dataframe(n):
+    """n is number of rows i ndataframe"""
+    #nock this up
+    columns = ['All', 'N_BEC_Atoms', 'N_Therm_Atoms', 'Shot', 'Temperature', 'X_Width',
+     'Y_Width', 'spin', 'timing']
+    data = np.random.rand(n,len(columns))
+    return pd.DataFrame(data,columns=columns)
 #main routine
 if __name__ == '__main__':
     #load configuartion files
@@ -36,18 +43,22 @@ if __name__ == '__main__':
     info = config['System Parameters']
     fname = info['image_path']
     start_path = info['data_path']
-    
+
     exp_params = config['Experiment Parameters']
     procs_in = config['Procedures']
     files = [procs_in[i] for i in procs_in]
     procs = find_procedures(files)
-    
-    
+
+
     print(message.format(__version__,start_path,fname))
     print('Imported Procedures are:')
     for i in procs.keys():
       print(i)
-    #app = QtGui.QApplication(sys.argv)
-    #win = MainWindow(fname,start_path, procs)
+    app = QtGui.QApplication(sys.argv)
+    #testing
+    import pandas as pd
+    import numpy as np
+    test_df = get_testing_dataframe(100)
+    win = MainWindow(fname,start_path, procs,None)
     #run this baby
-    #sys.exit(app.exec_())
+    sys.exit(app.exec_())

@@ -1,0 +1,569 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>SpinorMonitor &mdash; BEC Monitor 1.0.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BEC Monitor 1.0.2 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BEC Monitor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../Fitobject.html">Fitobject</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Datatablewidget.html">Datatablewidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxfuncwidget.html">Auxfuncwidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ipython.html">Ipython</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxwidgets.html">Auxwidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Subroutines.html">Subroutines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dataplots.html">Dataplots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Fitmodels.html">Fitmodels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Image.html">Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SpinorMonitor.html">SpinorMonitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Optionswidgets.html">Optionswidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxfunctions.html">Auxfunctions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Visualplotterwidget.html">Visualplotterwidget</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">BEC Monitor</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>SpinorMonitor</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for SpinorMonitor</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="n">__doc__</span><span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Created on Sun Mar 15 20:12:32 2015</span>
+<span class="s2">Spinor Monitor</span>
+<span class="s2">This is the data aquisition software for Paul Lett&#39;s sodium spinor experiment.</span>
+<span class="s2">It collects images, processes them, saves them, and provides</span>
+<span class="s2">convenient information storage for determined paramters</span>
+<span class="s2">It is written in pure python 3</span>
+<span class="s2">@dependencies: pyqtgraph, ipython, matplotlib, lmfit,numpy</span>
+<span class="s2">@author: zachglassman</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pyqtgraph.Qt</span> <span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="c1">#import objects and functions from other files</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">BECMonitor.Subroutines</span> <span class="kn">as</span> <span class="nn">bs</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Ipython</span> <span class="kn">import</span>  <span class="n">QIPythonWidget</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Image</span> <span class="kn">import</span> <span class="n">ProcessImage</span><span class="p">,</span> <span class="n">IncomingImage</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Visualplotterwidget</span> <span class="kn">import</span> <span class="n">VisualPlotter</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Optionswidgets</span> <span class="kn">import</span> <span class="n">Options</span><span class="p">,</span> <span class="n">PlotOptions</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Datatablewidget</span> <span class="kn">import</span> <span class="n">DataTable</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Auxwidgets</span> <span class="kn">import</span> <span class="n">TextBox</span><span class="p">,</span> <span class="n">FingerTabBarWidget</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Dataplots</span> <span class="kn">import</span> <span class="n">DataPlotsWidget</span><span class="p">,</span> <span class="n">ImageWindow</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Auxfuncwidget</span> <span class="kn">import</span> <span class="n">AuxillaryFunctionContainerWidget</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">Subroutines</span> <span class="kn">as</span> <span class="nn">bs</span>
+    <span class="kn">from</span> <span class="nn">Ipython</span> <span class="kn">import</span>  <span class="n">QIPythonWidget</span>
+    <span class="kn">from</span> <span class="nn">Image</span> <span class="kn">import</span> <span class="n">ProcessImage</span><span class="p">,</span> <span class="n">IncomingImage</span>
+    <span class="kn">from</span> <span class="nn">Visualplotterwidget</span> <span class="kn">import</span> <span class="n">VisualPlotter</span>
+    <span class="kn">from</span> <span class="nn">Optionswidgets</span> <span class="kn">import</span> <span class="n">Options</span><span class="p">,</span> <span class="n">PlotOptions</span>
+    <span class="kn">from</span> <span class="nn">Datatablewidget</span> <span class="kn">import</span> <span class="n">DataTable</span>
+    <span class="kn">from</span> <span class="nn">Auxwidgets</span> <span class="kn">import</span> <span class="n">TextBox</span><span class="p">,</span> <span class="n">FingerTabBarWidget</span>
+    <span class="kn">from</span> <span class="nn">Dataplots</span> <span class="kn">import</span> <span class="n">DataPlotsWidget</span><span class="p">,</span> <span class="n">ImageWindow</span>
+    <span class="kn">from</span> <span class="nn">Auxfuncwidget</span> <span class="kn">import</span> <span class="n">AuxillaryFunctionContainerWidget</span>
+<span class="c1">#import pyqtgraph as pg</span>
+<span class="c1">#Set main options</span>
+<span class="c1">#pg.setConfigOption(&#39;background&#39;, &#39;k&#39;)</span>
+<span class="c1">#pg.setConfigOption(&#39;foreground&#39;, &#39;b&#39;)</span>
+
+
+
+<div class="viewcode-block" id="MainWindow"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow">[docs]</a><span class="k">class</span> <span class="nc">MainWindow</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Main Window for the app, contains the graphs panel and the options</span>
+<span class="sd">    panel.  Executes main control of all other panels.</span>
+
+<span class="sd">    :var expData: Pandas dataframe where all experiment information is kept</span>
+<span class="sd">    :var run: Run number for the day</span>
+<span class="sd">    :var path: Path to data storage folder</span>
+<span class="sd">    :var processThreadPool: Dictionary of running threads</span>
+<span class="sd">    :var process: Convenience dictionary to initialize objects</span>
+<span class="sd">    :var ROI: region of interest</span>
+<span class="sd">    :var running: Boolean if data collection thread is active</span>
+<span class="sd">    :var index: keeps track of shot internally</span>
+<span class="sd">    :var image: ImageWindow widget</span>
+<span class="sd">    :var plots: DataPlotsWidget widget</span>
+<span class="sd">    :var options: Options widget</span>
+<span class="sd">    :var plot_options: PlotOptions widget</span>
+<span class="sd">    :var vis_plots: VisualPlotter widget</span>
+<span class="sd">    :var data_tables: DataTable widget</span>
+<span class="sd">    :var aux_funcs: AuxillaryFunctionContainerWidget widget</span>
+<span class="sd">    :var tabs: QTabWidget, contains other widgets</span>
+<span class="sd">    :var ipy: QIPythonWidget</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">start_path</span><span class="p">,</span> <span class="n">procs</span><span class="p">,</span> <span class="n">testingFrame</span><span class="p">):</span>
+        <span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_run_name</span><span class="p">(</span><span class="n">start_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span>
+        <span class="c1">#pandas dataframe for results</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">expData</span> <span class="o">=</span> <span class="n">testingFrame</span>
+            <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expData</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expData</span><span class="p">)</span>
+            <span class="n">testing</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">expData</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">testing</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initUI</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">testing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_tables</span><span class="o">.</span><span class="n">bulk_update_pandas_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expData</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ROI</span> <span class="o">=</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">200</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">procs</span> <span class="o">=</span> <span class="n">procs</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;#############&#39;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Program Initialized&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MainWindow.initUI"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.initUI">[docs]</a>    <span class="k">def</span> <span class="nf">initUI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iniitalize UI and name it.  Creat all children widgets and place</span>
+<span class="sd">        them in layout</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#self.showFullScreen()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">1850</span><span class="p">,</span><span class="mi">950</span><span class="p">)</span> <span class="c1">#work</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showMaximized</span><span class="p">()</span>
+        <span class="c1">#self.resize(1650,900) #home</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s1">&#39;Spinor BEC Analysis&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowIcon</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="p">(</span><span class="s1">&#39;icon.png&#39;</span><span class="p">))</span>
+        <span class="c1">#subwidgets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">ImageWindow</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plots</span> <span class="o">=</span> <span class="n">DataPlotsWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span> <span class="o">=</span> <span class="n">PlotOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vis_plots</span> <span class="o">=</span> <span class="n">VisualPlotter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_tables</span> <span class="o">=</span> <span class="n">DataTable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aux_funcs</span> <span class="o">=</span> <span class="n">AuxillaryFunctionContainerWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="c1">#tabs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTabWidget</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">setTabBar</span><span class="p">(</span><span class="n">FingerTabBarWidget</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">height</span><span class="o">=</span><span class="mi">85</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">setTabPosition</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QTabWidget</span><span class="o">.</span><span class="n">West</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="s1">&#39;Fit Options&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span><span class="p">,</span> <span class="s2">&quot;Plot/Image Options&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vis_plots</span><span class="p">,</span> <span class="s1">&#39;Data Plotter&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_tables</span><span class="p">,</span> <span class="s1">&#39;Data Tables&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aux_funcs</span><span class="p">,</span> <span class="s1">&#39;Aux Functions&#39;</span><span class="p">)</span>
+
+        <span class="c1">###################</span>
+        <span class="c1"># Ipython interpreter</span>
+        <span class="c1">###################</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ipy</span> <span class="o">=</span>  <span class="n">QIPythonWidget</span><span class="p">(</span><span class="n">customBanner</span><span class="o">=</span><span class="s2">&quot;Spinor BEC Ipython console</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_up_ipy</span><span class="p">()</span>
+
+        <span class="c1">##################</span>
+        <span class="c1">#run button and big screen button</span>
+        <span class="c1">###########################</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runButton</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Run&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runButton</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background-color: red; color:white&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bigScreen</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Big Screen&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bigScreen</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background-color: blue; color:white&quot;</span><span class="p">)</span>
+
+        <span class="c1">#textbox for program output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_out</span> <span class="o">=</span> <span class="n">TextBox</span><span class="p">()</span>
+
+
+        <span class="c1">#layout</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="c1">#first row</span>
+        <span class="n">row1</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">row1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">)</span>
+        <span class="n">row1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+        <span class="c1">#second row</span>
+        <span class="n">row2</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">row2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="p">,</span> <span class="n">stretch</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">row2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ipy</span><span class="p">)</span>
+        <span class="n">row2col3</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="n">row2col3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text_out</span><span class="p">)</span>
+        <span class="n">row2col3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bigScreen</span><span class="p">)</span>
+        <span class="n">row2col3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runButton</span><span class="p">)</span>
+
+        <span class="n">row2</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">row2col3</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">row1</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">row2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+
+        <span class="c1">#connect buttoms- mix of old and new styles</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span><span class="o">.</span><span class="n">get_roi</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;clicked()&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_roi</span><span class="p">)</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runButton</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s2">&quot;clicked()&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_state</span><span class="p">)</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bigScreen</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s2">&quot;clicked()&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">popup</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vis_plots</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fit_name</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_fit_name</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_out</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s1">&#39;Initializing run &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_roi</span><span class="p">()</span>
+        <span class="c1">#now create menu bar</span>
+        <span class="c1">#menubar = QtGui.QMenuBar(self)</span>
+        <span class="c1">#fileMenu = menubar.addMenu(&#39;&amp;File&#39;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+
+    <span class="nd">@QtCore.pyqtSlot</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+<div class="viewcode-block" id="MainWindow.on_message"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.on_message">[docs]</a>    <span class="k">def</span> <span class="nf">on_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send message to output windows</span>
+
+<span class="sd">        :param data: message to send</span>
+<span class="sd">        :type data: object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_out</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">))</span></div>
+
+    <span class="nd">@QtCore.pyqtSlot</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+<div class="viewcode-block" id="MainWindow.on_fit_name"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.on_fit_name">[docs]</a>    <span class="k">def</span> <span class="nf">on_fit_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Triggers the plots.change_key functions with argument data.</span>
+
+<span class="sd">        :params data: name of fit</span>
+<span class="sd">        :type data: string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">change_key</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.center"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.center">[docs]</a>    <span class="k">def</span> <span class="nf">center</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Centers Window&quot;&quot;&quot;</span>
+        <span class="n">qr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameGeometry</span><span class="p">()</span>
+        <span class="n">cp</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QDesktopWidget</span><span class="p">()</span><span class="o">.</span><span class="n">availableGeometry</span><span class="p">()</span><span class="o">.</span><span class="n">center</span><span class="p">()</span>
+        <span class="n">qr</span><span class="o">.</span><span class="n">moveCenter</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">qr</span><span class="o">.</span><span class="n">topLeft</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="MainWindow.get_roi"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.get_roi">[docs]</a>    <span class="k">def</span> <span class="nf">get_roi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;returns region of interest in list</span>
+<span class="sd">        :returns: [xstart,xend,ystart,yend,angle]</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">roi</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span>
+        <span class="n">size</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">roi</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">roi</span><span class="o">.</span><span class="n">angle</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ROI</span> <span class="o">=</span> <span class="p">[</span><span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">angle</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span><span class="o">.</span><span class="n">set_roi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ROI</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.change_state"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.change_state">[docs]</a>    <span class="k">def</span> <span class="nf">change_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;start and stop data collection thread&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MainWindow.start"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to start listening thread, connect signals and</span>
+<span class="sd">        :var imageThread: IncomingImage object listening for images</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imageThread</span> <span class="o">=</span> <span class="n">IncomingImage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fname</span><span class="p">)</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imageThread</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;update(QString)&#39;</span><span class="p">),</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">data_recieved</span><span class="p">)</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imageThread</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;packetReceived(PyQt_PyObject)&#39;</span><span class="p">),</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">data_process</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imageThread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runButton</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background-color: green&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.end"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.end">[docs]</a>    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;function to stop listening Thread, writes out expData to csv</span>
+<span class="sd">        in smae folder as data printing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runButton</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;background-color: red&quot;</span><span class="p">)</span>
+
+        <span class="c1">#write out parameters</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span><span class="s1">&#39;run_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_results.txt&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expData</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_out</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s1">&#39;File written to&#39;</span> <span class="o">+</span> <span class="n">p</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">imageThread</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+           <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Thread not Terminated&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.data_recieved"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.data_recieved">[docs]</a>    <span class="k">def</span> <span class="nf">data_recieved</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send message that data was recieved&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_out</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s1">&#39;Image {0} recieved&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MainWindow.data_process"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.data_process">[docs]</a>    <span class="k">def</span> <span class="nf">data_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;process the data, including spawn a thread and increment index&quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">results_dict</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span> <span class="c1">#image</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">setImage</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+
+        <span class="n">ind</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="c1">#append thread to thread pool</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QThread</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1">#create new process image object and add to thread just created</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ProcessImage</span><span class="p">(</span><span class="n">results</span><span class="p">,</span><span class="n">results_dict</span><span class="p">[</span><span class="s1">&#39;exp_params&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_options</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">moveToThread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
+        <span class="c1">#connect start signal</span>
+
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;started()&#39;</span><span class="p">),</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
+
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;fit_obj&#39;</span><span class="p">),</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">update_data</span><span class="p">)</span>
+
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;finished()&#39;</span><span class="p">),</span>
+                                <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">finish_thread</span><span class="p">(</span><span class="n">ind</span><span class="p">))</span>
+
+        <span class="c1">#start thread</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="MainWindow.finish_thread"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.finish_thread">[docs]</a>    <span class="k">def</span> <span class="nf">finish_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ind</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;pop the process should destroy it all I think/&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.get_options"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.get_options">[docs]</a>    <span class="k">def</span> <span class="nf">get_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;convenience function to return list of options</span>
+<span class="sd">        note that function which recieves params must make</span>
+<span class="sd">        deep copy or there will be problems!!&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">type_of_fit</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ROI</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MainWindow.update_data"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.update_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results_passed</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;function to update plots and push data to ipython notebook</span>
+<span class="sd">        CHANGE THIS SO IT UPDATES PROPER INDEX FOR LONG PROCESSING</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">results_passed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_out</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s1">&#39;Image {0} processed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">results_passed</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="c1">##make into series then push to pandas array</span>
+        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;Shot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;Index&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expData</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;Shot&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Index&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+
+
+        <span class="c1">#Do updates of different widgets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_tables</span><span class="o">.</span><span class="n">update_pandas_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expData</span><span class="p">)</span>
+        <span class="c1">#update update</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_ipy</span><span class="p">()</span>
+        <span class="c1">#self.ipy._execute(&#39;Plot_obj.update()&#39;, False)</span>
+
+        <span class="c1">#update plots</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">update_plots</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expData</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vis_plots</span><span class="o">.</span><span class="n">update_plots</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="c1">#possibly check if image has taken next shot for complicated processing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">add_lines</span><span class="p">(</span><span class="n">results_passed</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_out</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s1">&#39;Updated Internal Structure&#39;</span><span class="p">)</span>
+
+        <span class="c1">#############################</span>
+        <span class="c1">#TESTING</span>
+        <span class="c1">#############################</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;len thread pool&#39;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;lenprocess&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">))</span></div>
+<div class="viewcode-block" id="MainWindow.set_up_ipy"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.set_up_ipy">[docs]</a>    <span class="k">def</span> <span class="nf">set_up_ipy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;setup the ipython console for use with useful functions&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ipy</span><span class="o">.</span><span class="n">executeCommand</span><span class="p">(</span><span class="s1">&#39;from BECMonitor.Ipython import *&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ipy</span><span class="o">.</span><span class="n">executeCommand</span><span class="p">(</span><span class="s1">&#39;%matplotlib inline&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ipy</span><span class="o">.</span><span class="n">printText</span><span class="p">(</span><span class="s1">&#39;imported numpy and matplotlib as np and plt&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ipy</span><span class="o">.</span><span class="n">pushVariables</span><span class="p">({</span><span class="s1">&#39;help_str&#39;</span><span class="p">:</span><span class="s1">&#39;testing this&#39;</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="MainWindow.to_ipy"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.to_ipy">[docs]</a>    <span class="k">def</span> <span class="nf">to_ipy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;push all variables to Ipython notebook&quot;&quot;&quot;</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expData</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">ans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expData</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ipy</span><span class="o">.</span><span class="n">pushVariables</span><span class="p">(</span><span class="n">ans</span><span class="p">)</span></div></div>
+
+<span class="c1">#main routine</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+      <span class="n">app</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+      <span class="n">win</span> <span class="o">=</span> <span class="n">MainWindow</span><span class="p">()</span>
+      <span class="c1">#run this baby</span>
+      <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Zachary Glassman (JQI).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

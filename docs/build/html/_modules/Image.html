@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Image &mdash; BEC Monitor 1.0.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BEC Monitor 1.0.2 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BEC Monitor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../Fitobject.html">Fitobject</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Datatablewidget.html">Datatablewidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxfuncwidget.html">Auxfuncwidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ipython.html">Ipython</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxwidgets.html">Auxwidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Subroutines.html">Subroutines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dataplots.html">Dataplots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Fitmodels.html">Fitmodels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Image.html">Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SpinorMonitor.html">SpinorMonitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Optionswidgets.html">Optionswidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxfunctions.html">Auxfunctions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Visualplotterwidget.html">Visualplotterwidget</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">BEC Monitor</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>Image</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for Image</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Tue Apr 14 18:33:39 2015</span>
+<span class="sd">Image objects for handling incoming images for SpinorMonitor</span>
+<span class="sd">@author: zag</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pyqtgraph.Qt</span> <span class="kn">import</span> <span class="n">QtCore</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">BECMonitor.Fitobject</span> <span class="kn">as</span> <span class="nn">fo</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">Fitobject</span> <span class="kn">as</span> <span class="nn">fo</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Queue</span>
+
+<div class="viewcode-block" id="ProcessImage"><a class="viewcode-back" href="../ProcessImage.html#Image.ProcessImage">[docs]</a><span class="k">class</span> <span class="nc">ProcessImage</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Processing object for threading purposes</span>
+<span class="sd">    @parameters</span>
+<span class="sd">        data: numpy array</span>
+<span class="sd">        options: list of options for fit parameters</span>
+<span class="sd">                    [params,</span>
+<span class="sd">                type_of_fit,</span>
+<span class="sd">                ROI,</span>
+<span class="sd">                index&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">exp_data</span><span class="p">,</span><span class="n">options</span><span class="p">,</span><span class="n">path</span><span class="p">,</span><span class="n">run</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;initialize fit_object&quot;&quot;&quot;</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span> <span class="o">=</span> <span class="n">fo</span><span class="o">.</span><span class="n">fit_object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span>
+                                 <span class="n">options</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="c1">#index</span>
+                                 <span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="c1">#params</span>
+                                 <span class="n">options</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="c1">#type of fit</span>
+                                 <span class="n">options</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="c1">#region of interest</span>
+                                    <span class="n">data</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;run_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">run</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;index_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">savePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp_data</span>
+
+    <span class="nd">@QtCore.pyqtSlot</span><span class="p">()</span>
+<div class="viewcode-block" id="ProcessImage.run"><a class="viewcode-back" href="../ProcessImage.html#Image.ProcessImage.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;process results using methods from fit process and emit&quot;&quot;&quot;</span>
+        <span class="c1">#save image</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">savePath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1">#self.fit.fit_image()</span>
+        <span class="c1">#self.fit.multiple_fits()</span>
+        <span class="c1">#eventually modify for different pixel sizes</span>
+        <span class="c1">#results = self.fit.process_results(7.04,7.04)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exp_data</span><span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;fit_obj&#39;</span><span class="p">),</span><span class="n">results</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;finished()&#39;</span><span class="p">))</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c1">#re assign q to try to get it garbage collected</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="mi">0</span></div></div>
+
+
+
+<div class="viewcode-block" id="IncomingImage"><a class="viewcode-back" href="../IncomingImage.html#Image.IncomingImage">[docs]</a><span class="k">class</span> <span class="nc">IncomingImage</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;check for images, if found obtain image and send back to main GUI&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QThread</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exp_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;timing&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;spin&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span>
+
+<div class="viewcode-block" id="IncomingImage.run"><a class="viewcode-back" href="../IncomingImage.html#Image.IncomingImage.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;every second search folder for new images, if found</span>
+<span class="sd">            get image and emit back to main gui for processing&quot;&quot;&quot;</span>
+        <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">newImage</span><span class="p">():</span>
+                <span class="c1">#emit signal that image is recieved, wait for response</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;update(QString)&#39;</span><span class="p">),</span> <span class="s1">&#39;Image Recieved&#39;</span><span class="p">)</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;image&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span><span class="s1">&#39;exp_params&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">exp_params</span><span class="p">}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;packetReceived(PyQt_PyObject)&#39;</span><span class="p">),</span>
+                          <span class="n">results</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span></div>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+<div class="viewcode-block" id="IncomingImage.newImage"><a class="viewcode-back" href="../IncomingImage.html#Image.IncomingImage.newImage">[docs]</a>    <span class="k">def</span> <span class="nf">newImage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function checks in directory for new image with proper name</span>
+<span class="sd">            if found, it reads it in and then deletes it&quot;&quot;&quot;</span>
+        <span class="c1">#in future go to custom directory for now, just work</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fname</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fname</span><span class="p">)</span>
+            <span class="c1">#for now read in parameters in some useless format</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Zachary Glassman (JQI).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -15,23 +15,25 @@ def get_run_name(start_path):
     day = a[0]
     month = a[1]
     year = a[2]
-    path = start_path + '\\' + year + '\\' + month + '\\' + day
+    path = os.path.join(start_path,year,month,day)
+    #path = start_path + '\\' + year + '\\' + month + '\\' + day
     #don't change dorectory
     try:
-        os.makedirs(path)
+        os.makedirs(path,0o777)
     except:
-        pass
+        print('path not created')
+
     contents = os.listdir(path)
     if 'run_info.txt' in contents:
-        with open(path + '\\run_info.txt','r') as fp:
+        with open(os.path.join(path,'run_info.txt'),'r') as fp:
             info = fp.readlines()
             last_run = int(info[-1])
-        with open(path +'\\run_info.txt','w') as fp:
+        with open(os.path.join(path,'run_info.txt'),'w') as fp:
             for i in info:
                 fp.write(i)
             fp.write(str(last_run + 1) + '\n')
     else:
-        with open(path +'\\run_info.txt', 'w') as fp:
+        with open(os.path.join(path,'run_info.txt'), 'w') as fp:
             fp.write('1' + '\n')
             last_run = 0
     return last_run + 1, path

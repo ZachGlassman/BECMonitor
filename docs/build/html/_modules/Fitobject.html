@@ -1,0 +1,584 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Fitobject &mdash; BEC Monitor 1.0.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BEC Monitor 1.0.2 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BEC Monitor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../Fitobject.html">Fitobject</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Datatablewidget.html">Datatablewidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxfuncwidget.html">Auxfuncwidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ipython.html">Ipython</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxwidgets.html">Auxwidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Subroutines.html">Subroutines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dataplots.html">Dataplots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Fitmodels.html">Fitmodels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Image.html">Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SpinorMonitor.html">SpinorMonitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Optionswidgets.html">Optionswidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxfunctions.html">Auxfunctions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Visualplotterwidget.html">Visualplotterwidget</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">BEC Monitor</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>Fitobject</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for Fitobject</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Fri Mar 13 16:54:53 2015</span>
+<span class="sd">This Contains Routines called by BECMonitor</span>
+<span class="sd">@author: zachglassman</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">lmfit</span> <span class="kn">import</span> <span class="n">minimize</span><span class="p">,</span> <span class="n">Parameters</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">report_fit</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Procedure</span> <span class="kn">import</span> <span class="n">Procedure</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">Procedure</span> <span class="kn">import</span> <span class="n">Procedure</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span>
+<span class="c1">#class fit_object(Procedure):</span>
+<div class="viewcode-block" id="fit_object"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object">[docs]</a><span class="k">class</span> <span class="nc">fit_object</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;fit object holds all the information for a single fit_sequence</span>
+
+<span class="sd">    :param index: Shot number</span>
+<span class="sd">    :type index: string</span>
+<span class="sd">    :param params: dictionary of Parameters objects containing fit parameters</span>
+<span class="sd">    :type params: dictionary</span>
+<span class="sd">    :param type_of_fit: type of fit to be performed</span>
+<span class="sd">    :type type_of_fit: string</span>
+<span class="sd">    :param roi: region of interest to crop data for fit</span>
+<span class="sd">    :type roi: list</span>
+<span class="sd">    :param data: numpy array of image to be analyzed</span>
+<span class="sd">    :type data: numpy array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">type_of_fit</span><span class="p">,</span> <span class="n">roi</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;initalize with name and params_dict and global object variables</span>
+<span class="sd">          variables:</span>
+<span class="sd">          image_raw - image to analyze</span>
+<span class="sd">          image_corrected - image with background corrections applied</span>
+<span class="sd">          image_fitted - image once its been fitted</span>
+<span class="sd">          fit_results_raw - dictionary raw results of fit</span>
+<span class="sd">          fit_results - dictionary of final results of fit</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">fit_object</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">queue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_image</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">roi</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">roi</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">roi</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="n">roi</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_fitted</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_results</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pad</span> <span class="o">=</span> <span class="p">[</span><span class="n">roi</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">roi</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">roi</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">roi</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_vecs</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_fits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">type_of_fit</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_names</span> <span class="o">=</span>  <span class="p">[</span><span class="s1">&#39;Fit {0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_fits</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">type_of_fit</span><span class="p">])</span><span class="c1">#deep copy just to make sure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_type</span> <span class="o">=</span> <span class="n">type_of_fit</span>
+
+        <span class="c1">#dictionary binding type of fits to functions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Mixture&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">bimod2min</span><span class="p">,</span>
+            <span class="s1">&#39;Stern-Gerlach&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sg2min</span>
+        <span class="p">}</span>
+
+
+<div class="viewcode-block" id="fit_object.create_vecs"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.create_vecs">[docs]</a>    <span class="k">def</span> <span class="nf">create_vecs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">roi</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;create vectors scaled by pixel size</span>
+
+<span class="sd">        :param roi: region of interest list</span>
+<span class="sd">        :type roi: list</span>
+<span class="sd">        :return X: x vector from meshgrid</span>
+<span class="sd">        :return Y: y vector from meshgrid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">roi</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">roi</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">X</span><span class="p">,</span><span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X</span><span class="p">,</span><span class="n">Y</span></div>
+
+<div class="viewcode-block" id="fit_object.gauss_2D"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.gauss_2D">[docs]</a>    <span class="k">def</span> <span class="nf">gauss_2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;two dimensional Gaussian which is not normalized of the form:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            G = A \\exp\\left(-\\frac{(x-x_c)^2}{2dx^2}- \\frac{(y-y_c)^2}{2dy^2}\\right)+ Off</span>
+
+<span class="sd">        :var x0: absolute x center</span>
+<span class="sd">        :var y0: absolute y center</span>
+<span class="sd">        :var xc: rotated x center</span>
+<span class="sd">        :var yc: rotated y center</span>
+<span class="sd">        :var theta: angle relative to x axis</span>
+<span class="sd">        :var A: amplitude</span>
+<span class="sd">        :var dx: standard deviation on rotated x axis</span>
+<span class="sd">        :var dy: standard deviation on rotated y axis</span>
+<span class="sd">        :var off: offsett</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#read out</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;x0Therm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">y0</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;y0Therm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;ATherm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;dxTherm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;dyTherm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">off</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">xc</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">-</span><span class="n">x0</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">-</span><span class="n">y0</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">yc</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">-</span><span class="n">x0</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">-</span><span class="n">y0</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xc</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dx</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">yc</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dy</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">off</span> <span class="o">+</span> <span class="n">A</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">a</span><span class="o">-</span><span class="n">b</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="fit_object.TF_2D"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.TF_2D">[docs]</a>    <span class="k">def</span> <span class="nf">TF_2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;two dimensional Thomas Fermi which is not normalized of the form:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            TF = A \\max\\left\\{\\left[1-\\left(\\frac{x_c}{dx}\\right)^2-\\left(\\frac{y_c}{dy}\\right)^2\\right],0\\right\\}^{3/2}</span>
+
+<span class="sd">        :var x0: absolute x center</span>
+<span class="sd">        :var y0: absolute y center</span>
+<span class="sd">        :var xc: rotated x center</span>
+<span class="sd">        :var yc: rotated y center</span>
+<span class="sd">        :var theta: angle relative to x axis</span>
+<span class="sd">        :var A: amplitude</span>
+<span class="sd">        :var dx: Thomas-Fermi radius on rotated x axis</span>
+<span class="sd">        :var dy: Thomas-Fermi radius on rotated y axis</span>
+<span class="sd">        :var off: offsett</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;x0BEC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">y0</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;y0BEC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;ABEC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;dxBEC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;dyBEC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">off</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">xc</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">-</span><span class="n">x0</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">-</span><span class="n">y0</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">yc</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">-</span><span class="n">x0</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">-</span><span class="n">y0</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">((</span><span class="n">xc</span><span class="p">),</span><span class="n">dx</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">aa</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">((</span><span class="n">yc</span><span class="p">),</span><span class="n">dy</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">bb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="n">aa</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">bb</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span><span class="n">c</span><span class="p">),</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">off</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="fit_object.stern_gerlach_2D"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.stern_gerlach_2D">[docs]</a>    <span class="k">def</span> <span class="nf">stern_gerlach_2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;2 dimensional three thomas fermi distributions&quot;&quot;&quot;</span>
+        <span class="n">Ap1</span> <span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;ABECp1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">A0</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;ABEC0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">Am1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;ABECm1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">dxp1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;dxBECp1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">dx0</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;dxBEC0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">dxm1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;dxBECm1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">dyp1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;dyBECp1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">dy0</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;dyBEC0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">dym1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;dyBECm1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">x0p1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;x0BECp1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">x00</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;x0BEC0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">x0m1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;x0BECm1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">y0p1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;y0BECp1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">y00</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;y0BEC0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">y0m1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;y0BECm1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">xcp1</span><span class="p">,</span> <span class="n">ycp1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_angled_line</span><span class="p">(</span><span class="n">x0p1</span><span class="p">,</span><span class="n">y0p1</span><span class="p">,</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">xc0</span><span class="p">,</span> <span class="n">yc0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_angled_line</span><span class="p">(</span><span class="n">x00</span><span class="p">,</span><span class="n">y00</span><span class="p">,</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">xcm1</span><span class="p">,</span> <span class="n">ycm1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_angled_line</span><span class="p">(</span><span class="n">x0m1</span><span class="p">,</span><span class="n">y0m1</span><span class="p">,</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">TFp1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_TF_2D</span><span class="p">(</span><span class="n">xcp1</span><span class="p">,</span><span class="n">ycp1</span><span class="p">,</span><span class="n">Ap1</span><span class="p">,</span><span class="n">dxp1</span><span class="p">,</span><span class="n">dyp1</span><span class="p">)</span>
+        <span class="n">TF0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_TF_2D</span><span class="p">(</span><span class="n">xc0</span><span class="p">,</span><span class="n">yc0</span><span class="p">,</span><span class="n">A0</span><span class="p">,</span><span class="n">dx0</span><span class="p">,</span><span class="n">dy0</span><span class="p">)</span>
+        <span class="n">TFm1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_TF_2D</span><span class="p">(</span><span class="n">xcm1</span><span class="p">,</span><span class="n">ycm1</span><span class="p">,</span><span class="n">Am1</span><span class="p">,</span><span class="n">dxm1</span><span class="p">,</span><span class="n">dym1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TFp1</span> <span class="o">+</span> <span class="n">TF0</span> <span class="o">+</span> <span class="n">TFm1</span> <span class="o">+</span> <span class="n">offset</span></div>
+
+<div class="viewcode-block" id="fit_object.partial_TF_2D"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.partial_TF_2D">[docs]</a>    <span class="k">def</span> <span class="nf">partial_TF_2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">xc</span><span class="p">,</span><span class="n">yc</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">dx</span><span class="p">,</span><span class="n">dy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;two dimensional non-rotated Thomas Fermi which is not normalized of the form:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            TF = A \\max\\left\\{\\left[1-\\left(\\frac{x_c}{dx}\\right)^2-\\left(\\frac{y_c}{dy}\\right)^2\\right],0\\right\\}^{3/2}</span>
+
+<span class="sd">        :param xc: absolute x center</span>
+<span class="sd">        :param yc: absolute y center</span>
+<span class="sd">        :param A: amplitude</span>
+<span class="sd">        :param dx: Thomas-Fermi radius on rotated x axis</span>
+<span class="sd">        :param dy: Thomas-Fermi radius on rotated y axis</span>
+<span class="sd">        :param off: offsett</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">((</span><span class="n">xc</span><span class="p">),</span><span class="n">dx</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">aa</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">((</span><span class="n">yc</span><span class="p">),</span><span class="n">dy</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">bb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="n">aa</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">bb</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span><span class="n">c</span><span class="p">),</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="fit_object.get_angled_line"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.get_angled_line">[docs]</a>    <span class="k">def</span> <span class="nf">get_angled_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x0</span><span class="p">,</span><span class="n">y0</span><span class="p">,</span><span class="n">theta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get angled line for angle theta with formulas</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">           x_c = (x-x_0) \\cos(\\theta) - (y-y_0) \\sin(\\theta)</span>
+
+<span class="sd">           y_c = (x-x_0) \\sin(\\theta) - (y-y_0) \\cos(\\theta)</span>
+
+<span class="sd">        :param x0: absolute x center</span>
+<span class="sd">        :param y0: absolute y center</span>
+<span class="sd">        :param xc: rotated x center</span>
+<span class="sd">        :param yc: rotated y center</span>
+<span class="sd">        :param theta: angle relative to x axis</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xc</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">-</span><span class="n">x0</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">-</span><span class="n">y0</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">yc</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">-</span><span class="n">x0</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">-</span><span class="n">y0</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xc</span><span class="p">,</span> <span class="n">yc</span></div>
+
+<div class="viewcode-block" id="fit_object.bimod2min"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.bimod2min">[docs]</a>    <span class="k">def</span> <span class="nf">bimod2min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;function to minimize, need to subtract offset since included</span>
+<span class="sd">            in both terms&quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TF_2D</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_2D</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">-</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">a</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span>
+        <span class="k">return</span> <span class="n">b</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="fit_object.sg2min"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.sg2min">[docs]</a>    <span class="k">def</span> <span class="nf">sg2min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;stern gerlach function to minimize&quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stern_gerlach_2D</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span>
+        <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="fit_object.subtract_background"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.subtract_background">[docs]</a>    <span class="k">def</span> <span class="nf">subtract_background</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Subtract background from image looking at first and last 20</span>
+<span class="sd">        rows of the inital image far away from experiment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="mi">20</span>
+        <span class="n">back</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_image</span><span class="p">[:</span><span class="n">n</span><span class="p">])</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_image</span><span class="p">[</span><span class="o">-</span><span class="n">n</span><span class="p">:]))</span><span class="o">/</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span><span class="n">back</span><span class="p">)</span></div>
+
+
+    <span class="c1">#need to add functionality for other stuff</span>
+<div class="viewcode-block" id="fit_object.fit_image"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.fit_image">[docs]</a>    <span class="k">def</span> <span class="nf">fit_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;fit corrected image with parameters from params&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_params</span><span class="p">[</span><span class="s1">&#39;Fit 0&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_results</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_type</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
+                                    <span class="n">args</span> <span class="o">=</span> <span class="p">())</span>
+        <span class="c1">#report_fit(self.fit_results)</span>
+        <span class="n">sel</span><span class="o">.</span><span class="n">fparams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_results</span><span class="o">.</span><span class="n">params</span></div>
+
+<div class="viewcode-block" id="fit_object.multiple_fits"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.multiple_fits">[docs]</a>    <span class="k">def</span> <span class="nf">multiple_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;function to fit sequentially with input defined from SpinorMonitor</span>
+<span class="sd">        we may need to take parameters of previous fit!!</span>
+<span class="sd">        do fit, update values, do next fit&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtract_background</span><span class="p">()</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_names</span><span class="p">:</span>
+            <span class="c1">#get params for this fit</span>
+            <span class="c1">#with new lmfit might not need to do this</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_params</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+            <span class="n">results</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_type</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
+                                    <span class="n">args</span> <span class="o">=</span> <span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">params</span>
+
+            <span class="c1">#then if k &gt; num_fits copy result values to params dictionary and fit</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_fits</span><span class="p">:</span>
+                <span class="c1">#update parameters</span>
+                <span class="n">next_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_names</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_params</span><span class="p">[</span><span class="n">next_key</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">all_params</span><span class="p">[</span><span class="n">next_key</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+                <span class="c1">#move to next iteration</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_results</span> <span class="o">=</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="fit_object.run"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multiple_fits</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process_results</span><span class="p">(</span><span class="mf">7.04</span><span class="p">,</span><span class="mf">7.04</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="fit_object.process_results"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.process_results">[docs]</a>    <span class="k">def</span> <span class="nf">process_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scalex</span><span class="p">,</span><span class="n">scaley</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;process results of fit and allow output return dictonary</span>
+<span class="sd">           scale with the appropriate pixel values after fit&quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1">#need to write actual function for amplitudes, but whatever</span>
+        <span class="c1">#dictionary binding results to graph names</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_type</span> <span class="o">==</span> <span class="s1">&#39;Mixture&#39;</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;N_BEC_Atoms&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_num</span><span class="p">(</span><span class="n">scalex</span><span class="p">,</span><span class="n">scaley</span><span class="p">),</span>
+                       <span class="s2">&quot;N_Therm_Atoms&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">Therm_num</span><span class="p">(</span><span class="n">scalex</span><span class="p">,</span><span class="n">scaley</span><span class="p">),</span>
+                       <span class="s2">&quot;X_Width&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dxBEC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">scalex</span><span class="p">,</span>
+                       <span class="s2">&quot;Y_Width&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dyBEC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">scaley</span><span class="p">,</span>
+                       <span class="s2">&quot;Temperature&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dxTherm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">scalex</span><span class="p">,</span>
+                       <span class="s2">&quot;All&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;Index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_type</span> <span class="o">==</span> <span class="s1">&#39;Stern-Gerlach&#39;</span><span class="p">:</span>
+            <span class="n">Ap1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;ABECp1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">A0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;ABEC0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">Am1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;ABECm1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">dxp1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dxBECp1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">dx0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dxBEC0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">dxm1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dxBECm1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">dyp1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dyBECp1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">dy0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dyBEC0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">dym1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dyBECm1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">Np1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BEC_num_1</span><span class="p">(</span><span class="n">scalex</span><span class="p">,</span><span class="n">scaley</span><span class="p">,</span><span class="n">Ap1</span><span class="p">,</span><span class="n">dxp1</span><span class="p">,</span><span class="n">dyp1</span><span class="p">)</span>
+            <span class="n">N0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BEC_num_1</span><span class="p">(</span><span class="n">scalex</span><span class="p">,</span><span class="n">scaley</span><span class="p">,</span><span class="n">A0</span><span class="p">,</span><span class="n">dx0</span><span class="p">,</span><span class="n">dy0</span><span class="p">)</span>
+            <span class="n">Nm1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BEC_num_1</span><span class="p">(</span><span class="n">scalex</span><span class="p">,</span><span class="n">scaley</span><span class="p">,</span><span class="n">Am1</span><span class="p">,</span><span class="n">dxm1</span><span class="p">,</span><span class="n">dym1</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;N_BEC_Atoms1&quot;</span><span class="p">:</span><span class="n">Np1</span><span class="p">,</span>
+                       <span class="s2">&quot;N_BEC_Atoms0&quot;</span><span class="p">:</span><span class="n">N0</span><span class="p">,</span>
+                       <span class="s2">&quot;N_BEC_Atoms-1&quot;</span><span class="p">:</span><span class="n">Nm1</span><span class="p">,</span>
+                       <span class="s2">&quot;X_Width1&quot;</span><span class="p">:</span><span class="n">dxp1</span><span class="o">*</span><span class="n">scalex</span><span class="p">,</span>
+                       <span class="s2">&quot;X_Width0&quot;</span><span class="p">:</span><span class="n">dx0</span><span class="o">*</span><span class="n">scalex</span><span class="p">,</span>
+                       <span class="s2">&quot;X_Width-1&quot;</span><span class="p">:</span><span class="n">dxm1</span><span class="o">*</span><span class="n">scalex</span><span class="p">,</span>
+                       <span class="s2">&quot;Magnetization&quot;</span><span class="p">:</span><span class="n">Np1</span><span class="o">-</span><span class="n">Nm1</span><span class="o">/</span><span class="p">(</span><span class="n">Np1</span><span class="o">+</span><span class="n">N0</span><span class="o">+</span><span class="n">Nm1</span><span class="p">),</span>
+                       <span class="p">}</span>
+            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;Index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_profile</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="fit_object.BEC_num"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.BEC_num">[docs]</a>    <span class="k">def</span> <span class="nf">BEC_num</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scalex</span><span class="p">,</span><span class="n">scaley</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get number of BEC atoms from fit from equation</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">           N = \\left(\\frac{2 \\pi}{3\\lambda^2}\\right)\\frac{2\\pi A}{5}R_x R_y</span>
+
+<span class="sd">        :param scalex: x scale of pixel</span>
+<span class="sd">        :param scaley: y scale of pixel</span>
+<span class="sd">        :var A: fitted Thomas-Fermi amplitude</span>
+<span class="sd">        :var Rx: fitted Thomas-Fermi x radius</span>
+<span class="sd">        :var Ry: fitted Thomas-Fermi y radius</span>
+<span class="sd">        :var sigma: optical density</span>
+<span class="sd">        :return: atom number</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;ABEC&#39;</span><span class="p">]</span>
+        <span class="n">Rx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dxBEC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">scalex</span>
+        <span class="n">Ry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dyBEC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">scaley</span>
+        <span class="n">sigma</span> <span class="o">=</span>  <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5891583264</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">5</span> <span class="o">*</span> <span class="n">A</span><span class="o">*</span> <span class="n">Rx</span> <span class="o">*</span> <span class="n">Ry</span>
+        <span class="k">return</span> <span class="n">V</span><span class="o">/</span><span class="n">sigma</span></div>
+
+<div class="viewcode-block" id="fit_object.BEC_num_1"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.BEC_num_1">[docs]</a>    <span class="k">def</span> <span class="nf">BEC_num_1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scalex</span><span class="p">,</span><span class="n">scaley</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">dx</span><span class="p">,</span><span class="n">dy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;helper function for BEC num</span>
+<span class="sd">        get number of BEC atoms from fit from equation</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">           N = \\left(\\frac{2 \\pi}{3\\lambda^2}\\right)\\frac{2\\pi A}{5}R_x R_y</span>
+
+<span class="sd">        :param scalex: x scale of pixel</span>
+<span class="sd">        :param scaley: y scale of pixel</span>
+<span class="sd">        :param A: fitted Thomas-Fermi amplitude</span>
+<span class="sd">        :param dx: fitted Thomas-Fermi x radius</span>
+<span class="sd">        :param dy: fitted Thomas-Fermi y radius</span>
+<span class="sd">        :var sigma: optical density</span>
+<span class="sd">        :return: atom number</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Rx</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">scalex</span>
+        <span class="n">Ry</span> <span class="o">=</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">scaley</span>
+        <span class="n">sigma</span> <span class="o">=</span>  <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5891583264</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">5</span> <span class="o">*</span> <span class="n">A</span><span class="o">*</span> <span class="n">Rx</span> <span class="o">*</span> <span class="n">Ry</span>
+        <span class="k">return</span> <span class="n">V</span><span class="o">/</span><span class="n">sigma</span></div>
+
+<div class="viewcode-block" id="fit_object.Therm_num"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.Therm_num">[docs]</a>    <span class="k">def</span> <span class="nf">Therm_num</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scalex</span><span class="p">,</span><span class="n">scaley</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get number of BEC atoms from fit from equation</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">           N = \\left(\\frac{2 \\pi}{3\\lambda^2}\\right)\\frac{2\\pi A}{5}R_x R_y</span>
+
+<span class="sd">        :param scalex: x scale of pixel</span>
+<span class="sd">        :param scaley: y scale of pixel</span>
+<span class="sd">        :var A: fitted Gaussian amplitude</span>
+<span class="sd">        :var Rx: fitted Gaussian x standard deviation</span>
+<span class="sd">        :var Ry: fitted Gaussian y standard deviation</span>
+<span class="sd">        :var sigma: optical density</span>
+<span class="sd">        :return: atom number</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;ATherm&#39;</span><span class="p">]</span>
+        <span class="n">Rx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dxTherm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">scalex</span>
+        <span class="n">Ry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;dyTherm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="o">*</span> <span class="n">scaley</span>
+        <span class="n">sigma</span> <span class="o">=</span>  <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5891583264</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span> <span class="n">A</span><span class="o">*</span> <span class="n">Rx</span> <span class="o">*</span> <span class="n">Ry</span>
+        <span class="k">return</span> <span class="n">V</span><span class="o">/</span><span class="n">sigma</span></div>
+
+<div class="viewcode-block" id="fit_object.line_profile"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.line_profile">[docs]</a>    <span class="k">def</span> <span class="nf">line_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;calculate line profile, with zeroes to make full image</span>
+
+<span class="sd">        :return: two-dimensional array which has padding outside of the region of</span>
+<span class="sd">        interest and can be summed for profiles.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_type</span> <span class="o">==</span> <span class="s1">&#39;Mixture&#39;</span><span class="p">:</span>
+            <span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TF_2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stern_gerlach_2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">calc</span><span class="p">,</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">pad</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">pad</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pad</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">pad</span><span class="p">[</span><span class="mi">3</span><span class="p">])),</span>
+                   <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">a</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Zachary Glassman (JQI).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,327 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Ipython &mdash; BEC Monitor 1.0.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BEC Monitor 1.0.2 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BEC Monitor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../Fitobject.html">Fitobject</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Datatablewidget.html">Datatablewidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxfuncwidget.html">Auxfuncwidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ipython.html">Ipython</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxwidgets.html">Auxwidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Subroutines.html">Subroutines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dataplots.html">Dataplots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Fitmodels.html">Fitmodels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Image.html">Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SpinorMonitor.html">SpinorMonitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Optionswidgets.html">Optionswidgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Auxfunctions.html">Auxfunctions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Visualplotterwidget.html">Visualplotterwidget</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">BEC Monitor</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>Ipython</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for Ipython</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Wed Apr  8 16:33:29 2015</span>
+<span class="sd">BECMonitor IPYTHON routines</span>
+<span class="sd">@author: zag</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">qtconsole.rich_ipython_widget</span> <span class="kn">import</span> <span class="n">RichJupyterWidget</span>
+<span class="kn">from</span> <span class="nn">qtconsole.inprocess</span> <span class="kn">import</span> <span class="n">QtInProcessKernelManager</span>
+<span class="kn">from</span> <span class="nn">IPython.lib</span> <span class="kn">import</span> <span class="n">guisupport</span>
+<span class="kn">from</span> <span class="nn">pyqtgraph</span> <span class="kn">import</span> <span class="n">QtCore</span>
+
+<div class="viewcode-block" id="QIPythonWidgetContainer"><a class="viewcode-back" href="../QIPythonWidgetContainer.html#Ipython.QIPythonWidgetContainer">[docs]</a><span class="k">class</span> <span class="nc">QIPythonWidgetContainer</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ipython container class for multi-threading&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;initialize fit_object&quot;&quot;&quot;</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ipy</span> <span class="o">=</span> <span class="n">QIPythonWidget</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="QIPythonWidget"><a class="viewcode-back" href="../QIPythonWidget.html#Ipython.QIPythonWidget">[docs]</a><span class="k">class</span> <span class="nc">QIPythonWidget</span><span class="p">(</span><span class="n">RichJupyterWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Convenience class for a live IPython console widget.</span>
+<span class="sd">    This widget lives within the main GUI</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">customBanner</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">QIPythonWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_manager</span> <span class="o">=</span> <span class="n">kernel_manager</span> <span class="o">=</span> <span class="n">QtInProcessKernelManager</span><span class="p">()</span>
+        <span class="n">kernel_manager</span><span class="o">.</span><span class="n">start_kernel</span><span class="p">()</span>
+        <span class="n">kernel_manager</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">gui</span> <span class="o">=</span> <span class="s1">&#39;qt4&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_client</span> <span class="o">=</span> <span class="n">kernel_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kernel_manager</span><span class="o">.</span><span class="n">client</span><span class="p">()</span>
+        <span class="n">kernel_client</span><span class="o">.</span><span class="n">start_channels</span><span class="p">()</span>
+
+
+        <span class="k">def</span> <span class="nf">stop</span><span class="p">():</span>
+            <span class="n">kernel_client</span><span class="o">.</span><span class="n">stop_channels</span><span class="p">()</span>
+            <span class="n">kernel_manager</span><span class="o">.</span><span class="n">shutdown_kernel</span><span class="p">()</span>
+            <span class="n">guisupport</span><span class="o">.</span><span class="n">get_app_qt4</span><span class="p">()</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_requested</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">stop</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QIPythonWidget.pushVariables"><a class="viewcode-back" href="../QIPythonWidget.html#Ipython.QIPythonWidget.pushVariables">[docs]</a>    <span class="k">def</span> <span class="nf">pushVariables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">variableDict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Given a dictionary containing name / value pairs,</span>
+<span class="sd">        push those variables to the IPython console widget &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_manager</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">shell</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">variableDict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="QIPythonWidget.clearTerminal"><a class="viewcode-back" href="../QIPythonWidget.html#Ipython.QIPythonWidget.clearTerminal">[docs]</a>    <span class="k">def</span> <span class="nf">clearTerminal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Clears the terminal &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_control</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="QIPythonWidget.printText"><a class="viewcode-back" href="../QIPythonWidget.html#Ipython.QIPythonWidget.printText">[docs]</a>    <span class="k">def</span> <span class="nf">printText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Prints some plain text to the console &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_append_plain_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="QIPythonWidget.executeCommand"><a class="viewcode-back" href="../QIPythonWidget.html#Ipython.QIPythonWidget.executeCommand">[docs]</a>    <span class="k">def</span> <span class="nf">executeCommand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">command</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Execute a command in the frame of the console widget &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="n">command</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span></div></div>
+
+
+
+<div class="viewcode-block" id="PlotObj"><a class="viewcode-back" href="../PlotObj.html#Ipython.PlotObj">[docs]</a><span class="k">class</span> <span class="nc">PlotObj</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;class to hold  SpinorPlot objects&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plots</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="PlotObj.add_plot"><a class="viewcode-back" href="../PlotObj.html#Ipython.PlotObj.add_plot">[docs]</a>    <span class="k">def</span> <span class="nf">add_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">plot</span><span class="p">,</span><span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add plot to dictionary of plots to update&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Need unique plot name&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">plot</span></div>
+
+
+<div class="viewcode-block" id="PlotObj.update"><a class="viewcode-back" href="../PlotObj.html#Ipython.PlotObj.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">var_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;update all plots in dictionary&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update_plot</span><span class="p">(</span><span class="n">var_dict</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="SpinorPlot"><a class="viewcode-back" href="../SpinorPlot.html#Ipython.SpinorPlot">[docs]</a><span class="k">class</span> <span class="nc">SpinorPlot</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;class to plot with updating stuff&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">xaxis</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">yaxis</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;initalize function with arguments in databinds</span>
+<span class="sd">        only arguments which match pushed variables</span>
+<span class="sd">        this is because pushed variables are in a dictionary</span>
+<span class="sd">        so the keys will match&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_binds</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xaxis</span> <span class="o">=</span> <span class="n">xaxis</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yaxis</span> <span class="o">=</span> <span class="n">yaxis</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_axis</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SpinorPlot.update_plot"><a class="viewcode-back" href="../SpinorPlot.html#Ipython.SpinorPlot.update_plot">[docs]</a>    <span class="k">def</span> <span class="nf">update_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_dict</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">toplot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_vars</span><span class="p">(</span><span class="n">var_dict</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">toplot</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">toplot</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_axis</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SpinorPlot.set_axis"><a class="viewcode-back" href="../SpinorPlot.html#Ipython.SpinorPlot.set_axis">[docs]</a>    <span class="k">def</span> <span class="nf">set_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xaxis</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xaxis</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaxis</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yaxis</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SpinorPlot.get_vars"><a class="viewcode-back" href="../SpinorPlot.html#Ipython.SpinorPlot.get_vars">[docs]</a>    <span class="k">def</span> <span class="nf">get_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">var_dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">var_dict</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_binds</span><span class="p">)</span></div></div>
+
+<span class="k">def</span> <span class="nf">uplot</span><span class="p">(</span><span class="n">func</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">xaxis</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">yaxis</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;function assumes PlotObj has been initialized as Plot_obj&quot;&quot;&quot;</span>
+    <span class="n">Plot_obj</span><span class="o">.</span><span class="n">add_plot</span><span class="p">(</span><span class="n">SpinorPlot</span><span class="p">(</span><span class="n">func</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span><span class="n">xaxis</span> <span class="o">=</span> <span class="n">xaxis</span><span class="p">,</span> <span class="n">yaxis</span> <span class="o">=</span><span class="n">yaxis</span><span class="p">)</span>
+        <span class="p">,</span><span class="n">name</span><span class="p">)</span>
+
+
+<span class="n">Plot_obj</span> <span class="o">=</span> <span class="n">PlotObj</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Zachary Glassman (JQI).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

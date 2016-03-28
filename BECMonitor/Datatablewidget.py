@@ -4,7 +4,40 @@ Created on Thu May 28 19:13:32 2015
 Data Table class to record information on each shot
 @author: zag
 """
-from pyqtgraph.Qt import QtGui
+from pyqtgraph.Qt import QtGui,QtCore
+
+class DataTableModel(QtCore.QAbstractTableModel):
+    """Abstract model for datatable
+    need to imlement several functions"""
+    def __init__(self, data_in, header_data, parent=None):
+        QtCore.QAbstractTableModel.__init__(self)
+        self.data = data_in
+        self.h_data = header_data
+
+    def rowCount(self, parent):
+        """count rows in padnas DataFrame"""
+        return len(self.data.index)
+
+    def columnCount(self, parent):
+        """count columns in pandas DataFrame"""
+        return len(self.data.columns)
+
+    def headerData(self, col, orientation, role):
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return QVariant(self.h_data)
+
+    def data(self,):
+        pass
+
+    def insertRows(self):
+        self.beginInsertRows()
+        #do stuff
+        self.endInsertRows()
+
+    def insertColumns(self):
+        self.beginInsertColumns()
+        #do stuff
+        self.endInsertColumns()
 
 class DataTable(QtGui.QWidget):
     """tabbed tables to show system parameters and fitted parameters"""
@@ -14,12 +47,19 @@ class DataTable(QtGui.QWidget):
         self.pandas_table = QtGui.QTableWidget()
 
         self.pandas_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-    
+
         layout = QtGui.QVBoxLayout()
         layout.addWidget(self.pandas_table)
         self.setLayout(layout)
 
         self.pandas_table_H_Labels = []
+
+
+    def bulk_update_pandas_table(self, df):
+        """update tables with more than one element"""
+        for _ in range(len(df)):
+            self.update_pandas_table(df)
+
 
 
     def update_pandas_table(self, df):
@@ -60,7 +100,11 @@ if __name__ == '__main__':
     #now add fake data
     import pandas as pd
     import numpy as np
-    df = pd.DataFrame(np.random.rand(10))
+    num_rows = 5000
+    num_columns = 10
+    df = pd.DataFrame(np.random.rand(num_rows,num_columns))
+    df.columns = ['a'*i for i in range(num_columns)]
     print(df)
-    win.update_pandas_table(df)
+    for _ in range(len(df.index)):
+        win.update_pandas_table(df)
     sys.exit(app.exec_())
