@@ -16,15 +16,59 @@ import time
 import os
 from multiprocessing import Queue
 
+class ProcedureRunner(QtCore.QObject):
+    """Processing object for threading purposes
+
+    :param data: numpy array of data
+    :param exp_data: experimental parameters
+    :param path: path to data file
+    :param run: run number
+    :param index: index of shot
+    :param proc_list: list of procedures to run
+    :param param_list: list of parameters for procedures to run
+    """
+    def __init__(self,data,exp_data,path,run,index,proc_list,param_list,ROI):
+        """initialize Procedure runner"""
+        QtCore.QObject.__init__(self)
+        self.q = Queue()
+
+        name = 'run_{0}_index_{1}.txt'.format(run,index)
+
+        self.index = index
+        self.proc_list = proc_list
+        self.param_list = param_list
+        self.ROI = ROI
+        self.savePath = os.path.join(path,name)
+        self.data = data
+        self.exp_data = exp_data
+
+    @QtCore.pyqtSlot()
+    def run(self):
+        """
+        First save image, then run all procedures and collect results
+        All parameters will have procedure name concatenated onto the front
+        of the variable name to avoid confusion
+        """
+        #save image
+        np.savetxt(self.savePath, self.data)
+        proc_results = []
+        for proc in self.proc_list:
+            proc_results.run(self.data, ROI=self.ROI, **self.param_list[proc])
+
+        self.emit(QtCore.SIGNAL('proc_results'),proc_results)
+        self.emit(QtCore.SIGNAL('finished()'))
+        self.q.close()
+        #re assign q to try to get it garbage collected
+        self.q = 0
+
+
 class ProcessImage(QtCore.QObject):
     """Processing object for threading purposes
-    @parameters
-        data: numpy array
-        options: list of options for fit parameters
-                    [params,
-                type_of_fit,
-                ROI,
-                index"""
+
+    :param data: numpy array
+    :param options: list of options for fit parameters [params,type_of_fit,ROI,index
+    :param path: path to data file
+    :param run: run numbers"""
     def __init__(self,data,exp_data,options,path,run):
         """initialize fit_object"""
         QtCore.QObject.__init__(self)
@@ -56,9 +100,7 @@ class ProcessImage(QtCore.QObject):
         results[0].update(self.exp_data)
         results.append(self.index)
         self.emit(QtCore.SIGNAL('fit_obj'),results)
-        time.sleep(2)
         self.emit(QtCore.SIGNAL('finished()'))
-        time.sleep(1)
         self.q.close()
         #re assign q to try to get it garbage collected
         self.q = 0

@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../Optionswidgets.html">Optionswidgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Auxfunctions.html">Auxfunctions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Visualplotterwidget.html">Visualplotterwidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ProcedureObject.html">ProcedureObject</a></li>
 </ul>
 
             
@@ -159,9 +160,9 @@
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">BECMonitor.Subroutines</span> <span class="kn">as</span> <span class="nn">bs</span>
     <span class="kn">from</span> <span class="nn">BECMonitor.Ipython</span> <span class="kn">import</span>  <span class="n">QIPythonWidget</span>
-    <span class="kn">from</span> <span class="nn">BECMonitor.Image</span> <span class="kn">import</span> <span class="n">ProcessImage</span><span class="p">,</span> <span class="n">IncomingImage</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Image</span> <span class="kn">import</span> <span class="n">ProcessImage</span><span class="p">,</span> <span class="n">IncomingImage</span><span class="p">,</span> <span class="n">ProcedureRunner</span>
     <span class="kn">from</span> <span class="nn">BECMonitor.Visualplotterwidget</span> <span class="kn">import</span> <span class="n">VisualPlotter</span>
-    <span class="kn">from</span> <span class="nn">BECMonitor.Optionswidgets</span> <span class="kn">import</span> <span class="n">Options</span><span class="p">,</span> <span class="n">PlotOptions</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.Optionswidgets</span> <span class="kn">import</span> <span class="n">Options</span><span class="p">,</span> <span class="n">PlotOptions</span><span class="p">,</span> <span class="n">ProcedureOptions</span>
     <span class="kn">from</span> <span class="nn">BECMonitor.Datatablewidget</span> <span class="kn">import</span> <span class="n">DataTable</span>
     <span class="kn">from</span> <span class="nn">BECMonitor.Auxwidgets</span> <span class="kn">import</span> <span class="n">TextBox</span><span class="p">,</span> <span class="n">FingerTabBarWidget</span>
     <span class="kn">from</span> <span class="nn">BECMonitor.Dataplots</span> <span class="kn">import</span> <span class="n">DataPlotsWidget</span><span class="p">,</span> <span class="n">ImageWindow</span>
@@ -169,9 +170,9 @@
 <span class="k">except</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">Subroutines</span> <span class="kn">as</span> <span class="nn">bs</span>
     <span class="kn">from</span> <span class="nn">Ipython</span> <span class="kn">import</span>  <span class="n">QIPythonWidget</span>
-    <span class="kn">from</span> <span class="nn">Image</span> <span class="kn">import</span> <span class="n">ProcessImage</span><span class="p">,</span> <span class="n">IncomingImage</span>
+    <span class="kn">from</span> <span class="nn">Image</span> <span class="kn">import</span> <span class="n">ProcessImage</span><span class="p">,</span> <span class="n">IncomingImage</span><span class="p">,</span> <span class="n">ProcedureRunner</span>
     <span class="kn">from</span> <span class="nn">Visualplotterwidget</span> <span class="kn">import</span> <span class="n">VisualPlotter</span>
-    <span class="kn">from</span> <span class="nn">Optionswidgets</span> <span class="kn">import</span> <span class="n">Options</span><span class="p">,</span> <span class="n">PlotOptions</span>
+    <span class="kn">from</span> <span class="nn">Optionswidgets</span> <span class="kn">import</span> <span class="n">Options</span><span class="p">,</span> <span class="n">PlotOptions</span><span class="p">,</span> <span class="n">ProcedureOptions</span>
     <span class="kn">from</span> <span class="nn">Datatablewidget</span> <span class="kn">import</span> <span class="n">DataTable</span>
     <span class="kn">from</span> <span class="nn">Auxwidgets</span> <span class="kn">import</span> <span class="n">TextBox</span><span class="p">,</span> <span class="n">FingerTabBarWidget</span>
     <span class="kn">from</span> <span class="nn">Dataplots</span> <span class="kn">import</span> <span class="n">DataPlotsWidget</span><span class="p">,</span> <span class="n">ImageWindow</span>
@@ -221,11 +222,12 @@
             <span class="n">testing</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">procs</span> <span class="o">=</span> <span class="n">procs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initUI</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">testing</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data_tables</span><span class="o">.</span><span class="n">bulk_update_pandas_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expData</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ROI</span> <span class="o">=</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">200</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">procs</span> <span class="o">=</span> <span class="n">procs</span>
+
 
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;#############&#39;</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Program Initialized&#39;</span><span class="p">)</span>
@@ -246,17 +248,23 @@
         <span class="c1">#subwidgets</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">ImageWindow</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plots</span> <span class="o">=</span> <span class="n">DataPlotsWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1">#self.options = Options(self)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">ProcedureOptions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">procs</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span> <span class="o">=</span> <span class="n">PlotOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vis_plots</span> <span class="o">=</span> <span class="n">VisualPlotter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_tables</span> <span class="o">=</span> <span class="n">DataTable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aux_funcs</span> <span class="o">=</span> <span class="n">AuxillaryFunctionContainerWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1">#some options</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">change_key</span><span class="p">(</span><span class="s1">&#39;Mixture&#39;</span><span class="p">)</span>
         <span class="c1">#tabs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTabWidget</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">setTabBar</span><span class="p">(</span><span class="n">FingerTabBarWidget</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">height</span><span class="o">=</span><span class="mi">85</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">setTabPosition</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QTabWidget</span><span class="o">.</span><span class="n">West</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="s1">&#39;Fit Options&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="s1">&#39;Procedure Options&#39;</span><span class="p">)</span>
+        <span class="c1">#self.tabs.addTab(self.options_n, &#39;Procedure Options&#39;)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span><span class="p">,</span> <span class="s2">&quot;Plot/Image Options&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vis_plots</span><span class="p">,</span> <span class="s1">&#39;Data Plotter&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_tables</span><span class="p">,</span> <span class="s1">&#39;Data Tables&#39;</span><span class="p">)</span>
@@ -313,7 +321,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vis_plots</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_message</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fit_name</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_fit_name</span><span class="p">)</span>
+        <span class="c1">#self.options.fit_name.connect(self.on_fit_name)</span>
 
 
         <span class="bp">self</span><span class="o">.</span><span class="n">text_out</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s1">&#39;Initializing run &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">))</span>
@@ -409,17 +417,25 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">text_out</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s1">&#39;Image {0} recieved&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="MainWindow.data_process"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.data_process">[docs]</a>    <span class="k">def</span> <span class="nf">data_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results_dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;process the data, including spawn a thread and increment index&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;process the data, including spawn a thread and increment index</span>
+
+<span class="sd">        results_dict is &quot;&quot;&quot;</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">results_dict</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span> <span class="c1">#image</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">setImage</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
-
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Plots are &#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
         <span class="n">ind</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
         <span class="c1">#append thread to thread pool</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QThread</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="c1">#create new process image object and add to thread just created</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ProcessImage</span><span class="p">(</span><span class="n">results</span><span class="p">,</span><span class="n">results_dict</span><span class="p">[</span><span class="s1">&#39;exp_params&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_options</span><span class="p">(),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
+        <span class="c1">#self.process[ind] = ProcessImage(results,results_dict[&#39;exp_params&#39;],</span>
+            <span class="c1">#self.get_options(),</span>
+            <span class="c1">#self.path,self.run)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ProcedureRunner</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
+                                            <span class="n">results_dict</span><span class="p">[</span><span class="s1">&#39;exp_params&#39;</span><span class="p">],</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">,</span>
+                                            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_prepare_procedure</span><span class="p">())</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">moveToThread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
         <span class="c1">#connect start signal</span>
 
@@ -428,12 +444,13 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
 
         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span>
-                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;fit_obj&#39;</span><span class="p">),</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;proc_results&#39;</span><span class="p">),</span><span class="c1">#QtCore.SIGNAL(&#39;fit_obj&#39;),</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">update_data</span><span class="p">)</span>
 
         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span>
                                <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;finished()&#39;</span><span class="p">),</span>
                                 <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">finish_thread</span><span class="p">(</span><span class="n">ind</span><span class="p">))</span>
+
 
         <span class="c1">#start thread</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -442,7 +459,10 @@
 <div class="viewcode-block" id="MainWindow.finish_thread"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.finish_thread">[docs]</a>    <span class="k">def</span> <span class="nf">finish_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ind</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;pop the process should destroy it all I think/&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span></div>
+
+
 
 <div class="viewcode-block" id="MainWindow.get_options"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.get_options">[docs]</a>    <span class="k">def</span> <span class="nf">get_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;convenience function to return list of options</span>
@@ -452,6 +472,13 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">type_of_fit</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ROI</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_prepare_procedure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">procs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get_selected</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;index&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                <span class="s1">&#39;ROI&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">ROI</span><span class="p">,</span>
+                <span class="s1">&#39;proc_list&#39;</span><span class="p">:</span><span class="n">procs</span><span class="p">,</span>
+                <span class="s1">&#39;param_list&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">procs</span><span class="p">)}</span>
 
 <div class="viewcode-block" id="MainWindow.update_data"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.update_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results_passed</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;function to update plots and push data to ipython notebook</span>
@@ -463,7 +490,8 @@
         <span class="c1">##make into series then push to pandas array</span>
         <span class="n">results</span><span class="p">[</span><span class="s1">&#39;Shot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;Index&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expData</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;Shot&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Index&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;Shot&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Index&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
 
 
         <span class="c1">#Do updates of different widgets</span>
@@ -485,6 +513,8 @@
         <span class="c1">#############################</span>
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;len thread pool&#39;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processThreadPool</span><span class="p">))</span>
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;lenprocess&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">))</span></div>
+
+
 <div class="viewcode-block" id="MainWindow.set_up_ipy"><a class="viewcode-back" href="../MainWindow.html#SpinorMonitor.MainWindow.set_up_ipy">[docs]</a>    <span class="k">def</span> <span class="nf">set_up_ipy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;setup the ipython console for use with useful functions&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ipy</span><span class="o">.</span><span class="n">executeCommand</span><span class="p">(</span><span class="s1">&#39;from BECMonitor.Ipython import *&#39;</span><span class="p">)</span>

@@ -24,6 +24,8 @@ Contents:
    Optionswidgets
    Auxfunctions
    Visualplotterwidget
+   ProcedureObject
+   AbsorptionFit_2D
 
 
 Indices and tables

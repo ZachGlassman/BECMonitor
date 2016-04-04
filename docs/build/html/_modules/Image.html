@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../Optionswidgets.html">Optionswidgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Auxfunctions.html">Auxfunctions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Visualplotterwidget.html">Visualplotterwidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ProcedureObject.html">ProcedureObject</a></li>
 </ul>
 
             
@@ -157,15 +158,57 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Queue</span>
 
+<div class="viewcode-block" id="ProcedureRunner"><a class="viewcode-back" href="../ProcedureRunner.html#Image.ProcedureRunner">[docs]</a><span class="k">class</span> <span class="nc">ProcedureRunner</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Processing object for threading purposes</span>
+
+<span class="sd">    :param data: numpy array of data</span>
+<span class="sd">    :param exp_data: experimental parameters</span>
+<span class="sd">    :param path: path to data file</span>
+<span class="sd">    :param run: run number</span>
+<span class="sd">    :param index: index of shot</span>
+<span class="sd">    :param proc_list: list of procedures to run</span>
+<span class="sd">    :param param_list: list of parameters for procedures to run</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">exp_data</span><span class="p">,</span><span class="n">path</span><span class="p">,</span><span class="n">run</span><span class="p">,</span><span class="n">index</span><span class="p">,</span><span class="n">proc_list</span><span class="p">,</span><span class="n">param_list</span><span class="p">,</span><span class="n">ROI</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;initialize Procedure runner&quot;&quot;&quot;</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;run_{0}_index_{1}.txt&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="p">,</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proc_list</span> <span class="o">=</span> <span class="n">proc_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_list</span> <span class="o">=</span> <span class="n">param_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ROI</span> <span class="o">=</span> <span class="n">ROI</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">savePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp_data</span>
+
+    <span class="nd">@QtCore.pyqtSlot</span><span class="p">()</span>
+<div class="viewcode-block" id="ProcedureRunner.run"><a class="viewcode-back" href="../ProcedureRunner.html#Image.ProcedureRunner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        First save image, then run all procdures and collect results</span>
+<span class="sd">        All parameters will have procedure name concatenated onto the front</span>
+<span class="sd">        of the variable name to avoid confusion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#save image</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">savePath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;proc_results&#39;</span><span class="p">),</span><span class="n">results</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;finished()&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c1">#re assign q to try to get it garbage collected</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="mi">0</span></div></div>
+
+
 <div class="viewcode-block" id="ProcessImage"><a class="viewcode-back" href="../ProcessImage.html#Image.ProcessImage">[docs]</a><span class="k">class</span> <span class="nc">ProcessImage</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Processing object for threading purposes</span>
-<span class="sd">    @parameters</span>
-<span class="sd">        data: numpy array</span>
-<span class="sd">        options: list of options for fit parameters</span>
-<span class="sd">                    [params,</span>
-<span class="sd">                type_of_fit,</span>
-<span class="sd">                ROI,</span>
-<span class="sd">                index&quot;&quot;&quot;</span>
+
+<span class="sd">    :param data: numpy array</span>
+<span class="sd">    :param options: list of options for fit parameters [params,type_of_fit,ROI,index</span>
+<span class="sd">    :param path: path to data file</span>
+<span class="sd">    :param run: run numbers&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">exp_data</span><span class="p">,</span><span class="n">options</span><span class="p">,</span><span class="n">path</span><span class="p">,</span><span class="n">run</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;initialize fit_object&quot;&quot;&quot;</span>
         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -197,9 +240,7 @@
         <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exp_data</span><span class="p">)</span>
         <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;fit_obj&#39;</span><span class="p">),</span><span class="n">results</span><span class="p">)</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;finished()&#39;</span><span class="p">))</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="c1">#re assign q to try to get it garbage collected</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="mi">0</span></div></div>

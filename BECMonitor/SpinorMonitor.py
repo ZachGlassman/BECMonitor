@@ -18,22 +18,22 @@ import pandas as pd
 try:
     import BECMonitor.Subroutines as bs
     from BECMonitor.Ipython import  QIPythonWidget
-    from BECMonitor.Image import ProcessImage, IncomingImage
+    from BECMonitor.Image import ProcessImage, IncomingImage, ProcedureRunner
     from BECMonitor.Visualplotterwidget import VisualPlotter
-    from BECMonitor.Optionswidgets import Options, PlotOptions
+    from BECMonitor.Optionswidgets import Options, PlotOptions, ProcedureOptions
     from BECMonitor.Datatablewidget import DataTable
     from BECMonitor.Auxwidgets import TextBox, FingerTabBarWidget
-    from BECMonitor.Dataplots import DataPlotsWidget, ImageWindow
+    from BECMonitor.Dataplots import DataPlotsWidget, ImageWindow, DataPlotsProcedureWidget
     from BECMonitor.Auxfuncwidget import AuxillaryFunctionContainerWidget
 except:
     import Subroutines as bs
     from Ipython import  QIPythonWidget
-    from Image import ProcessImage, IncomingImage
+    from Image import ProcessImage, IncomingImage, ProcedureRunner
     from Visualplotterwidget import VisualPlotter
-    from Optionswidgets import Options, PlotOptions
+    from Optionswidgets import Options, PlotOptions, ProcedureOptions
     from Datatablewidget import DataTable
     from Auxwidgets import TextBox, FingerTabBarWidget
-    from Dataplots import DataPlotsWidget, ImageWindow
+    from Dataplots import DataPlotsWidget, ImageWindow, DataPlotsProcedureWidget
     from Auxfuncwidget import AuxillaryFunctionContainerWidget
 #import pyqtgraph as pg
 #Set main options
@@ -80,11 +80,12 @@ class MainWindow(QtGui.QWidget):
             testing = False
         self.processThreadPool = {}
         self.process = {}
+        self.procs = procs
         self.initUI()
         if testing:
             self.data_tables.bulk_update_pandas_table(self.expData)
         self.ROI = [20,200,20,200]
-        self.procs = procs
+
 
         print('#############')
         print('Program Initialized')
@@ -104,18 +105,25 @@ class MainWindow(QtGui.QWidget):
         self.setWindowIcon(QtGui.QIcon('icon.png'))
         #subwidgets
         self.image = ImageWindow(self)
-        self.plots = DataPlotsWidget(self)
-        self.options = Options(self)
+        #self.plots = DataPlotsWidget(self)
+        self.plots = DataPlotsProcedureWidget(self.procs,self)
+        #self.options = Options(self)
+        self.options = ProcedureOptions(self.procs,self)
         self.plot_options = PlotOptions(self)
         self.vis_plots = VisualPlotter(self)
         self.data_tables = DataTable(self)
         self.aux_funcs = AuxillaryFunctionContainerWidget(self)
+
+        #some options
         self.running = False
+        #self.plots.change_key('Mixture')
         #tabs
         self.tabs = QtGui.QTabWidget()
         self.tabs.setTabBar(FingerTabBarWidget(width=100,height=85))
         self.tabs.setTabPosition(QtGui.QTabWidget.West)
-        self.tabs.addTab(self.options, 'Fit Options')
+        self.tabs.addTab(self.options, 'Procedure Options')
+        #self.tabs.addTab(self.options_n, 'Procedure Options')
+
         self.tabs.addTab(self.plot_options, "Plot/Image Options")
         self.tabs.addTab(self.vis_plots, 'Data Plotter')
         self.tabs.addTab(self.data_tables, 'Data Tables')
@@ -164,15 +172,16 @@ class MainWindow(QtGui.QWidget):
         QtCore.QObject.connect(self.plot_options.get_roi,
                                QtCore.SIGNAL('clicked()'), self.get_roi)
         QtCore.QObject.connect(self.runButton,
-                               QtCore.SIGNAL("clicked()"), self.change_state)
+                               QtCore.SIGNAL("clicked()"), self._change_state)
         QtCore.QObject.connect(self.bigScreen,
                                QtCore.SIGNAL("clicked()"), self.image.popup)
 
 
-        self.plots.message.connect(self.on_message)
-        self.vis_plots.message.connect(self.on_message)
-        self.options.message.connect(self.on_message)
-        self.options.fit_name.connect(self.on_fit_name)
+        self.plots.message.connect(self._on_message)
+        self.vis_plots.message.connect(self._on_message)
+        self.options.message.connect(self._on_message)
+        #self.options.fit_name.connect(self.on_fit_name)
+        self.options.proc_name.connect(self._on_proc_name)
 
 
         self.text_out.output('Initializing run ' + str(self.run))
@@ -185,7 +194,7 @@ class MainWindow(QtGui.QWidget):
 
 
     @QtCore.pyqtSlot(object)
-    def on_message(self,data):
+    def _on_message(self,data):
         """
         Send message to output windows
 
@@ -200,7 +209,16 @@ class MainWindow(QtGui.QWidget):
         """
         Triggers the plots.change_key functions with argument data.
 
-        :params data: name of fit
+        :param data: name of fit
+        :type data: string
+        """
+        self.plots.change_key(data)
+
+    @QtCore.pyqtSlot(object)
+    def _on_proc_name(self, data):
+        """triggers change to plot output
+
+        :param data: name of fit
         :type data: string
         """
         self.plots.change_key(data)
@@ -224,14 +242,14 @@ class MainWindow(QtGui.QWidget):
                     start[1], start[1] + size[1], angle]
         self.plot_options.set_roi(self.ROI)
 
-    def change_state(self):
+    def _change_state(self):
         """start and stop data collection thread"""
         if self.running:
-            self.end()
+            self._end()
         else:
-            self.start()
+            self._start()
 
-    def start(self):
+    def _start(self):
         """Function to start listening thread, connect signals and
         :var imageThread: IncomingImage object listening for images
 
@@ -247,7 +265,7 @@ class MainWindow(QtGui.QWidget):
         self.imageThread.start()
         self.runButton.setStyleSheet("background-color: green")
 
-    def end(self):
+    def _end(self):
         """function to stop listening Thread, writes out expData to csv
         in smae folder as data printing
         """
@@ -268,17 +286,25 @@ class MainWindow(QtGui.QWidget):
         self.text_out.output('Image {0} recieved'.format(self.index))
 
     def data_process(self, results_dict):
-        """process the data, including spawn a thread and increment index"""
+        """process the data, including spawn a thread and increment index
+
+        results_dict is """
         results = results_dict['image'] #image
         self.image.setImage(np.transpose(results))
-
+        print('Plots are ',self.plots.key)
         ind = str(self.index)
         #append thread to thread pool
         self.processThreadPool[ind]= QtCore.QThread(self)
         #create new process image object and add to thread just created
-        self.process[ind] = ProcessImage(results,results_dict['exp_params'],
-            self.get_options(),
-            self.path,self.run)
+        #self.process[ind] = ProcessImage(results,results_dict['exp_params'],
+            #self.get_options(),
+            #self.path,self.run)
+        self.process[ind] = ProcedureRunner(results,
+                                            results_dict['exp_params'],
+                                            self.path,
+                                            self.run,
+                                            **self._prepare_procedure())
+
         self.process[ind].moveToThread(self.processThreadPool[ind])
         #connect start signal
 
@@ -287,8 +313,8 @@ class MainWindow(QtGui.QWidget):
                                 self.process[ind].run)
 
         QtCore.QObject.connect(self.process[ind],
-                               QtCore.SIGNAL('fit_obj'),
-                                self.update_data)
+                               QtCore.SIGNAL('proc_results'),#QtCore.SIGNAL('fit_obj'),
+                                self._update_data)#self.update_data)
 
         QtCore.QObject.connect(self.process[ind],
                                QtCore.SIGNAL('finished()'),
@@ -316,6 +342,31 @@ class MainWindow(QtGui.QWidget):
                 self.ROI,
                 self.index]
 
+    def _prepare_procedure(self):
+        procs = self.options.get_selected()
+        return {'index':self.index,
+                'ROI':self.ROI,
+                'proc_list':procs,
+                'param_list':self.options.get_params(procs)}
+
+    def _update_data(self, results):
+        """function to update GUI from all procedures
+
+        :param results: dictionary with all results"""
+        #add data to dataframe
+        self.expData = self.expData.append(pd.DataFrame(results))
+
+        #update data_tables
+        self.data_tables.update_pandas_table(self.expData)
+
+        #update the ipython instance
+        self._to_ipy()
+        #update the plots
+        self.plots.update_plots(self.expData)
+        self.vis_plots.update_plots(self.expData, self.index)
+
+        self.text_out.output('Updated Internal Structure')
+
     def update_data(self, results_passed):
         """function to update plots and push data to ipython notebook
         CHANGE THIS SO IT UPDATES PROPER INDEX FOR LONG PROCESSING
@@ -326,13 +377,14 @@ class MainWindow(QtGui.QWidget):
         ##make into series then push to pandas array
         results['Shot'] = results['Index']
         self.expData = self.expData.append(
-            pd.DataFrame(results, index = [results['Shot']]).drop('Index',1))
+            pd.DataFrame(results, index = [results['Shot']]).drop('Index',1)
+            )
 
 
         #Do updates of different widgets
         self.data_tables.update_pandas_table(self.expData)
         #update update
-        self.to_ipy()
+        self._to_ipy()
         #self.ipy._execute('Plot_obj.update()', False)
 
         #update plots
@@ -348,6 +400,8 @@ class MainWindow(QtGui.QWidget):
         #############################
         print('len thread pool',len(self.processThreadPool))
         print('lenprocess', len(self.process))
+
+
     def set_up_ipy(self):
         """setup the ipython console for use with useful functions"""
         self.ipy.executeCommand('from BECMonitor.Ipython import *')
@@ -355,12 +409,16 @@ class MainWindow(QtGui.QWidget):
         self.ipy.printText('imported numpy and matplotlib as np and plt')
         self.ipy.pushVariables({'help_str':'testing this'})
 
-    def to_ipy(self):
+    def _to_ipy(self):
         """push all variables to Ipython notebook"""
         ans = {}
         for i in self.expData.columns:
             ans[i] = self.expData[i].get_values()
         self.ipy.pushVariables(ans)
+
+    def _read_out_gui_state(self):
+        """function to read out state for testing convenience"""
+        print(dir())
 
 #main routine
 if __name__ == '__main__':

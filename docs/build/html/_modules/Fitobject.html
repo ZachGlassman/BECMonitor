@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../Optionswidgets.html">Optionswidgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Auxfunctions.html">Auxfunctions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Visualplotterwidget.html">Visualplotterwidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ProcedureObject.html">ProcedureObject</a></li>
 </ul>
 
             
@@ -149,9 +150,9 @@
 <span class="kn">from</span> <span class="nn">lmfit</span> <span class="kn">import</span> <span class="n">minimize</span><span class="p">,</span> <span class="n">Parameters</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">report_fit</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">BECMonitor.Procedure</span> <span class="kn">import</span> <span class="n">Procedure</span>
+    <span class="kn">from</span> <span class="nn">BECMonitor.ProcedureObject</span> <span class="kn">import</span> <span class="n">Procedure</span>
 <span class="k">except</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">Procedure</span> <span class="kn">import</span> <span class="n">Procedure</span>
+    <span class="kn">from</span> <span class="nn">ProcedureObject</span> <span class="kn">import</span> <span class="n">Procedure</span>
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span>
 <span class="c1">#class fit_object(Procedure):</span>
 <div class="viewcode-block" id="fit_object"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object">[docs]</a><span class="k">class</span> <span class="nc">fit_object</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
@@ -510,8 +511,7 @@
 <div class="viewcode-block" id="fit_object.line_profile"><a class="viewcode-back" href="../fit_object.html#Fitobject.fit_object.line_profile">[docs]</a>    <span class="k">def</span> <span class="nf">line_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;calculate line profile, with zeroes to make full image</span>
 
-<span class="sd">        :return: two-dimensional array which has padding outside of the region of</span>
-<span class="sd">        interest and can be summed for profiles.</span>
+<span class="sd">        :return: two-dimensional array which has padding outside of the region of interest and can be summed for profiles.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_type</span> <span class="o">==</span> <span class="s1">&#39;Mixture&#39;</span><span class="p">:</span>
             <span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TF_2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>

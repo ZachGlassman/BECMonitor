@@ -1,10 +1,5 @@
 Procedure
 =========
-
-Contents:
-
-.. toctree::
-   :maxdepth: 3
-
-   Procedure
-ndoc-members:
+.. autoclass:: ProcedureObject.Procedure
+    :members:
+    :undoc-members:

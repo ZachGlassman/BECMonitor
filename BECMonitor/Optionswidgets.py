@@ -8,7 +8,7 @@ from pyqtgraph.Qt import QtCore, QtGui
 from lmfit import Parameters
 
 class ParameterEntry(QtGui.QWidget):
-    """popup box to select parameters"""
+    """box to select parameters"""
     def __init__(self, params ,first, parent = None):
         QtGui.QWidget.__init__(self,parent)
         self.setWindowTitle('Spinor Parameters')
@@ -75,6 +75,123 @@ class ParameterEntry(QtGui.QWidget):
 
         except:
             return 1
+
+class ProcedureOptions(QtGui.QWidget):
+    """Panel which defines options for procedures
+    Going to use model/view controller
+    this should make it nicer
+    """
+    message = QtCore.pyqtSignal(str, name = 'message')
+    procedure_name = QtCore.pyqtSignal(str, name = 'procedure_name')
+    proc_name = QtCore.pyqtSignal(str, name = 'proc_name')
+
+    def __init__(self,  procedures, parent = None):
+        QtGui.QWidget.__init__(self, parent)
+        self.procs = procedures
+        self.procs_text = list(procedures.keys())
+        self.run_procs = []
+        #choose procedures to add to list
+        self.procedure_chooser = QtGui.QListView()
+
+        #now create model
+        self.procs_model = QtGui.QStandardItemModel(self.procedure_chooser)
+        self._create_model()
+        self.procedure_chooser.setModel(self.procs_model)
+        #no dragging
+        self.procedure_chooser.setDragEnabled(False)
+        #now create panel for options
+        self.stacked_params = QtGui.QStackedLayout()
+
+        self.save_params_b = QtGui.QPushButton('Update Procedures')
+        self.set_main_proc_b = QtGui.QPushButton('Set Main Procedure')
+
+        self._connect_slots()
+
+        layout = QtGui.QVBoxLayout()
+        layout.setSpacing(10)
+        top_row = QtGui.QHBoxLayout()
+        left_col = QtGui.QVBoxLayout()
+        right_col = QtGui.QVBoxLayout()
+        right_bottom_row = QtGui.QHBoxLayout()
+        #add widgets to columns
+        right_col.addWidget(self.procedure_chooser)
+        right_bottom_row.addWidget(self.save_params_b)
+        right_bottom_row.addWidget(self.set_main_proc_b)
+        right_col.addLayout(right_bottom_row)
+        left_col.addLayout(self.stacked_params)
+        #now add scross area for each widget
+        self.scroll = {}
+        self.params = {}
+        self.params_choose = {}
+        for proc in self.procs_text:
+            self.scroll[proc] = QtGui.QScrollArea()
+            self.params[proc] = Parameters()
+            for p_name, p_dict in self.procs[proc].input.items():
+                self.params[proc].add(name = p_name, **p_dict)
+
+            self.params_choose[proc] = ParameterEntry(self.params[proc],first=True)
+            self.scroll[proc].setWidget(self.params_choose[proc])
+            self.stacked_params.addWidget(self.scroll[proc])
+
+        #now rows
+        top_row.addLayout(left_col)
+        top_row.addLayout(right_col)
+        #now columsn
+        layout.addLayout(top_row)
+        self.setLayout(layout)
+
+    def _save_params(self):
+        """update params"""
+        for key in self.params.keys():
+            err = self.params_choose[key].readout()
+            if err == 1:
+                print('Error')
+        self.message.emit('Updated Parameters')
+
+
+    def get_params(self, list_of_procs):
+        return {i:self.params_choose[i].params for i in self.params_choose if i in list_of_procs}
+
+
+    def get_selected(self):
+        """Return list of names of procedures to run"""
+        ans = []
+        for i in range(self.procs_model.rowCount()):
+            if self.procs_model.item(i).checkState():
+                ans.append(i.data)
+        return ans
+
+    def _set_main_proc(self):
+        try:
+            self.proc_name.emit(self.procedure_chooser.selectedIndexes()[0].data())
+        except:
+            #None selected
+            pass
+
+    def _create_model(self):
+        for proc in self.procs_text:
+            item = QtGui.QStandardItem(proc)
+            item.setCheckable(True)
+            self.procs_model.appendRow(item)
+
+    @QtCore.pyqtSlot("QModelIndex")
+    def _get_selected_params(self, ind):
+        self.stacked_params.setCurrentIndex(int(ind.row()))
+
+
+    def _connect_slots(self):
+        """connect all buttons"""
+        QtCore.QObject.connect(self.procedure_chooser,
+                                QtCore.SIGNAL('clicked(QModelIndex)'),
+                                self._get_selected_params)
+
+        QtCore.QObject.connect(self.save_params_b,
+                               QtCore.SIGNAL('clicked()'),
+                               self._save_params)
+
+        QtCore.QObject.connect(self.set_main_proc_b,
+                               QtCore.SIGNAL('clicked()'),
+                               self._set_main_proc)
 
 
 
@@ -312,7 +429,7 @@ class FitInfo(QtGui.QDialog):
                      QtGui.QTableWidgetItem(str(not p.vary)))
                 col = col + 1
             row = row + 1
-    
+
     def close(self):
         self.accept()
 

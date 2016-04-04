@@ -7,20 +7,19 @@ It is written in pure python 3
 @dependencies: pyqtgraph, ipython, matplotlib, lmfit, numpy, scipy
 @author: zachglassman
 """
-__version__ = '0.2'
+__version__ = '1.0.1'
 
 from pyqtgraph import QtGui
 import sys
 from BECMonitor.SpinorMonitor import MainWindow
-from BECMonitor.Procedure import Procedure
+from BECMonitor.ProcedureObject import Procedure
 import importlib
 import gc
 import configparser
 
 def find_procedures(files):
     """function to find procedures from files in startup config
-    first import all files
-    then get all instances of Procedure"""
+    :param files: list of files"""
     procs = {i: importlib.import_module('BECMonitor.{0}'.format(i)) for i in files}
     #now bind into dictionary
     return {i.name:i for i in gc.get_objects() if isinstance(i, Procedure)}
@@ -47,18 +46,22 @@ if __name__ == '__main__':
     exp_params = config['Experiment Parameters']
     procs_in = config['Procedures']
     files = [procs_in[i] for i in procs_in]
-    procs = find_procedures(files)
 
+
+    procs = find_procedures(files)
 
     print(message.format(__version__,start_path,fname))
     print('Imported Procedures are:')
     for i in procs.keys():
       print(i)
+    print('##########################')
+    print('All procedure startup tests passed')
+
     app = QtGui.QApplication(sys.argv)
     #testing
     import pandas as pd
     import numpy as np
     test_df = get_testing_dataframe(100)
-    win = MainWindow(fname,start_path, procs,None)
+    win = MainWindow(fname,start_path, procs, None)
     #run this baby
     sys.exit(app.exec_())

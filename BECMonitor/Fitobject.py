@@ -8,9 +8,9 @@ import numpy as np
 from lmfit import minimize, Parameters, Parameter, report_fit
 import copy
 try:
-    from BECMonitor.Procedure import Procedure
+    from BECMonitor.ProcedureObject import Procedure
 except:
-    from Procedure import Procedure
+    from ProcedureObject import Procedure
 from multiprocessing import Process
 #class fit_object(Procedure):
 class fit_object(Process):
@@ -369,8 +369,7 @@ class fit_object(Process):
     def line_profile(self):
         """calculate line profile, with zeroes to make full image
 
-        :return: two-dimensional array which has padding outside of the region of
-        interest and can be summed for profiles.
+        :return: two-dimensional array which has padding outside of the region of interest and can be summed for profiles.
         """
         if self.fit_type == 'Mixture':
             calc = self.TF_2D(self.params) + self.gauss_2D(self.params) - self.params['offset'].value

@@ -7,4 +7,5 @@ Contents:
    :maxdepth: 3
 
    IncomingImage
+   ProcedureRunner
    ProcessImage

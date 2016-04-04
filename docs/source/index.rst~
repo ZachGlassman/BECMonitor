@@ -17,13 +17,15 @@ Contents:
    Ipython
    Auxwidgets
    Subroutines
-   DataplotsWidget
+   Dataplots
    Fitmodels
    Image
    SpinorMonitor
    Optionswidgets
    Auxfunctions
    Visualplotterwidget
+   ProcedureObject
+   AbsorbtionFit_2D
 
 
 Indices and tables

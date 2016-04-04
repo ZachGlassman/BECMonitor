@@ -8,6 +8,7 @@ from pyqtgraph import QtGui, QtCore
 import pyqtgraph as pg
 import numpy as np
 import matplotlib.cm as cm
+
 class PlotGrid(QtGui.QWidget):
     def __init__(self, parent = None):
         """convenience container widget"""
@@ -84,8 +85,69 @@ class DataPlotsWidget(QtGui.QWidget):
             self.graph_data_dict[self.key][i].setData(df.index.values,
                                             df[i].values)
 
-        print(df.columns)
+    def emit_it(self, item,points):
+        self.message.emit(points[0].pos())
 
+    def change_key(self, key):
+        self.key = key
+        self.plotting_stack.setCurrentWidget(self.plot_grid[key])
+
+
+class DataPlotsProcedureWidget(QtGui.QWidget):
+    """graphs to populate plots for each procedure
+    we will create all the plots, but only update the ones we care about
+    to save some computation
+
+    :param procedure: list of procedure objects"""
+    #emitting message, can't define as instance variable
+    message = QtCore.pyqtSignal(object)
+    def __init__(self,procedures, parent = None):
+        QtGui.QWidget.__init__(self, parent)
+        self.brush = ('b')
+        self.graph_names ={i:v.get_plot_vars() for i,v in procedures.items()}
+
+        self.graph_dict = {i:{} for i in self.graph_names.keys()}
+        #dictionary to hold data items in graph
+        self.graph_data_dict = {i:{} for i in self.graph_names.keys()}
+
+        self.plot_grid = {}
+        #initiate all plots and put them in stacked widgets
+        self.plotting_stack = QtGui.QStackedWidget()
+        for key in self.graph_names:
+            k = 0
+            self.plot_grid[key] = PlotGrid()
+            row1 = QtGui.QHBoxLayout()
+            row2 = QtGui.QHBoxLayout()
+            for i in self.graph_names[key]:
+                #create the plot widgets
+                self.graph_dict[key][i] = pg.PlotWidget(self,title = i)
+                self.graph_dict[key][i].setLabel('bottom', 'Index')
+                if k < 3:
+                    row1.addWidget(self.graph_dict[key][i])
+                else:
+                    row2.addWidget(self.graph_dict[key][i])
+                k = k + 1
+                self.graph_data_dict[key][i] = self.graph_dict[key][i].plot([0],[0],
+                    symbolSize=5, symbolBrush=self.brush)
+                self.graph_data_dict[key][i].sigPointsClicked.connect(self.emit_it)
+        #add to layouts
+            self.plot_grid[key].layout.addLayout(row1)
+            self.plot_grid[key].layout.addLayout(row2)
+            #add to stack
+            self.plotting_stack.addWidget(self.plot_grid[key])
+
+        layout = QtGui.QVBoxLayout()
+        layout.setSpacing(0)
+        layout.addWidget(self.plotting_stack)
+        self.setLayout(layout)
+        self.key,val = self.graph_names.popitem() #type of fit to do!!!
+
+    def update_plots(self, df):
+        """Update all the Plots"""
+
+        for i in self.graph_dict[self.key].keys():
+            self.graph_data_dict[self.key][i].setData(df.index.values,
+                                            df[i].values)
 
     def emit_it(self, item,points):
         self.message.emit(points[0].pos())

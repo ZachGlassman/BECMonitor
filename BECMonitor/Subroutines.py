@@ -21,7 +21,7 @@ def get_run_name(start_path):
     try:
         os.makedirs(path,0o777)
     except:
-        print('path not created')
+        pass
 
     contents = os.listdir(path)
     if 'run_info.txt' in contents:

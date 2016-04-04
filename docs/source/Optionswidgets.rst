@@ -10,3 +10,4 @@ Contents:
    Options
    ParameterEntry
    PlotOptions
+   ProcedureOptions

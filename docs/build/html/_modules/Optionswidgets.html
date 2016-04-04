@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../Optionswidgets.html">Optionswidgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Auxfunctions.html">Auxfunctions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Visualplotterwidget.html">Visualplotterwidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ProcedureObject.html">ProcedureObject</a></li>
 </ul>
 
             
@@ -149,7 +150,7 @@
 <span class="kn">from</span> <span class="nn">lmfit</span> <span class="kn">import</span> <span class="n">Parameters</span>
 
 <div class="viewcode-block" id="ParameterEntry"><a class="viewcode-back" href="../ParameterEntry.html#Optionswidgets.ParameterEntry">[docs]</a><span class="k">class</span> <span class="nc">ParameterEntry</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;popup box to select parameters&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;box to select parameters&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span> <span class="p">,</span><span class="n">first</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
         <span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s1">&#39;Spinor Parameters&#39;</span><span class="p">)</span>
@@ -217,8 +218,105 @@
         <span class="k">except</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">1</span></div></div>
 
+<div class="viewcode-block" id="ProcedureOptions"><a class="viewcode-back" href="../ProcedureOptions.html#Optionswidgets.ProcedureOptions">[docs]</a><span class="k">class</span> <span class="nc">ProcedureOptions</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Panel which defines options for procedures</span>
+<span class="sd">    Going to use model/view controller</span>
+<span class="sd">    this should make it nicer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;message&#39;</span><span class="p">)</span>
+    <span class="n">procedure_name</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;procedure_name&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">procedures</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">procs</span> <span class="o">=</span> <span class="n">procedures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">procs_text</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">procedures</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_procs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1">#choose procedures to add to list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">procedure_chooser</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QListView</span><span class="p">()</span>
+
+        <span class="c1">#now create model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">procs_model</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItemModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">procedure_chooser</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_model</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">procedure_chooser</span><span class="o">.</span><span class="n">setModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">procs_model</span><span class="p">)</span>
+        <span class="c1">#no dragging</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">procedure_chooser</span><span class="o">.</span><span class="n">setDragEnabled</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="c1">#now create panel for options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stacked_params</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStackedLayout</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_params_b</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Update Procedures&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connect_slots</span><span class="p">()</span>
+
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">top_row</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">left_col</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="n">right_col</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="c1">#add widgets to columns</span>
+        <span class="n">right_col</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">procedure_chooser</span><span class="p">)</span>
+        <span class="n">right_col</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_params_b</span><span class="p">)</span>
+        <span class="n">left_col</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stacked_params</span><span class="p">)</span>
+        <span class="c1">#now add scross area for each widget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scroll</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params_choose</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">procs_text</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scroll</span><span class="p">[</span><span class="n">proc</span><span class="p">]</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QScrollArea</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">proc</span><span class="p">]</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">p_name</span><span class="p">,</span> <span class="n">p_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">procs</span><span class="p">[</span><span class="n">proc</span><span class="p">]</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">proc</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">p_name</span><span class="p">,</span> <span class="o">**</span><span class="n">p_dict</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">params_choose</span><span class="p">[</span><span class="n">proc</span><span class="p">]</span> <span class="o">=</span> <span class="n">ParameterEntry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">proc</span><span class="p">],</span><span class="n">first</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scroll</span><span class="p">[</span><span class="n">proc</span><span class="p">]</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params_choose</span><span class="p">[</span><span class="n">proc</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stacked_params</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scroll</span><span class="p">[</span><span class="n">proc</span><span class="p">])</span>
+
+        <span class="c1">#now rows</span>
+        <span class="n">top_row</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">left_col</span><span class="p">)</span>
+        <span class="n">top_row</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">right_col</span><span class="p">)</span>
+        <span class="c1">#now columsn</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">top_row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_save_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;update params&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_choose</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">readout</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">err</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Error&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;Updated Parameters&#39;</span><span class="p">)</span>
 
 
+<div class="viewcode-block" id="ProcedureOptions.get_params"><a class="viewcode-back" href="../ProcedureOptions.html#Optionswidgets.ProcedureOptions.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_procs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">params_choose</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">params</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_choose</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">list_of_procs</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="ProcedureOptions.get_selected"><a class="viewcode-back" href="../ProcedureOptions.html#Optionswidgets.ProcedureOptions.get_selected">[docs]</a>    <span class="k">def</span> <span class="nf">get_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return list of names of procedures to run&quot;&quot;&quot;</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">procs_model</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">procs_model</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">checkState</span><span class="p">():</span>
+                <span class="n">ans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ans</span></div>
+
+    <span class="k">def</span> <span class="nf">_create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">procs_text</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItem</span><span class="p">(</span><span class="n">proc</span><span class="p">)</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setCheckable</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">procs_model</span><span class="o">.</span><span class="n">appendRow</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="nd">@QtCore.pyqtSlot</span><span class="p">(</span><span class="s2">&quot;QModelIndex&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_get_selected_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stacked_params</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">row</span><span class="p">()))</span>
+
+
+    <span class="k">def</span> <span class="nf">_connect_slots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;connect all buttons&quot;&quot;&quot;</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">procedure_chooser</span><span class="p">,</span>
+                                <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;clicked(QModelIndex)&#39;</span><span class="p">),</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_get_selected_params</span><span class="p">)</span>
+
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_params_b</span><span class="p">,</span>
+                               <span class="n">QtCore</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;clicked()&#39;</span><span class="p">),</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">_save_params</span><span class="p">)</span></div>
 <div class="viewcode-block" id="Options"><a class="viewcode-back" href="../Options.html#Optionswidgets.Options">[docs]</a><span class="k">class</span> <span class="nc">Options</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Panel which defines options for fitting and analyzing images&quot;&quot;&quot;</span>
     <span class="n">message</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;message&#39;</span><span class="p">)</span>
@@ -453,7 +551,7 @@
                      <span class="n">QtGui</span><span class="o">.</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">vary</span><span class="p">)))</span>
                 <span class="n">col</span> <span class="o">=</span> <span class="n">col</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">row</span> <span class="o">=</span> <span class="n">row</span> <span class="o">+</span> <span class="mi">1</span></div>
-    
+
 <div class="viewcode-block" id="FitInfo.close"><a class="viewcode-back" href="../FitInfo.html#Optionswidgets.FitInfo.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div></div>
 
